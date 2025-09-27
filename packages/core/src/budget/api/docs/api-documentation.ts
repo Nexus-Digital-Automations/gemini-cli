@@ -14,7 +14,7 @@
  * @version 1.0.0
  */
 
-import type { BudgetSettings, BudgetUsageData, BudgetPermission } from '../../types.js';
+import type { BudgetSettings as _BudgetSettings, BudgetUsageData as _BudgetUsageData, BudgetPermission as _BudgetPermission } from '../../types.js';
 
 /**
  * OpenAPI specification for the Budget Management API

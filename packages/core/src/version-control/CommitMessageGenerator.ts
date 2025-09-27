@@ -359,7 +359,7 @@ export class CommitMessageGenerator {
   /**
    * Extract issue references from commit messages or branch names
    */
-  extractIssueReferences(analysis: CodeAnalysis): Array<{ type: string; id: string; url: string }> {
+  extractIssueReferences(_analysis: CodeAnalysis): Array<{ type: string; id: string; url: string }> {
     const references: Array<{ type: string; id: string; url: string }> = [];
 
     try {
@@ -435,7 +435,7 @@ export class CommitMessageGenerator {
     }
   }
 
-  private getChangeStats(files: string[]): { linesAdded: number; linesRemoved: number } {
+  private getChangeStats(_files: string[]): { linesAdded: number; linesRemoved: number } {
     try {
       const output = execSync('git diff --cached --numstat', { encoding: 'utf8' });
       const lines = output.trim().split('\n').filter(line => line.length > 0);
@@ -619,7 +619,7 @@ export class CommitMessageGenerator {
     return `fix bug`;
   }
 
-  private generateDocsDescription(analysis: CodeAnalysis): string {
+  private generateDocsDescription(_analysis: CodeAnalysis): string {
     return `update documentation`;
   }
 
@@ -630,7 +630,7 @@ export class CommitMessageGenerator {
     return `refactor code structure`;
   }
 
-  private generateTestDescription(analysis: CodeAnalysis): string {
+  private generateTestDescription(_analysis: CodeAnalysis): string {
     return `add tests`;
   }
 
@@ -641,7 +641,7 @@ export class CommitMessageGenerator {
     return `update configuration`;
   }
 
-  private generatePerfDescription(analysis: CodeAnalysis): string {
+  private generatePerfDescription(_analysis: CodeAnalysis): string {
     return `improve performance`;
   }
 

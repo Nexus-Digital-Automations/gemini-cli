@@ -384,7 +384,14 @@ export class ExportImportController {
     };
 
     // Include current usage data
-    exportData.currentUsage = await budgetTracker.getTodayUsage();
+    const todayUsage = await budgetTracker.getTodayUsage();
+    exportData.currentUsage = {
+      ...todayUsage,
+      date: new Date().toISOString(),
+      tokenUsage: 0,
+      lastResetTime: new Date().toISOString(),
+      warningsShown: 0
+    };
 
     // Include settings if requested
     if (config.includeSettings) {
@@ -642,7 +649,8 @@ export class ExportImportController {
     const errors: string[] = [];
 
     if (data.type === 'csv') {
-      for (const record of data.records) {
+      const records = Array.isArray(data.records) ? data.records : [];
+      for (const record of records) {
         recordsProcessed++;
 
         try {

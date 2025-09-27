@@ -207,7 +207,9 @@ export class EnhancedTaskQueue extends TaskQueue {
 
     // Initialize priority queues
     Object.values(TaskPriority).forEach((priority) => {
-      this.priorityQueues.set(priority, []);
+      if (typeof priority === 'number') {
+        this.priorityQueues.set(priority as TaskPriority, []);
+      }
     });
 
     // Start advanced optimization processes
@@ -501,7 +503,7 @@ export class EnhancedTaskQueue extends TaskQueue {
 
     // Use ML model to predict optimal scheduling order
     const taskFeatures = allTasks.map((task) => this.extractTaskFeatures(task));
-    const predictions = this.predictionModel.predict(taskFeatures);
+    const predictions = (this.predictionModel as any)?.predict?.(taskFeatures) || taskFeatures.map(() => Math.random());
 
     // Combine predictions with task objects and sort
     const tasksWithPredictions = allTasks

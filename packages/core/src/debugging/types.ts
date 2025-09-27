@@ -1639,7 +1639,7 @@ export interface CommonErrorPattern extends ErrorPattern {
   /** Built-in pattern category */
   category: string;
   /** Pattern language */
-  language: string;
+  language: SupportedLanguage;
   /** Usage frequency */
   frequency: number;
   /** Pattern effectiveness score */

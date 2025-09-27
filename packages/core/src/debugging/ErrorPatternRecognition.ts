@@ -227,7 +227,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
     name: 'Python Module Import Error',
     pattern: /ModuleNotFoundError: No module named '.+'/i,
     category: 'import',
-    language: 'python',
+    language: SupportedLanguage.PYTHON,
     errorType: ErrorType.DEPENDENCY,
     description: 'Python module import error',
     commonCauses: [
@@ -248,7 +248,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
     name: 'Python Indentation Error',
     pattern: /IndentationError|unindent does not match/i,
     category: 'syntax',
-    language: 'python',
+    language: SupportedLanguage.PYTHON,
     errorType: ErrorType.SYNTAX,
     description: 'Python indentation error',
     commonCauses: [
@@ -269,7 +269,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
     name: 'Python Attribute Error',
     pattern: /AttributeError: '.+' object has no attribute '.+'/i,
     category: 'runtime',
-    language: 'python',
+    language: SupportedLanguage.PYTHON,
     errorType: ErrorType.RUNTIME,
     description: 'Accessing non-existent attribute',
     commonCauses: [
@@ -292,7 +292,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
     name: 'Java Null Pointer Exception',
     pattern: /NullPointerException/i,
     category: 'runtime',
-    language: 'java',
+    language: SupportedLanguage.JAVA,
     errorType: ErrorType.RUNTIME,
     description: 'Java null pointer exception',
     commonCauses: [
@@ -313,7 +313,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
     name: 'Java Class Not Found Error',
     pattern: /ClassNotFoundException|NoClassDefFoundError/i,
     category: 'compile',
-    language: 'java',
+    language: SupportedLanguage.JAVA,
     errorType: ErrorType.BUILD,
     description: 'Java class loading error',
     commonCauses: [
@@ -336,7 +336,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
     name: 'Go Undefined Variable',
     pattern: /undefined: .+/i,
     category: 'compile',
-    language: 'go',
+    language: SupportedLanguage.GO,
     errorType: ErrorType.BUILD,
     description: 'Go undefined variable or function',
     commonCauses: [
@@ -357,7 +357,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
     name: 'Go Interface Implementation Mismatch',
     pattern: /cannot use .+ as .+ in .+: missing method/i,
     category: 'compile',
-    language: 'go',
+    language: SupportedLanguage.GO,
     errorType: ErrorType.TYPE_ERROR,
     description: 'Go interface implementation mismatch',
     commonCauses: [
@@ -380,7 +380,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
     name: 'Stack Overflow Error',
     pattern: /StackOverflowError|RecursionError|stack overflow/i,
     category: 'runtime',
-    language: 'generic',
+    language: SupportedLanguage.GENERIC,
     errorType: ErrorType.RUNTIME,
     description: 'Stack overflow from excessive recursion',
     commonCauses: [
@@ -401,7 +401,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
     name: 'Out of Memory Error',
     pattern: /OutOfMemoryError|MemoryError|out of memory/i,
     category: 'runtime',
-    language: 'generic',
+    language: SupportedLanguage.GENERIC,
     errorType: ErrorType.MEMORY,
     description: 'Memory exhaustion error',
     commonCauses: [
@@ -799,7 +799,7 @@ export class ErrorPatternRecognition {
    * Initialize pattern statistics
    */
   private async initializePatternStats(): Promise<void> {
-    for (const pattern of this.patterns.values()) {
+    for (const pattern of Array.from(this.patterns.values())) {
       if (!this.patternStats.has(pattern.id)) {
         this.patternStats.set(pattern.id, {
           patternId: pattern.id,
@@ -840,7 +840,7 @@ export class ErrorPatternRecognition {
   ): Promise<PatternMatchResult[]> {
     const matches: PatternMatchResult[] = [];
 
-    for (const pattern of this.patterns.values()) {
+    for (const pattern of Array.from(this.patterns.values())) {
       // Skip inactive patterns
       if (!pattern.isActive) {
         continue;

@@ -885,7 +885,17 @@ export class AnalyticsEngine {
       return analytics;
     } catch (error) {
       console.error('Failed to generate analytics:', error);
-      return { dataPoints: [], summary: {}, patterns: [], recommendations: [] };
+      return {
+        dataPoints: [],
+        summary: {
+          totalCost: 0,
+          totalRequests: 0,
+          averageCost: 0,
+          costRange: { min: 0, max: 0 }
+        },
+        patterns: [],
+        recommendations: []
+      };
     }
   }
 
@@ -982,10 +992,10 @@ export class AnalyticsEngine {
     try {
       // Basic implementation for custom queries
       const allMetrics = await this.loadMetrics();
-      const filteredMetrics = this.applyFilters(allMetrics, params.filters);
+      const filteredMetrics = this.applyFilters(allMetrics || [], params.filters);
 
       // Apply custom aggregations
-      const results = this.applyAggregations(filteredMetrics, params.aggregations);
+      const results = this.applyAggregations(filteredMetrics || [], params.aggregations);
 
       return {
         results,
@@ -1009,7 +1019,7 @@ export class AnalyticsEngine {
   private applyFilters(metrics: UsageMetrics[], filters: Record<string, unknown>): UsageMetrics[] {
     return metrics.filter(metric => {
       for (const [key, value] of Object.entries(filters)) {
-        if ((metric as Record<string, unknown>)[key] !== value) {
+        if ((metric as any)[key] !== value) {
           return false;
         }
       }
@@ -1177,7 +1187,7 @@ export class AnalyticsEngine {
     const groups = new Map<string, UsageMetrics[]>();
 
     for (const metric of metrics) {
-      const key = (metric as Record<string, unknown>)[field] || 'unknown';
+      const key = String((metric as any)[field] || 'unknown');
       if (!groups.has(key)) {
         groups.set(key, []);
       }
@@ -1205,7 +1215,7 @@ export class AnalyticsEngine {
     const results: Record<string, unknown> = {};
 
     for (const [field, aggType] of Object.entries(aggregations)) {
-      const values = metrics.map(m => (m as Record<string, unknown>)[field]).filter(v => v !== undefined);
+      const values = metrics.map(m => (m as any)[field]).filter(v => v !== undefined);
 
       switch (aggType) {
         case 'sum':

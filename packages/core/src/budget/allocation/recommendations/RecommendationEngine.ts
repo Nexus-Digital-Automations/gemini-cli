@@ -386,7 +386,7 @@ export class RecommendationEngine {
     context: RecommendationContext,
   ): AllocationAlgorithmConfig['weights'] {
     const { riskTolerance, priorityFocus } = context.preferences;
-    const { businessCycle, _marketConditions } = context.businessContext;
+    const { businessCycle, marketConditions } = context.businessContext;
 
     let baseWeights = {
       cost: 0.25,

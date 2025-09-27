@@ -841,25 +841,25 @@ export interface ReleaseMetrics {
 export interface ChangelogAnalytics {
   /** Trends */
   trends: {
-    commitFrequency: any;
-    changeTypes: any;
-    contributorActivity: any;
-    complexity: any;
-    quality: any;
+    commitFrequency: Record<string, unknown>;
+    changeTypes: Record<string, unknown>;
+    contributorActivity: Record<string, unknown>;
+    complexity: Record<string, unknown>;
+    quality: Record<string, unknown>;
   };
   /** Insights */
   insights: {
     mostActiveContributors: ContributorInfo[];
     hottestComponents: string[];
     qualityImprovements: string[];
-    technicalDebt: any;
+    technicalDebt: Record<string, unknown>;
     riskFactors: string[];
   };
   /** Comparisons */
   comparisons: {
-    previousRelease: any;
-    averageRelease: any;
-    benchmarks: any;
+    previousRelease: Record<string, unknown>;
+    averageRelease: Record<string, unknown>;
+    benchmarks: Record<string, unknown>;
   };
   /** Predictions */
   predictions: {
@@ -1171,7 +1171,7 @@ export interface ResolutionResult {
   /** Suggestions */
   suggestions?: string[];
   /** Analysis */
-  analysis?: any;
+  analysis?: Record<string, unknown>;
 }
 
 /**

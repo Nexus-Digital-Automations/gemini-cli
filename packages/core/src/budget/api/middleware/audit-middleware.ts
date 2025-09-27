@@ -15,7 +15,7 @@
 
 import type { Request, Response, NextFunction } from 'express';
 import { getComponentLogger } from '../../../utils/logger.js';
-import { BudgetEventType, EventSeverity } from '../../types.js';
+import { BudgetEventType as _BudgetEventType, EventSeverity } from '../../types.js';
 
 const logger = getComponentLogger('AuditMiddleware');
 
@@ -37,7 +37,7 @@ interface AuditEvent {
   duration?: number;
   requestSize?: number;
   responseSize?: number;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   tags: string[];
 }
 
@@ -277,11 +277,11 @@ export function auditLogMiddleware(
   const originalJson = res.json;
   const originalSend = res.send;
 
-  let responseData: any;
+  let responseData: unknown;
   let responseSent = false;
 
   // Override response methods to capture data
-  res.json = function (data: any) {
+  res.json = function (data: unknown) {
     if (!responseSent) {
       responseData = data;
       responseSent = true;
@@ -289,7 +289,7 @@ export function auditLogMiddleware(
     return originalJson.call(this, data);
   };
 
-  res.send = function (data: any) {
+  res.send = function (data: unknown) {
     if (!responseSent) {
       responseData = data;
       responseSent = true;
@@ -342,7 +342,7 @@ export function auditLogMiddleware(
 export function auditSecurityEvent(
   eventType: string,
   severity: EventSeverity,
-  details: Record<string, any>,
+  details: Record<string, unknown>,
 ) {
   return (req: AuditRequest, res: Response, next: NextFunction): void => {
     const securityEvent: AuditEvent = {
@@ -376,7 +376,7 @@ export function auditDataAccess(dataType: string) {
     // Override response to capture accessed data
     const originalJson = res.json;
 
-    res.json = function (data: any) {
+    res.json = function (data: unknown) {
       const dataAccessEvent: AuditEvent = {
         id: generateRequestId(),
         timestamp: new Date(),
@@ -392,7 +392,7 @@ export function auditDataAccess(dataType: string) {
         details: {
           dataType,
           accessSuccessful: res.statusCode < 400,
-          recordsAccessed: Array.isArray(data?.data) ? data.data.length : 1,
+          recordsAccessed: Array.isArray((data as Record<string, unknown>)?.data) ? ((data as Record<string, unknown>).data as unknown[]).length : 1,
         },
         tags: ['data-access', dataType],
       };
@@ -419,7 +419,7 @@ export function auditConfigChange(
 
   const originalJson = res.json;
 
-  res.json = function (data: any) {
+  res.json = function (data: unknown) {
     const configChangeEvent: AuditEvent = {
       id: generateRequestId(),
       timestamp: new Date(),
@@ -435,7 +435,7 @@ export function auditConfigChange(
       details: {
         changeSuccessful: res.statusCode < 400,
         configurationData: req.body,
-        previousConfig: data?.data?.previousConfiguration,
+        previousConfig: (data as Record<string, unknown>)?.data && typeof (data as Record<string, unknown>).data === 'object' ? ((data as Record<string, unknown>).data as Record<string, unknown>)?.previousConfiguration : undefined,
       },
       tags: ['config-change', 'sensitive'],
     };
@@ -454,7 +454,7 @@ export function auditExportImport(operationType: 'export' | 'import') {
   return (req: AuditRequest, res: Response, next: NextFunction): void => {
     const originalJson = res.json;
 
-    res.json = function (data: any) {
+    res.json = function (data: unknown) {
       const exportImportEvent: AuditEvent = {
         id: generateRequestId(),
         timestamp: new Date(),
@@ -494,7 +494,7 @@ export function auditExportImport(operationType: 'export' | 'import') {
 export function getAuditLogs(req: Request, res: Response): void {
   const { userId, eventType, startDate, endDate, limit = 100 } = req.query;
 
-  const filters: any = {
+  const filters: Record<string, unknown> = {
     limit: parseInt(limit as string, 10),
   };
 
@@ -601,9 +601,9 @@ function determineSeverity(req: AuditRequest, res: Response): EventSeverity {
 function createAuditDetails(
   req: AuditRequest,
   res: Response,
-  responseData: any,
-): Record<string, any> {
-  const details: Record<string, any> = {
+  responseData: unknown,
+): Record<string, unknown> {
+  const details: Record<string, unknown> = {
     requestHeaders: filterSensitiveHeaders(req.headers),
     queryParameters: req.query,
     success: res.statusCode < 400,
@@ -617,7 +617,7 @@ function createAuditDetails(
   // Include error details for failed requests
   if (res.statusCode >= 400 && responseData) {
     details.error = {
-      message: responseData.error || 'Unknown error',
+      message: (responseData as Record<string, unknown>)?.error as string || 'Unknown error',
       statusCode: res.statusCode,
     };
   }
@@ -626,8 +626,8 @@ function createAuditDetails(
 }
 
 function filterSensitiveHeaders(
-  headers: Record<string, any>,
-): Record<string, any> {
+  headers: Record<string, unknown>,
+): Record<string, unknown> {
   const filtered = { ...headers };
   const sensitiveHeaders = ['authorization', 'x-api-key', 'cookie'];
 
@@ -640,7 +640,7 @@ function filterSensitiveHeaders(
   return filtered;
 }
 
-function filterSensitiveData(data: any): any {
+function filterSensitiveData(data: unknown): unknown {
   if (typeof data !== 'object' || data === null) {
     return data;
   }

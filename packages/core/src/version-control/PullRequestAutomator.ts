@@ -544,12 +544,12 @@ export class PullRequestAutomator {
     return data;
   }
 
-  private async getPullRequest(prId: string): Promise<PullRequest | null> {
+  private async getPullRequest(_prId: string): Promise<PullRequest | null> {
     // Mock implementation - would fetch from git platform API
     return null;
   }
 
-  private async updatePRStatus(pr: PullRequest): Promise<void> {
+  private async updatePRStatus(_pr: PullRequest): Promise<void> {
     // Mock implementation - would update via git platform API
   }
 
@@ -624,30 +624,30 @@ export class PullRequestAutomator {
   }
 
   private evaluateRuleCondition(
-    pr: PullRequest,
-    rule: PRAutomationRule,
+    _pr: PullRequest,
+    _rule: PRAutomationRule,
   ): boolean {
     // Evaluate rule conditions (mock implementation)
     return true;
   }
 
   private async executeRuleAction(
-    pr: PullRequest,
-    rule: PRAutomationRule,
+    _pr: PullRequest,
+    _rule: PRAutomationRule,
   ): Promise<void> {
     // Execute rule actions (mock implementation)
   }
 
   private async sendPRNotifications(
-    pr: PullRequest,
-    event: string,
+    _pr: PullRequest,
+    _event: string,
   ): Promise<void> {
     // Mock implementation for sending notifications
   }
 
   private async sendMergeFailureNotification(
-    pr: PullRequest,
-    reasons: string[],
+    _pr: PullRequest,
+    _reasons: string[],
   ): Promise<void> {
     // Mock implementation for merge failure notifications
   }
@@ -716,8 +716,8 @@ export class PullRequestAutomator {
   }
 
   private async validateGate(
-    pr: PullRequest,
-    gate: QualityGate,
+    _pr: PullRequest,
+    _gate: QualityGate,
   ): Promise<boolean> {
     // Mock implementation - would validate specific gate requirements
     return Math.random() > 0.2; // 80% pass rate
@@ -828,11 +828,11 @@ export class PullRequestAutomator {
     }
   }
 
-  private async updateRelatedIssues(pr: PullRequest): Promise<void> {
+  private async updateRelatedIssues(_pr: PullRequest): Promise<void> {
     // Mock implementation for updating related issues
   }
 
-  private async triggerDeployment(pr: PullRequest): Promise<void> {
+  private async triggerDeployment(_pr: PullRequest): Promise<void> {
     // Mock implementation for triggering deployment
   }
 
@@ -1111,7 +1111,7 @@ ${analysis.estimatedReviewTime} minutes`;
     return totalTime / mergedPRs.length / (1000 * 60 * 60); // Convert to hours
   }
 
-  private calculateAverageReviewTime(prs: PullRequest[]): number {
+  private calculateAverageReviewTime(_prs: PullRequest[]): number {
     // Mock implementation
     return 4.5; // 4.5 hours average
   }
@@ -1126,17 +1126,17 @@ ${analysis.estimatedReviewTime} minutes`;
     return mergedThisWeek.length;
   }
 
-  private calculateQualityScore(prs: PullRequest[]): number {
+  private calculateQualityScore(_prs: PullRequest[]): number {
     // Mock implementation based on various quality metrics
     return 87.5; // 87.5% quality score
   }
 
-  private calculateAutomationEfficiency(prs: PullRequest[]): number {
+  private calculateAutomationEfficiency(_prs: PullRequest[]): number {
     // Mock implementation based on automation success rate
     return 92.3; // 92.3% automation efficiency
   }
 
-  private analyzeTrends(prs: PullRequest[]): any {
+  private analyzeTrends(_prs: PullRequest[]): any {
     // Mock implementation for trend analysis
     return {
       weeklyTrend: 'increasing',
@@ -1145,7 +1145,7 @@ ${analysis.estimatedReviewTime} minutes`;
     };
   }
 
-  private generateInsights(prs: PullRequest[], summary: PRMetrics): any {
+  private generateInsights(_prs: PullRequest[], _summary: PRMetrics): any {
     return {
       topContributors: ['user1', 'user2', 'user3'],
       bottleneckComponents: ['frontend', 'api'],
@@ -1154,9 +1154,9 @@ ${analysis.estimatedReviewTime} minutes`;
   }
 
   private generateRecommendations(
-    prs: PullRequest[],
+    _prs: PullRequest[],
     summary: PRMetrics,
-    trends: any,
+    _trends: any,
   ): string[] {
     const recommendations: string[] = [];
 
@@ -1180,7 +1180,7 @@ ${analysis.estimatedReviewTime} minutes`;
   }
 
   // Reviewer suggestion methods
-  private async getCodeOwners(files: string[]): Promise<
+  private async getCodeOwners(_files: string[]): Promise<
     Array<{
       username: string;
       files: string[];
@@ -1192,20 +1192,20 @@ ${analysis.estimatedReviewTime} minutes`;
   }
 
   private async suggestByExpertise(
-    analysis: PRAnalysis,
+    _analysis: PRAnalysis,
   ): Promise<ReviewerSuggestion[]> {
     // Mock implementation
     return [];
   }
 
   private async suggestByHistory(
-    analysis: PRAnalysis,
+    _analysis: PRAnalysis,
   ): Promise<ReviewerSuggestion[]> {
     // Mock implementation
     return [];
   }
 
-  private async checkReviewerAvailability(username: string): Promise<boolean> {
+  private async checkReviewerAvailability(_username: string): Promise<boolean> {
     // Mock implementation
     return Math.random() > 0.3; // 70% availability
   }

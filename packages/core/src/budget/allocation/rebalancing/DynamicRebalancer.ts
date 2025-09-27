@@ -1002,7 +1002,7 @@ export class DynamicRebalancer {
     const currentAllocation = state.currentAllocation;
     let changeAmount = 0;
 
-    switch (actionType) {
+    switch (actionType as string) {
       case 'increase':
         changeAmount =
           currentAllocation * (state.health === 'critical' ? 0.3 : 0.2);

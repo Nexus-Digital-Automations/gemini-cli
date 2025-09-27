@@ -97,6 +97,7 @@ export interface Task {
   actualDuration?: number;
   maxRetries?: number;
   currentRetries?: number;
+  complexity?: 'trivial' | 'simple' | 'moderate' | 'complex' | 'enterprise';
 
   // Timing
   createdAt: Date;
@@ -214,13 +215,13 @@ export interface TaskQueueOptions {
  * Intelligent Task Queue with autonomous scheduling and execution
  */
 export class TaskQueue extends EventEmitter {
-  private tasks = new Map<string, Task>();
+  protected tasks = new Map<string, Task>();
   private dependencies = new Map<string, TaskDependency>();
-  private runningTasks = new Set<string>();
+  protected runningTasks = new Set<string>();
   private completedTasks = new Map<string, TaskExecutionRecord>();
   private failedTasks = new Map<string, TaskExecutionRecord>();
 
-  private options: TaskQueueOptions;
+  protected options: TaskQueueOptions;
   private priorityAdjustmentTimer?: NodeJS.Timeout;
   private queueOptimizationTimer?: NodeJS.Timeout;
 
@@ -453,7 +454,7 @@ export class TaskQueue extends EventEmitter {
   /**
    * Select optimal tasks for execution using advanced algorithms
    */
-  private async selectOptimalTasks(
+  protected async selectOptimalTasks(
     eligibleTasks: Task[],
     availableSlots: number,
   ): Promise<Task[]> {
@@ -837,7 +838,7 @@ export class TaskQueue extends EventEmitter {
   /**
    * Count resource conflicts with already selected tasks
    */
-  private countResourceConflicts(task: Task, selectedTasks: Task[]): number {
+  protected countResourceConflicts(task: Task, selectedTasks: Task[]): number {
     let conflicts = 0;
 
     for (const selectedTask of selectedTasks) {

@@ -59,7 +59,7 @@ interface AlertConfig {
  */
 interface NotificationChannel {
   type: 'email' | 'webhook' | 'desktop' | 'sms';
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   enabled: boolean;
 }
 
@@ -69,7 +69,7 @@ interface NotificationChannel {
 interface AlertCondition {
   field: string;
   operator: 'gt' | 'lt' | 'eq' | 'gte' | 'lte' | 'contains';
-  value: any;
+  value: unknown;
   aggregation?: 'sum' | 'avg' | 'count' | 'max' | 'min';
 }
 
@@ -78,7 +78,7 @@ interface AlertCondition {
  */
 export class NotificationController {
   private alertConfigs: Map<string, AlertConfig> = new Map();
-  private notificationHistory: any[] = [];
+  private notificationHistory: Array<Record<string, unknown>> = [];
 
   /**
    * Initialize notification controller
@@ -120,7 +120,7 @@ export class NotificationController {
 
       // Get active alerts from budget tracker
       // Mock active alerts data
-      const activeAlerts: any[] = [];
+      const activeAlerts: Array<Record<string, unknown>> = [];
 
       // Get configured alert rules
       const alertConfigs = Array.from(this.alertConfigs.values());
@@ -131,13 +131,13 @@ export class NotificationController {
 
       if (status) {
         filteredAlerts = filteredAlerts.filter(
-          (alert: any) => alert.status === status,
+          (alert: Record<string, unknown>) => alert.status === status,
         );
       }
 
       if (type) {
         filteredAlerts = filteredAlerts.filter(
-          (alert: any) => alert.type === type,
+          (alert: Record<string, unknown>) => alert.type === type,
         );
         filteredConfigs = filteredConfigs.filter(
           (config) => config.type === type,
@@ -438,7 +438,7 @@ export class NotificationController {
         responseTime,
         alertId,
         channel,
-        deliverySuccess: deliveryResults.every((result: any) => result.success),
+        deliverySuccess: deliveryResults.every((result: Record<string, unknown>) => result.success),
       });
 
       res.status(200).json(response);
@@ -463,7 +463,7 @@ export class NotificationController {
   /**
    * Validate alert configuration
    */
-  private validateAlertConfig(config: any): {
+  private validateAlertConfig(config: Record<string, unknown>): {
     valid: boolean;
     errors: string[];
   } {
@@ -476,7 +476,7 @@ export class NotificationController {
     if (
       !config.type ||
       !['threshold', 'limit_exceeded', 'anomaly', 'custom'].includes(
-        config.type,
+        config.type as string,
       )
     ) {
       errors.push(
@@ -513,15 +513,15 @@ export class NotificationController {
    * Send test notification
    */
   private async sendTestNotification(
-    notification: any,
+    notification: Record<string, unknown>,
     channel?: string,
     alertConfig?: AlertConfig,
-  ): Promise<any[]> {
-    const results: any[] = [];
+  ): Promise<Array<Record<string, unknown>>> {
+    const results: Array<Record<string, unknown>> = [];
 
     // Validate and cast channel parameter
     const validChannelTypes: Array<'email' | 'webhook' | 'desktop' | 'sms'> = ['email', 'webhook', 'desktop', 'sms'];
-    const validatedChannel = channel && validChannelTypes.includes(channel as any)
+    const validatedChannel = channel && validChannelTypes.includes(channel as 'email' | 'webhook' | 'desktop' | 'sms')
       ? channel as 'email' | 'webhook' | 'desktop' | 'sms'
       : 'email';
 
@@ -571,9 +571,9 @@ export class NotificationController {
    * Send notification to specific channel
    */
   private async sendNotificationToChannel(
-    notification: any,
+    notification: Record<string, unknown>,
     channel: NotificationChannel,
-  ): Promise<any> {
+  ): Promise<Record<string, unknown>> {
     switch (channel.type) {
       case 'email':
         return this.sendEmailNotification(notification, channel.config);
@@ -596,9 +596,9 @@ export class NotificationController {
    * Send email notification (mock implementation)
    */
   private async sendEmailNotification(
-    notification: any,
-    config: any,
-  ): Promise<any> {
+    notification: Record<string, unknown>,
+    config: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
     // Mock email sending - replace with actual email service
     logger.info('Mock email notification sent', {
       to: config.email || 'user@example.com',
@@ -617,9 +617,9 @@ export class NotificationController {
    * Send webhook notification (mock implementation)
    */
   private async sendWebhookNotification(
-    notification: any,
-    config: any,
-  ): Promise<any> {
+    notification: Record<string, unknown>,
+    config: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
     // Mock webhook sending - replace with actual HTTP request
     logger.info('Mock webhook notification sent', {
       url: config.url || 'https://example.com/webhook',
@@ -637,9 +637,9 @@ export class NotificationController {
    * Send desktop notification (mock implementation)
    */
   private async sendDesktopNotification(
-    notification: any,
-    _config: any,
-  ): Promise<any> {
+    notification: Record<string, unknown>,
+    _config: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
     // Mock desktop notification - replace with actual desktop notification API
     logger.info('Mock desktop notification sent', {
       title: notification.title,
@@ -656,9 +656,9 @@ export class NotificationController {
    * Send SMS notification (mock implementation)
    */
   private async sendSMSNotification(
-    notification: any,
-    config: any,
-  ): Promise<any> {
+    notification: Record<string, unknown>,
+    config: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
     // Mock SMS sending - replace with actual SMS service
     logger.info('Mock SMS notification sent', {
       to: config.phoneNumber || '+1234567890',

@@ -627,7 +627,7 @@ export class ConflictResolver {
 
   private generateRecommendations(
     analysis: ConflictAnalysis,
-    results: ResolutionResult[],
+    _results: ResolutionResult[],
   ): string[] {
     const recommendations: string[] = [];
 

@@ -437,7 +437,7 @@ export class ChangelogGenerator {
   private renderJSON(
     entries: ChangelogEntry[],
     releaseNotes: ReleaseNotes,
-    options: any,
+    _options: any,
   ): string {
     const data = {
       version: releaseNotes.version,
@@ -524,7 +524,7 @@ export class ChangelogGenerator {
   private renderXML(
     entries: ChangelogEntry[],
     releaseNotes: ReleaseNotes,
-    options: any,
+    _options: any,
   ): string {
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += `<changelog version="${releaseNotes.version}" date="${releaseNotes.releaseDate.toISOString()}">\n`;
@@ -787,7 +787,7 @@ export class ChangelogGenerator {
     };
   }
 
-  private generateCodeExample(change: BreakingChange): any {
+  private generateCodeExample(_change: BreakingChange): any {
     // Mock implementation - would analyze actual code changes
     return {
       language: 'typescript',
@@ -1183,7 +1183,7 @@ export class ChangelogGenerator {
     return refs;
   }
 
-  private async getCommitReviewers(hash: string): Promise<string[]> {
+  private async getCommitReviewers(_hash: string): Promise<string[]> {
     // Mock implementation - would fetch PR reviewers
     return [];
   }
@@ -1319,7 +1319,7 @@ export class ChangelogGenerator {
   }
 
   // Mock implementations for advanced analytics
-  private analyzeCommitFrequency(entries: ChangelogEntry[]): any {
+  private analyzeCommitFrequency(_entries: ChangelogEntry[]): any {
     return { trend: 'stable', average: 2.5 };
   }
 
@@ -1412,16 +1412,16 @@ export class ChangelogGenerator {
 
   // Additional mock methods for comprehensive analytics
   private async compareToPreviousRelease(
-    metrics: ReleaseMetrics,
+    _metrics: ReleaseMetrics,
   ): Promise<any> {
     return { changeInCommits: '+15%', changeInContributors: '+20%' };
   }
 
-  private compareToAverage(metrics: ReleaseMetrics): any {
+  private compareToAverage(_metrics: ReleaseMetrics): any {
     return { commitsVsAverage: '+5%', qualityVsAverage: '+10%' };
   }
 
-  private compareToBenchmarks(metrics: ReleaseMetrics): any {
+  private compareToBenchmarks(_metrics: ReleaseMetrics): any {
     return { industryRanking: 'above_average' };
   }
 
@@ -1448,7 +1448,7 @@ export class ChangelogGenerator {
   // Helper methods for release impact calculation
   private estimateAffectedUsers(
     level: ReleaseImpact['level'],
-    entries: ChangelogEntry[],
+    _entries: ChangelogEntry[],
   ): number {
     const baseUsers = 1000; // Mock base user count
 

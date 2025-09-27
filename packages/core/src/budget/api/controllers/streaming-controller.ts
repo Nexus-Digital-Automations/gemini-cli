@@ -55,7 +55,7 @@ interface BudgetWebSocketClient {
  */
 interface StreamMessage {
   type: 'usage_update' | 'alert' | 'analytics_update' | 'error' | 'heartbeat';
-  data: any;
+  data: Record<string, unknown>;
   timestamp: string;
   source: string;
 }
@@ -109,7 +109,7 @@ export class StreamingController {
       // Create WebSocket server for this request
       const wss = new WebSocketServer({ noServer: true });
 
-      wss.on('connection', (ws: WebSocket, _request: any) => {
+      wss.on('connection', (ws: WebSocket, _request: Request) => {
         this.handleWebSocketConnection(ws, req.user);
       });
 
@@ -212,7 +212,7 @@ export class StreamingController {
   /**
    * Handle new WebSocket connection
    */
-  private handleWebSocketConnection(ws: WebSocket, user?: any): void {
+  private handleWebSocketConnection(ws: WebSocket, user?: { id: string; permissions: string[] }): void {
     const clientId = this.generateClientId();
 
     logger.info('New WebSocket client connected', {
@@ -270,7 +270,7 @@ export class StreamingController {
   /**
    * Handle WebSocket message from client
    */
-  private handleWebSocketMessage(clientId: string, data: any): void {
+  private handleWebSocketMessage(clientId: string, data: Buffer | ArrayBuffer | Buffer[]): void {
     const client = this.clients.get(clientId);
     if (!client) return;
 
@@ -361,7 +361,7 @@ export class StreamingController {
     );
 
     client.subscriptions = [
-      ...new Set([...client.subscriptions, ...validSubscriptions]),
+      ...Array.from(new Set([...client.subscriptions, ...validSubscriptions])),
     ];
 
     logger.info('Client subscriptions updated', {
@@ -473,7 +473,7 @@ export class StreamingController {
     this.heartbeatInterval = setInterval(() => {
       const deadClients: string[] = [];
 
-      for (const [clientId, client] of this.clients.entries()) {
+      for (const [clientId, client] of Array.from(this.clients.entries())) {
         if (!client.isAlive) {
           deadClients.push(clientId);
           client.ws.terminate();
@@ -515,7 +515,7 @@ export class StreamingController {
     }
 
     // Close all client connections
-    for (const client of this.clients.values()) {
+    for (const client of Array.from(this.clients.values())) {
       client.ws.terminate();
     }
 

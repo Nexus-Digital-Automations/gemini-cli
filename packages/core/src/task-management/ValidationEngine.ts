@@ -16,7 +16,7 @@ import type {
   Task,
   TaskId,
   TaskResult,
-  TaskStatus,
+  TaskStatus as _TaskStatus,
   TaskPriority,
   TaskCategory,
 } from './types.js';
@@ -308,7 +308,7 @@ export class ValidationEngine extends EventEmitter {
     metrics: ExecutionMetrics,
   ): Promise<ValidationResult> {
     const startTime = Date.now();
-    const validationId = `${task.id}_${startTime}`;
+    const _validationId = `${task.id}_${startTime}`;
 
     // Check if validation is already in progress
     if (this.activeValidations.has(task.id)) {

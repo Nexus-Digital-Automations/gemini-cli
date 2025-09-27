@@ -431,7 +431,7 @@ export class ErrorAnalysisEngine {
   getErrorTrends(): Map<string, ErrorTrend> {
     const trends = new Map<string, ErrorTrend>();
 
-    for (const [signature, frequencyData] of this.errorHistory.entries()) {
+    for (const [signature, frequencyData] of Array.from(this.errorHistory.entries())) {
       if (frequencyData.occurrences.length >= 2) {
         const trend = this.calculateErrorTrend(frequencyData);
         trends.set(signature, trend);
@@ -469,7 +469,7 @@ export class ErrorAnalysisEngine {
     for (const [
       knownSignature,
       _frequencyData,
-    ] of this.errorHistory.entries()) {
+    ] of Array.from(this.errorHistory.entries())) {
       if (knownSignature === signature.id) continue;
 
       const similarity = this.calculateErrorSimilarity(
@@ -508,7 +508,7 @@ export class ErrorAnalysisEngine {
     // Calculate category and severity distributions from error history
     // Note: Skipping detailed distribution calculation due to interface mismatch
     // In practice, would store category/severity separately in ErrorFrequencyData
-    for (const frequencyData of this.errorHistory.values()) {
+    for (const frequencyData of Array.from(this.errorHistory.values())) {
       if (frequencyData.lastAnalysis) {
         // Placeholder values since lastAnalysis is typed as Date but used as ErrorAnalysis
         const category = 'general';
@@ -862,7 +862,7 @@ export class ErrorAnalysisEngine {
     for (const [
       errorSignature,
       _frequencyData,
-    ] of this.errorHistory.entries()) {
+    ] of Array.from(this.errorHistory.entries())) {
       if (related.length >= maxRelated) break;
       if (errorSignature === signature.id) continue;
 
@@ -1247,8 +1247,8 @@ export class ErrorAnalysisEngine {
     // Text similarity (Jaccard similarity of words)
     const words1 = new Set(s1.split(/\W+/));
     const words2 = new Set(s2.split(/\W+/));
-    const intersection = new Set([...words1].filter((x) => words2.has(x)));
-    const union = new Set([...words1, ...words2]);
+    const intersection = new Set(Array.from(words1).filter((x) => words2.has(x)));
+    const union = new Set([...Array.from(words1), ...Array.from(words2)]);
 
     textSimilarity = intersection.size / union.size;
 

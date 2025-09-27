@@ -12,6 +12,10 @@ import type {
   DependencyType,
   CircularDependency,
 } from '../task-management/types.js';
+import {
+  TaskCategory,
+  TaskPriority,
+} from '../task-management/types.js';
 import type {
   Decision,
   DecisionContext,
@@ -358,7 +362,7 @@ export class DecisionDependencyGraphManager {
     }> = [];
 
     // High-degree bottlenecks (tasks with many dependencies)
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [taskId, node] of Array.from(this.graph.nodes.entries())) {
       const totalDegree = node.dependencies.length + node.dependents.length;
 
       if (totalDegree > 5) {
@@ -400,7 +404,7 @@ export class DecisionDependencyGraphManager {
     }
 
     // Duration bottlenecks (very long tasks)
-    for (const [taskId, task] of this.tasks) {
+    for (const [taskId, task] of Array.from(this.tasks.entries())) {
       const duration = task.metadata.estimatedDuration || 0;
       if (duration > 4 * 60 * 60 * 1000) {
         // > 4 hours
@@ -563,7 +567,7 @@ export class DecisionDependencyGraphManager {
     let totalFlexibility = 0;
     let nodeCount = 0;
 
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [taskId, node] of Array.from(this.graph.nodes.entries())) {
       const flexibility = node.decisionMetadata.flexibility;
       totalFlexibility += flexibility;
       nodeCount++;
@@ -716,7 +720,7 @@ export class DecisionDependencyGraphManager {
     if (context) {
       if (
         context.projectState.buildStatus === 'failed' &&
-        task.category === 'implementation'
+        task.category === TaskCategory.FEATURE
       ) {
         score += 2;
       }
@@ -735,8 +739,8 @@ export class DecisionDependencyGraphManager {
     task: Task,
     impactScore: number,
   ): 'low' | 'medium' | 'high' | 'critical' {
-    if (task.priority === 'critical' || impactScore > 15) return 'critical';
-    if (task.priority === 'high' || impactScore > 10) return 'high';
+    if (task.priority === TaskPriority.CRITICAL || impactScore > 15) return 'critical';
+    if (task.priority === TaskPriority.HIGH || impactScore > 10) return 'high';
     if (impactScore > 5) return 'medium';
     return 'low';
   }
@@ -745,12 +749,12 @@ export class DecisionDependencyGraphManager {
     let flexibility = 1.0;
 
     // Reduce flexibility for critical tasks
-    if (task.priority === 'critical') flexibility *= 0.5;
-    else if (task.priority === 'high') flexibility *= 0.7;
+    if (task.priority === TaskPriority.CRITICAL) flexibility *= 0.5;
+    else if (task.priority === TaskPriority.HIGH) flexibility *= 0.7;
 
     // Reduce flexibility for certain categories
-    if (task.category === 'deployment') flexibility *= 0.6;
-    if (task.category === 'analysis') flexibility *= 0.8;
+    if (task.category === TaskCategory.INFRASTRUCTURE) flexibility *= 0.6;
+    if (task.category === TaskCategory.DOCUMENTATION) flexibility *= 0.8;
 
     // Reduce flexibility for tasks with many validation criteria
     if (task.validationCriteria && task.validationCriteria.length > 3) {
@@ -907,7 +911,7 @@ export class DecisionDependencyGraphManager {
     this.graph.metadata.decisionInsights.riskAssessment = riskAssessment;
 
     // Recalculate flexibility map
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [taskId, node] of Array.from(this.graph.nodes.entries())) {
       this.graph.metadata.decisionInsights.flexibilityMap.set(
         taskId,
         node.decisionMetadata.flexibility,
@@ -938,7 +942,7 @@ export class DecisionDependencyGraphManager {
 
     // Check for high-degree nodes
     let highDegreeNodes = 0;
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [taskId, node] of Array.from(this.graph.nodes.entries())) {
       const degree = node.dependencies.length + node.dependents.length;
       if (degree > 5) {
         highDegreeNodes++;
@@ -955,7 +959,7 @@ export class DecisionDependencyGraphManager {
 
     // Check for low-confidence dependencies
     let lowConfidenceDeps = 0;
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [taskId, node] of Array.from(this.graph.nodes.entries())) {
       for (const [depId, confidence] of node.decisionMetadata
         .dependencyConfidence) {
         if (confidence < 0.6) {
@@ -1097,7 +1101,7 @@ export class DecisionDependencyGraphManager {
 
   private findEndNodes(): TaskId[] {
     const endNodes: TaskId[] = [];
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [taskId, node] of Array.from(this.graph.nodes.entries())) {
       if (node.dependents.length === 0) {
         endNodes.push(taskId);
       }
@@ -1266,7 +1270,7 @@ export class DecisionDependencyGraphManager {
     // Look for tasks with similar characteristics that could be merged
     const tasksByCategory = new Map<string, TaskId[]>();
 
-    for (const [taskId, task] of this.tasks) {
+    for (const [taskId, task] of Array.from(this.tasks.entries())) {
       const category = task.category;
       if (!tasksByCategory.has(category)) {
         tasksByCategory.set(category, []);
@@ -1275,7 +1279,7 @@ export class DecisionDependencyGraphManager {
     }
 
     // Find small tasks in same category that could be merged
-    for (const [category, taskIds] of tasksByCategory) {
+    for (const [category, taskIds] of Array.from(tasksByCategory.entries())) {
       if (taskIds.length >= 2) {
         const smallTasks = taskIds.filter((id) => {
           const task = this.tasks.get(id);
@@ -1296,7 +1300,14 @@ export class DecisionDependencyGraphManager {
   private calculateGraphMetrics(): any {
     const criticalPaths = this.analyzeAllCriticalPaths();
     const bottlenecks = this.identifyBottlenecks();
-    const flexibility = this.calculateFlexibility();
+    // Calculate average flexibility across all tasks
+    let totalFlexibility = 0;
+    let taskCount = 0;
+    for (const [, task] of Array.from(this.tasks.entries())) {
+      totalFlexibility += this.calculateFlexibility(task);
+      taskCount++;
+    }
+    const flexibility = taskCount > 0 ? totalFlexibility / taskCount : 0;
 
     return {
       totalExecutionTime:
@@ -1309,7 +1320,7 @@ export class DecisionDependencyGraphManager {
     };
   }
 
-  private cloneGraph(): DecisionDependencyGraphData {
+  private cloneGraph(): DecisionDependencyGraph {
     // Deep clone the graph for what-if analysis
     return JSON.parse(JSON.stringify(this.graph));
   }
@@ -1362,7 +1373,7 @@ export class DecisionDependencyGraphManager {
     lines.push('  node [shape=box, style=filled];');
 
     // Add nodes with decision metadata
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [taskId, node] of Array.from(this.graph.nodes.entries())) {
       const task = this.tasks.get(taskId);
       const label = task
         ? `${task.title}\\n${node.decisionMetadata.criticality}`
@@ -1406,7 +1417,7 @@ export class DecisionDependencyGraphManager {
     const elements: any[] = [];
 
     // Add nodes
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [taskId, node] of Array.from(this.graph.nodes.entries())) {
       const task = this.tasks.get(taskId);
       elements.push({
         data: {
@@ -1502,7 +1513,7 @@ export class DecisionDependencyGraphManager {
     let totalConfidence = 0;
     let confidenceCount = 0;
 
-    for (const [taskId, node] of this.graph.nodes) {
+    for (const [taskId, node] of Array.from(this.graph.nodes.entries())) {
       for (const [depId, confidence] of node.decisionMetadata
         .dependencyConfidence) {
         totalConfidence += confidence;
@@ -1512,7 +1523,14 @@ export class DecisionDependencyGraphManager {
 
     const averageConfidence =
       confidenceCount > 0 ? totalConfidence / confidenceCount : 0;
-    const flexibilityScore = this.calculateFlexibility();
+    // Calculate average flexibility across all tasks
+    let totalFlexibility = 0;
+    let taskCount = 0;
+    for (const [, task] of Array.from(this.tasks.entries())) {
+      totalFlexibility += this.calculateFlexibility(task);
+      taskCount++;
+    }
+    const flexibilityScore = taskCount > 0 ? totalFlexibility / taskCount : 0;
     const riskScore =
       this.graph.metadata.decisionInsights.riskAssessment.overallRisk;
     const bottlenecks = this.identifyBottlenecks();

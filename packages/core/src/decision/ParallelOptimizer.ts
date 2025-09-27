@@ -24,7 +24,7 @@ import {
   DependencyAnalyzer,
   type DependencyAnalysisResult,
 } from './DependencyAnalyzer.js';
-import { DecisionDependencyGraph } from './DependencyGraph.js';
+import { DecisionDependencyGraphManager } from './DependencyGraph.js';
 import { getComponentLogger } from '../utils/logger.js';
 
 const logger = getComponentLogger('ParallelOptimizer');
@@ -266,7 +266,7 @@ export class ParallelOptimizer {
     };
 
     this.dependencyAnalyzer = dependencyAnalyzer || new DependencyAnalyzer();
-    this.dependencyGraph = dependencyGraph || new DecisionDependencyGraph();
+    this.dependencyGraph = dependencyGraph || new DecisionDependencyGraphManager();
     this.executionHistory = new Map();
     this.learningModel = new Map();
     this.resourcePredictions = new Map();
@@ -390,10 +390,10 @@ export class ParallelOptimizer {
     const resourceUsage = new Map<string, TaskId[]>();
 
     // Group tasks by resource requirements
-    for (const [taskId, task] of tasks) {
+    for (const [taskId, task] of Array.from(tasks.entries())) {
       const resourceRequirements = this.extractResourceRequirements(task);
 
-      for (const [resourceType, amount] of resourceRequirements) {
+      for (const [resourceType, amount] of Array.from(resourceRequirements.entries())) {
         if (!resourceUsage.has(resourceType)) {
           resourceUsage.set(resourceType, []);
         }
@@ -402,7 +402,7 @@ export class ParallelOptimizer {
     }
 
     // Identify contentions
-    for (const [resourceType, taskIds] of resourceUsage) {
+    for (const [resourceType, taskIds] of Array.from(resourceUsage.entries())) {
       if (taskIds.length > 1) {
         const pool = this.config.resourcePools.get(resourceType);
         if (pool && !pool.shareable) {
@@ -679,7 +679,7 @@ export class ParallelOptimizer {
 
     // Group tasks by priority level
     const priorityGroups = new Map<string, TaskId[]>();
-    for (const [taskId, task] of tasks) {
+    for (const [taskId, task] of Array.from(tasks.entries())) {
       const priority = String(task.priority);
       if (!priorityGroups.has(priority)) {
         priorityGroups.set(priority, []);
@@ -687,8 +687,8 @@ export class ParallelOptimizer {
       priorityGroups.get(priority)!.push(taskId);
     }
 
-    // Process in priority order
-    const priorityOrder: Array<keyof typeof priorityGroups> = [
+    // Process in priority order - using string literals that match Map keys
+    const priorityOrder: string[] = [
       'critical',
       'high',
       'medium',
@@ -903,7 +903,7 @@ export class ParallelOptimizer {
         ['cpu', 1],
         ['memory', 512],
       ];
-      for (const [resourceType, amount] of taskDefaults) {
+      for (const [resourceType, amount] of Array.from(taskDefaults.entries())) {
         requirements.set(resourceType, amount);
       }
     }
@@ -935,7 +935,7 @@ export class ParallelOptimizer {
     const selected: TaskId[] = [];
     const resourceUsage = new Map<string, number>();
 
-    for (const [resourceType, pool] of this.config.resourcePools) {
+    for (const [resourceType, pool] of Array.from(this.config.resourcePools.entries())) {
       resourceUsage.set(resourceType, 0);
     }
 
@@ -965,7 +965,7 @@ export class ParallelOptimizer {
 
       if (canAdd) {
         selected.push(taskId);
-        for (const [resourceType, required] of requirements) {
+        for (const [resourceType, required] of Array.from(requirements.entries())) {
           const currentUsage = resourceUsage.get(resourceType) || 0;
           resourceUsage.set(resourceType, currentUsage + required);
         }
@@ -1023,7 +1023,7 @@ export class ParallelOptimizer {
       const currentGroup: TaskId[] = [];
       const resourceUsage = new Map<string, number>();
 
-      for (const [resourceType, pool] of this.config.resourcePools) {
+      for (const [resourceType, pool] of Array.from(this.config.resourcePools.entries())) {
         resourceUsage.set(resourceType, 0);
       }
 
@@ -1037,7 +1037,7 @@ export class ParallelOptimizer {
         const requirements = this.extractResourceRequirements(task);
         let compatible = true;
 
-        for (const [resourceType, required] of requirements) {
+        for (const [resourceType, required] of Array.from(requirements.entries())) {
           const pool = this.config.resourcePools.get(resourceType);
           if (pool) {
             const currentUsage = resourceUsage.get(resourceType) || 0;
@@ -1054,7 +1054,7 @@ export class ParallelOptimizer {
         if (compatible) {
           currentGroup.push(taskId);
           processed.add(taskId);
-          for (const [resourceType, required] of requirements) {
+          for (const [resourceType, required] of Array.from(requirements.entries())) {
             const currentUsage = resourceUsage.get(resourceType) || 0;
             resourceUsage.set(resourceType, currentUsage + required);
           }
@@ -1218,7 +1218,7 @@ export class ParallelOptimizer {
     );
     const resourceUtilization = new Map<string, number>();
 
-    for (const [resourceType, pool] of this.config.resourcePools) {
+    for (const [resourceType, pool] of Array.from(this.config.resourcePools.entries())) {
       const allocations = resourcePlan.get(resourceType) || [];
       const avgUtilization =
         allocations.length > 0
@@ -1408,7 +1408,7 @@ export class ParallelOptimizer {
     // Simplified confidence prediction based on historical data
     const historyKey = taskIds.sort().join(',');
 
-    for (const [key, history] of this.executionHistory) {
+    for (const [key, history] of Array.from(this.executionHistory.entries())) {
       if (key === historyKey) {
         return history.efficiency;
       }
@@ -1770,7 +1770,7 @@ export class ParallelOptimizer {
     let avgResourceEfficiency = 0;
     let count = 0;
 
-    for (const [groupId, history] of this.executionHistory) {
+    for (const [groupId, history] of Array.from(this.executionHistory.entries())) {
       avgParallelization += history.tasks.length;
       avgResourceEfficiency += history.efficiency;
       count++;

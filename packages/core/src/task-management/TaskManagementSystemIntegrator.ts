@@ -391,7 +391,7 @@ export class TaskManagementSystemIntegrator {
         });
       } else if (this.taskEngine) {
         // Use traditional task engine
-        const { useAutonomousQueue, ...taskEngineOptions } = options;
+        const { useAutonomousQueue: _useAutonomousQueue, ...taskEngineOptions } = options;
         taskId = await this.taskEngine.queueTask(title, description, taskEngineOptions);
       } else {
         throw new Error('No task execution system available');
