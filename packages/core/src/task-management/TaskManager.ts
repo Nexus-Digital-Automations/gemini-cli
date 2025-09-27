@@ -169,6 +169,7 @@ export class TaskManager {
   private readonly monitoring?: ExecutionMonitoringSystem;
   private readonly hookIntegration?: InfiniteHookIntegration;
   private readonly persistence: CrossSessionPersistenceEngine;
+  private readonly persistenceConfig: any;
 
   private readonly enableAutonomousBreakdown: boolean;
   private readonly enableAdaptiveScheduling: boolean;
@@ -267,11 +268,13 @@ export class TaskManager {
 
     // Initialize persistence engine
     console.log('💾 Initializing CrossSessionPersistenceEngine...');
-    const persistenceConfig = {
+    this.persistenceConfig = {
       storageDir: '.persistence',
       enableCompression: true,
     };
-    this.persistence = new CrossSessionPersistenceEngine(persistenceConfig);
+    this.persistence = new CrossSessionPersistenceEngine(
+      this.persistenceConfig,
+    );
 
     console.log(
       '✅ TaskManager initialized successfully with autonomous capabilities',
@@ -286,7 +289,7 @@ export class TaskManager {
 
     try {
       // Initialize persistence first
-      await this.persistence.initialize(persistenceConfig);
+      await this.persistence.initialize(this.persistenceConfig);
       console.log('✅ Persistence engine initialized');
 
       // Initialize hook integration
