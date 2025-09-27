@@ -95,7 +95,7 @@ export type {
   ErrorPattern,
   LearningStats,
 } from './SuggestionEngine.js';
-export type { StorageConfig, StorageStats } from './CrossSessionStorage.js';
+export type { StorageConfig } from './CrossSessionStorage.js';
 
 import { getComponentLogger } from '../utils/logger.js';
 import {
@@ -127,7 +127,7 @@ import type {
   PrioritizationConfig,
   CompressionConfig,
 } from './types.js';
-import type { StorageConfig, StorageStats } from './CrossSessionStorage.js';
+import type { StorageConfig } from './CrossSessionStorage.js';
 import type {
   AllocationStats,
   ContextWindowConfig,
@@ -171,6 +171,15 @@ export const DEFAULT_CONTEXT_SYSTEM_CONFIG: Partial<ContextSystemConfig> = {
   autoOptimize: true,
   optimizationInterval: 300000, // 5 minutes
 };
+
+/**
+ * Simple StorageStats interface for system statistics
+ */
+interface StorageStats {
+  totalSessions: number;
+  diskUsage: number;
+  cacheHitRate: number;
+}
 
 /**
  * Unified Advanced Context Retention System

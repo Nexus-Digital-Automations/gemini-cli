@@ -648,7 +648,7 @@ export class TaskPersistence extends EventEmitter {
       const stats = {
         totalFiles: 0,
         totalSize: 0,
-        stateFile: { exists: false, size: 0 },
+        stateFile: { exists: false, size: 0, lastModified: new Date() },
         backupCount: 0,
         backupTotalSize: 0,
         exportCount: 0,
@@ -895,24 +895,24 @@ export class TaskPersistence extends EventEmitter {
     // Simple merge strategy - imported tasks take precedence
     const mergedTasks = new Map(current.tasks);
 
-    // Add/update imported tasks
-    for (const [id, task] of imported.tasks || []) {
-      mergedTasks.set(id, task);
+    // Add/update imported tasks (convert from array to map entries)
+    for (const task of imported.tasks || []) {
+      mergedTasks.set(task.id, task as Task);
     }
 
     const mergedDependencies = new Map(current.dependencies);
-    for (const [id, dep] of imported.dependencies || []) {
-      mergedDependencies.set(id, dep);
+    for (const dep of imported.dependencies || []) {
+      mergedDependencies.set(dep.id, dep);
     }
 
     const mergedCompleted = new Map(current.completedTasks);
-    for (const [id, record] of imported.completedTasks || []) {
-      mergedCompleted.set(id, record);
+    for (const record of imported.completedTasks || []) {
+      mergedCompleted.set(record.taskId, record);
     }
 
     const mergedFailed = new Map(current.failedTasks);
-    for (const [id, record] of imported.failedTasks || []) {
-      mergedFailed.set(id, record);
+    for (const record of imported.failedTasks || []) {
+      mergedFailed.set(record.taskId, record);
     }
 
     const mergedRunning = new Set([
@@ -921,10 +921,10 @@ export class TaskPersistence extends EventEmitter {
     ]);
 
     return {
-      tasks: mergedTasks,
-      dependencies: mergedDependencies,
-      completedTasks: mergedCompleted,
-      failedTasks: mergedFailed,
+      tasks: mergedTasks as Map<string, Task>,
+      dependencies: mergedDependencies as Map<string, TaskDependency>,
+      completedTasks: mergedCompleted as Map<string, TaskExecutionRecord>,
+      failedTasks: mergedFailed as Map<string, TaskExecutionRecord>,
       runningTasks: mergedRunning,
       metrics: imported.metrics,
       sessionId: imported.sessionId,
