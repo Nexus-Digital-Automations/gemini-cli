@@ -537,8 +537,13 @@ export class GeminiChat {
       for (const tool of tools) {
         if (
           (tool.schema.parametersJsonSchema &&
+            typeof tool.schema.parametersJsonSchema === 'object' &&
+            tool.schema.parametersJsonSchema !== null &&
             hasCycleInSchema(tool.schema.parametersJsonSchema)) ||
-          (tool.schema.parameters && hasCycleInSchema(tool.schema.parameters))
+          (tool.schema.parameters &&
+            typeof tool.schema.parameters === 'object' &&
+            tool.schema.parameters !== null &&
+            hasCycleInSchema(tool.schema.parameters))
         ) {
           cyclicSchemaTools.push(tool.displayName);
         }
