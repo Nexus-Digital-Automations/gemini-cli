@@ -13,7 +13,13 @@ import type {
   TaskMetadata as _TaskMetadata,
   Task as BaseTask,
 } from './types.js';
-import { TaskComplexity, TaskStatus, TaskPriority, TaskType, TaskCategory } from './types.js';
+import {
+  TaskComplexity,
+  TaskStatus,
+  TaskPriority,
+  TaskType,
+  TaskCategory,
+} from './types.js';
 import { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 import {
   SubAgentScope,
@@ -488,22 +494,30 @@ Focus on creating a practical, executable breakdown that enables efficient auton
     const now = new Date();
     return {
       id:
-        data.id ||
+        (data.id as string) ||
         `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      title: data.title || 'Untitled Task',
-      description: data.description || '',
-      type: data.type || TaskType.IMPLEMENTATION,
-      complexity: data.complexity || TaskComplexity.SIMPLE,
-      priority: data.priority || TaskPriority.NORMAL,
+      title: (data.title as string) || 'Untitled Task',
+      description: (data.description as string) || '',
+      type: (data.type as TaskType) || TaskType.IMPLEMENTATION,
+      complexity: (data.complexity as TaskComplexity) || TaskComplexity.SIMPLE,
+      priority: (data.priority as TaskPriority) || TaskPriority.NORMAL,
       status: TaskStatus.QUEUED,
+      category: TaskCategory.FEATURE,
       progress: 0,
-      requiredCapabilities: data.required_capabilities || [],
+      requiredCapabilities:
+        (data.required_capabilities as AgentCapability[]) || [],
       subtaskIds: [],
       dependencies: [],
-      maxExecutionTimeMinutes: data.estimated_duration_minutes || 60,
+      maxExecutionTimeMinutes:
+        (data.estimated_duration_minutes as number) || 60,
       maxRetries: 3,
-      context: data.context || {},
-      expectedOutputs: data.expected_outputs || {},
+      context: (data.context as Record<string, unknown>) || {},
+      expectedOutputs: (data.expected_outputs as Record<string, string>) || {},
+      metadata: {
+        createdAt: now,
+        updatedAt: now,
+        createdBy: 'TaskExecutionEngine',
+      },
       createdAt: now,
       updatedAt: now,
       retryCount: 0,

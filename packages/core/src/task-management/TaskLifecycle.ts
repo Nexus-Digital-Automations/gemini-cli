@@ -370,10 +370,13 @@ export class TaskLifecycle extends EventEmitter {
 
       return true;
     } catch (error) {
-      logger().error(`State transition failed: ${currentState} -> ${newState}`, {
-        taskId,
-        errorMessage: error instanceof Error ? error.message : String(error),
-      });
+      logger().error(
+        `State transition failed: ${currentState} -> ${newState}`,
+        {
+          taskId,
+          errorMessage: error instanceof Error ? error.message : String(error),
+        },
+      );
 
       this.emit('transitionError', taskId, currentState, newState, error);
       return false;
@@ -911,7 +914,7 @@ export class TaskLifecycle extends EventEmitter {
       id: 'allocate-resources',
       state: LifecycleState.RESOURCE_ALLOCATED,
       timing: 'before',
-      action: async (task: Task, context: LifecycleContext) => {
+      action: async (task: Task, _context: LifecycleContext) => {
         // Simulate resource allocation
         context.resources.allocated = [...task.requiredResources];
         logger().debug(`Resources allocated for task: ${task.id}`, {
@@ -927,7 +930,7 @@ export class TaskLifecycle extends EventEmitter {
       id: 'release-resources',
       state: LifecycleState.COMPLETED,
       timing: 'after',
-      action: async (task: Task, context: LifecycleContext) => {
+      action: async (task: Task, _context: LifecycleContext) => {
         context.resources.released = [...context.resources.allocated];
         context.resources.allocated = [];
         logger().debug(`Resources released for task: ${task.id}`, {
@@ -943,9 +946,9 @@ export class TaskLifecycle extends EventEmitter {
       id: 'validate-preconditions',
       state: LifecycleState.STARTING,
       timing: 'before',
-      condition: async (task: Task, context: LifecycleContext) =>
+      condition: async (task: Task, _context: LifecycleContext) =>
         task.preConditions.length > 0,
-      action: async (task: Task, context: LifecycleContext) => {
+      action: async (task: Task, _context: LifecycleContext) => {
         const valid = await this.validatePreConditions(task.id);
         if (!valid) {
           throw new Error('Pre-conditions validation failed');
@@ -960,9 +963,9 @@ export class TaskLifecycle extends EventEmitter {
       id: 'validate-postconditions',
       state: LifecycleState.COMPLETING,
       timing: 'before',
-      condition: async (task: Task, context: LifecycleContext) =>
+      condition: async (task: Task, _context: LifecycleContext) =>
         task.postConditions.length > 0,
-      action: async (task: Task, context: LifecycleContext) => {
+      action: async (task: Task, _context: LifecycleContext) => {
         const valid = await this.validatePostConditions(task.id);
         if (!valid) {
           throw new Error('Post-conditions validation failed');
@@ -977,7 +980,7 @@ export class TaskLifecycle extends EventEmitter {
       id: 'collect-metrics',
       state: LifecycleState.COMPLETED,
       timing: 'after',
-      action: async (task: Task, context: LifecycleContext) => {
+      action: async (task: Task, _context: LifecycleContext) => {
         if (this.options.enableMetrics) {
           this.finalizeMetrics(task.id);
         }
@@ -1216,8 +1219,8 @@ export class TaskLifecycle extends EventEmitter {
    * Simple condition evaluator
    */
   private async evaluateCondition(
-    condition: string,
-    context: LifecycleContext,
+    _condition: string,
+    _context: LifecycleContext,
   ): Promise<boolean> {
     // Basic implementation - would need proper expression evaluator in production
     // For now, assume conditions are always true
@@ -1227,7 +1230,7 @@ export class TaskLifecycle extends EventEmitter {
   /**
    * Get task (placeholder - would integrate with actual task store)
    */
-  private async getTask(taskId: TaskId): Promise<Task> {
+  private async getTask(_taskId: TaskId): Promise<Task> {
     // Placeholder implementation
     return {} as Task;
   }
@@ -1235,7 +1238,7 @@ export class TaskLifecycle extends EventEmitter {
   /**
    * Get task synchronously (placeholder)
    */
-  private getTaskSync(taskId: TaskId): Task | undefined {
+  private getTaskSync(_taskId: TaskId): Task | undefined {
     // Placeholder implementation
     return undefined;
   }
@@ -1248,7 +1251,8 @@ export class TaskLifecycle extends EventEmitter {
       this.cleanupTimer = setInterval(() => {
         this.cleanup().catch((error) => {
           logger().error('Cleanup process failed', {
-            errorMessage: error instanceof Error ? error.message : String(error),
+            errorMessage:
+              error instanceof Error ? error.message : String(error),
           });
         });
       }, this.options.cleanupInterval);

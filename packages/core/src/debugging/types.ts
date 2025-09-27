@@ -1413,12 +1413,25 @@ export interface ErrorTrend {
   direction: 'increasing' | 'decreasing' | 'stable';
   /** Change percentage */
   changePercent: number;
+  /** Detailed frequency data */
+  frequency?: {
+    last24h: number;
+    last7d: number;
+    last30d: number;
+    total: number;
+  };
+  /** Severity level */
+  severity?: string;
+  /** Prediction about future trend */
+  prediction?: string;
 }
 
 /**
  * Error frequency statistics
  */
 export interface ErrorFrequencyData {
+  /** Error signature */
+  signature?: ErrorSignature;
   /** Total occurrences */
   total: number;
   /** Total count (alias for total) */
@@ -1431,6 +1444,8 @@ export interface ErrorFrequencyData {
   trend: ErrorTrend;
   /** Recent occurrences */
   occurrences?: Date[];
+  /** First occurrence date */
+  firstOccurrence?: Date;
   /** Last occurrence date */
   lastOccurrence?: Date;
   /** Last analysis timestamp */
@@ -1449,6 +1464,12 @@ export interface SimilarityScore {
   factors: Record<string, number>;
   /** Overall similarity score */
   overall?: number;
+  /** Text similarity score */
+  textSimilarity?: number;
+  /** Context similarity score */
+  contextSimilarity?: number;
+  /** Pattern similarity score */
+  patternSimilarity?: number;
 }
 
 /**

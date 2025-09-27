@@ -13,15 +13,17 @@ import {
 } from '../core/subagent.js';
 import type {
   Task,
+  TaskExecutionContext,
+  TaskDependency,
+} from './TaskExecutionEngine.js';
+import { TaskBreakdownAnalyzer } from './TaskExecutionEngine.js';
+import {
+  TaskStatus,
+  TaskCategory,
   TaskType,
   TaskComplexity,
   TaskPriority,
-  TaskExecutionContext,
-  TaskDependency,
-  AgentCapability,
-  TaskMetrics,
-} from './TaskExecutionEngine.js';
-import { TaskBreakdownAnalyzer, TaskStatus } from './TaskExecutionEngine.js';
+} from './types.js';
 import { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -81,11 +83,17 @@ export class TaskExecutionEngine {
 
       // Restore task queues
       for (const [id, taskData] of Object.entries(state.taskQueue || {})) {
-        this.taskQueue.set(id, this.deserializeTask(taskData as any));
+        this.taskQueue.set(
+          id,
+          this.deserializeTask(taskData as Record<string, unknown>),
+        );
       }
 
       for (const [id, taskData] of Object.entries(state.completedTasks || {})) {
-        this.completedTasks.set(id, this.deserializeTask(taskData as any));
+        this.completedTasks.set(
+          id,
+          this.deserializeTask(taskData as Record<string, unknown>),
+        );
       }
 
       // Restore dependencies
@@ -96,7 +104,7 @@ export class TaskExecutionEngine {
       console.log(
         `Loaded ${this.taskQueue.size} queued tasks and ${this.completedTasks.size} completed tasks from persistence`,
       );
-    } catch (error) {
+    } catch (_error) {
       // No persisted state or error loading - start fresh
       console.log('Starting with fresh task execution state');
     }
@@ -133,7 +141,7 @@ export class TaskExecutionEngine {
   /**
    * Serialize task for persistence (convert dates to strings)
    */
-  private serializeTask(task: Task): any {
+  private serializeTask(task: Task): Record<string, unknown> {
     return {
       ...task,
       createdAt: task.createdAt.toISOString(),
@@ -154,7 +162,7 @@ export class TaskExecutionEngine {
   /**
    * Deserialize task from persistence (convert strings to dates)
    */
-  private deserializeTask(data: any): Task {
+  private deserializeTask(data: Record<string, unknown>): Task {
     return {
       ...data,
       createdAt: new Date(data.createdAt),
@@ -346,14 +354,22 @@ export class TaskExecutionEngine {
       complexity,
       priority: options.priority || TaskPriority.NORMAL,
       status: TaskStatus.QUEUED,
+      category: TaskCategory.FEATURE,
       progress: 0,
       requiredCapabilities: [],
       subtaskIds: [],
       dependencies: [],
-      maxExecutionTimeMinutes: options.maxExecutionTimeMinutes || this.getDefaultExecutionTime(complexity),
+      maxExecutionTimeMinutes:
+        options.maxExecutionTimeMinutes ||
+        this.getDefaultExecutionTime(complexity),
       maxRetries: 3,
       context: options.context || {},
       expectedOutputs: options.expectedOutputs || {},
+      metadata: {
+        createdAt: now,
+        updatedAt: now,
+        createdBy: 'TaskExecutionEngine',
+      },
       createdAt: now,
       updatedAt: now,
       retryCount: 0,
@@ -600,7 +616,7 @@ export class TaskExecutionEngine {
   /**
    * Gets execution statistics
    */
-  getExecutionStats(): any {
+  getExecutionStats(): Record<string, unknown> {
     const allTasks = this.getAllTasks();
     return TaskExecutionUtils.calculateExecutionStats(allTasks);
   }
