@@ -16,6 +16,8 @@
  * - Hook system integration
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import type { Config } from '../config/config.js';
 import { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
 import {
@@ -24,6 +26,7 @@ import {
 } from './EnhancedAutonomousTaskQueue.js';
 import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
+import type { TaskStatus } from './TaskQueue.js';
 import { TaskQueue, TaskPriority } from './TaskQueue.js';
 import { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
 import { CrossSessionPersistenceEngine } from './CrossSessionPersistenceEngine.js';
@@ -32,11 +35,7 @@ import type {
   TaskId,
   TaskStatus,
   TaskResult,
-  TaskExecutionContext} from './types.js';
-import {
-  TaskQueueConfig,
-  ExecutionPlan,
-  DependencyGraph,
+  TaskExecutionContext,
 } from './types.js';
 
 /**
@@ -365,7 +364,8 @@ export class TaskManager {
         category: (options?.category as any) || 'implementation',
         priority: options?.priority || TaskPriority.MEDIUM,
         estimatedDuration: this.estimateTaskDuration(title, description),
-        executeFunction: async (task, executionContext) => this.executeTaskWithQualityGates(task, executionContext),
+        executeFunction: async (task, executionContext) =>
+          this.executeTaskWithQualityGates(task, executionContext),
         dependencies: options?.dependencies,
         executionContext: options?.executionContext,
         parameters: options?.parameters,
@@ -693,9 +693,9 @@ export class TaskManager {
     switch (task.status) {
       case 'pending':
         return 0;
-      case 'ready':
+      case 'queued':
         return 10;
-      case 'in_progress':
+      case 'running':
         return 50;
       case 'completed':
         return 100;
@@ -732,7 +732,7 @@ export class TaskManager {
 
   private async runPostExecutionChecks(
     task: any,
-    result: any,
+    _result: any,
   ): Promise<{ passed: boolean; reason?: string }> {
     // Implementation would include actual validation
     console.log(`✅ Running post-execution checks for: ${task.title}`);
@@ -784,8 +784,8 @@ export class TaskManager {
   }
 
   private getAllTasks(): any[] {
-    const autonomousTasks = this.autonomousQueue.getAllTasks();
-    const traditionalTasks = this.priorityQueue.getAllTasks();
+    const autonomousTasks = this.autonomousQueue.getTasks();
+    const traditionalTasks = this.priorityQueue.getTasks();
     return [...autonomousTasks, ...traditionalTasks];
   }
 
@@ -798,7 +798,7 @@ export class TaskManager {
     // Record system-level metrics
     this.monitoring.recordEvent({
       taskId: 'system',
-      eventType: 'system_metrics',
+      eventType: 'progress',
       timestamp: new Date(),
       metadata: {
         totalTasks: allTasks.length,
@@ -817,7 +817,7 @@ export class TaskManager {
     if (this.monitoring) {
       this.monitoring.recordEvent({
         taskId: task.id,
-        eventType: 'status_change',
+        eventType: 'progress',
         timestamp: new Date(),
         metadata: {
           oldStatus: task.status,
@@ -917,9 +917,3 @@ export async function createTaskManager(
 /**
  * Export interfaces and types for external use
  */
-export type {
-  TaskManagerConfig,
-  AutonomousContext,
-  TaskExecutionStrategy,
-  AutonomousDecision,
-};
