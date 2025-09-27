@@ -5,12 +5,7 @@
  */
 
 import { execSync } from 'node:child_process';
-import {
-  PRStatus,
-  ReviewStatus,
-  CheckStatus,
-  MergeStrategy,
-} from './types.js';
+import { PRStatus, ReviewStatus, CheckStatus, MergeStrategy } from './types.js';
 import type {
   PullRequest,
   VCAutomationConfig,
@@ -864,7 +859,7 @@ export class PullRequestAutomator {
       );
 
       let added = 0;
-        let deleted = 0;
+      let deleted = 0;
       diffStat.split('\n').forEach((line) => {
         if (line.trim()) {
           const [addedStr, deletedStr] = line.split('\t');

@@ -205,7 +205,7 @@ export interface AllocationSystem {
   /** Generate recommendations */
   generateRecommendations(
     candidates: AllocationCandidate[],
-    context: RecommendationContext
+    context: RecommendationContext,
   ): Promise<RecommendationResult>;
   /** Update system configuration */
   updateConfiguration(config: Partial<AllocationSystemConfig>): void;
@@ -281,13 +281,13 @@ export const DEFAULT_ALLOCATION_CONFIG: AllocationSystemConfig = {
  */
 export function createAllocationSystem(
   config: Partial<AllocationSystemConfig> = {},
-  logger: AllocationLogger
+  logger: AllocationLogger,
 ): AllocationSystem {
   const finalConfig = { ...DEFAULT_ALLOCATION_CONFIG, ...config };
 
   const recommendationEngine = createRecommendationEngine(
     finalConfig.defaultStrategy,
-    logger
+    logger,
   );
 
   const startTime = Date.now();
@@ -302,13 +302,16 @@ export function createAllocationSystem(
 
     async generateRecommendations(
       candidates: AllocationCandidate[],
-      context: RecommendationContext
+      context: RecommendationContext,
     ): Promise<RecommendationResult> {
       const requestStart = performance.now();
       requestCount++;
 
       try {
-        const result = await recommendationEngine.generateRecommendations(candidates, context);
+        const result = await recommendationEngine.generateRecommendations(
+          candidates,
+          context,
+        );
         successCount++;
 
         const processingTime = performance.now() - requestStart;
@@ -320,14 +323,14 @@ export function createAllocationSystem(
         logger.info('Allocation recommendations generated successfully', {
           candidateCount: candidates.length,
           recommendationCount: result.primaryRecommendations.length,
-          processingTime
+          processingTime,
         });
 
         return result;
       } catch (error) {
         logger.error('Failed to generate allocation recommendations', {
           error: error instanceof Error ? error.message : 'Unknown error',
-          candidateCount: candidates.length
+          candidateCount: candidates.length,
         });
         throw error;
       }
@@ -341,20 +344,24 @@ export function createAllocationSystem(
     getHealthMetrics(): AllocationSystemHealth {
       const now = Date.now();
       const uptime = now - startTime;
-      const successRate = requestCount > 0 ? (successCount / requestCount) * 100 : 100;
-      const averageProcessingTime = processingTimes.length > 0
-        ? processingTimes.reduce((sum, time) => sum + time, 0) / processingTimes.length
-        : 0;
-      const lastProcessingTime = processingTimes.length > 0
-        ? processingTimes[processingTimes.length - 1]
-        : 0;
+      const successRate =
+        requestCount > 0 ? (successCount / requestCount) * 100 : 100;
+      const averageProcessingTime =
+        processingTimes.length > 0
+          ? processingTimes.reduce((sum, time) => sum + time, 0) /
+            processingTimes.length
+          : 0;
+      const lastProcessingTime =
+        processingTimes.length > 0
+          ? processingTimes[processingTimes.length - 1]
+          : 0;
 
       // Simplified memory usage (would need actual memory monitoring in production)
       const memoryUsage = process.memoryUsage();
       const memoryUsageInfo = {
         used: memoryUsage.heapUsed,
         total: memoryUsage.heapTotal,
-        percentage: (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100
+        percentage: (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100,
       };
 
       let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
@@ -372,15 +379,15 @@ export function createAllocationSystem(
         successRate,
         requestCount,
         uptime,
-        memoryUsage: memoryUsageInfo
+        memoryUsage: memoryUsageInfo,
       };
-    }
+    },
   };
 
   logger.info('Allocation system created successfully', {
     defaultStrategy: finalConfig.defaultStrategy,
     multiStrategy: finalConfig.enableMultiStrategy,
-    scenarios: finalConfig.enableScenarios
+    scenarios: finalConfig.enableScenarios,
   });
 
   return system;
@@ -394,7 +401,7 @@ export function createAllocationSystem(
  */
 export function createAllocationCandidatesFromBudgetData(
   budgetData: unknown[], // This would be properly typed based on actual budget data structure
-  _settings: unknown = {} // This would be properly typed based on actual settings structure
+  _settings: unknown = {}, // This would be properly typed based on actual settings structure
 ): AllocationCandidate[] {
   // This is a placeholder implementation
   // In a real system, this would convert budget data to allocation candidates
@@ -410,24 +417,24 @@ export function createAllocationCandidatesFromBudgetData(
  */
 export function createRecommendationContext(
   totalBudget: number,
-  preferences: Partial<RecommendationContext['preferences']> = {}
+  preferences: Partial<RecommendationContext['preferences']> = {},
 ): RecommendationContext {
   return {
     budgetConstraints: {
       totalBudget,
-      emergencyReserve: totalBudget * 0.1 // 10% reserve
+      emergencyReserve: totalBudget * 0.1, // 10% reserve
     },
     businessContext: {
       fiscalYear: new Date().getFullYear().toString(),
       businessCycle: 'maintenance',
       marketConditions: 'stable',
-      competitivePosition: 'challenger'
+      competitivePosition: 'challenger',
     },
     preferences: {
       riskTolerance: 'moderate',
       optimizationHorizon: 'medium_term',
       priorityFocus: 'efficiency',
-      ...preferences
-    }
+      ...preferences,
+    },
   };
 }

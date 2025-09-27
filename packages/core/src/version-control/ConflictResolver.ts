@@ -272,7 +272,11 @@ export class ConflictResolver {
         );
         conflicts.push(conflict);
         currentConflict = null;
-      } else if (currentConflict && Array.isArray(currentConflict.oursContent) && Array.isArray(currentConflict.theirsContent)) {
+      } else if (
+        currentConflict &&
+        Array.isArray(currentConflict.oursContent) &&
+        Array.isArray(currentConflict.theirsContent)
+      ) {
         if (currentConflict.separatorLine) {
           currentConflict.theirsContent.push(line);
         } else {
@@ -319,10 +323,10 @@ export class ConflictResolver {
   ): Promise<SemanticAnalysis> {
     const oursCode = Array.isArray(conflict.oursContent)
       ? conflict.oursContent.join('\n')
-      : (conflict.oursContent || '');
+      : conflict.oursContent || '';
     const theirsCode = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent.join('\n')
-      : (conflict.theirsContent || '');
+      : conflict.theirsContent || '';
 
     return {
       syntaxValid: {
@@ -687,10 +691,14 @@ export class ConflictResolver {
   private isImportConflict(conflict: MergeConflict): boolean {
     const oursContent = Array.isArray(conflict.oursContent)
       ? conflict.oursContent
-      : conflict.oursContent ? [conflict.oursContent] : [];
+      : conflict.oursContent
+        ? [conflict.oursContent]
+        : [];
     const theirsContent = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent
-      : conflict.theirsContent ? [conflict.theirsContent] : [];
+      : conflict.theirsContent
+        ? [conflict.theirsContent]
+        : [];
     const allContent = [...oursContent, ...theirsContent].join('\n');
     return /^(import|from|require|#include)/m.test(allContent);
   }
@@ -698,10 +706,10 @@ export class ConflictResolver {
   private isFormatOnlyConflict(conflict: MergeConflict): boolean {
     const oursContent = Array.isArray(conflict.oursContent)
       ? conflict.oursContent.join('')
-      : (conflict.oursContent || '');
+      : conflict.oursContent || '';
     const theirsContent = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent.join('')
-      : (conflict.theirsContent || '');
+      : conflict.theirsContent || '';
     const oursNormalized = oursContent.replace(/\s/g, '');
     const theirsNormalized = theirsContent.replace(/\s/g, '');
     return oursNormalized === theirsNormalized;
@@ -712,10 +720,14 @@ export class ConflictResolver {
       /\b(if|else|for|while|switch|case|function|class|method)\b/;
     const oursContent = Array.isArray(conflict.oursContent)
       ? conflict.oursContent
-      : conflict.oursContent ? [conflict.oursContent] : [];
+      : conflict.oursContent
+        ? [conflict.oursContent]
+        : [];
     const theirsContent = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent
-      : conflict.theirsContent ? [conflict.theirsContent] : [];
+      : conflict.theirsContent
+        ? [conflict.theirsContent]
+        : [];
     const allContent = [...oursContent, ...theirsContent].join('\n');
     return logicPatterns.test(allContent);
   }
@@ -724,10 +736,14 @@ export class ConflictResolver {
     const structurePatterns = /\b(interface|type|struct|class|schema|model)\b/;
     const oursContent = Array.isArray(conflict.oursContent)
       ? conflict.oursContent
-      : conflict.oursContent ? [conflict.oursContent] : [];
+      : conflict.oursContent
+        ? [conflict.oursContent]
+        : [];
     const theirsContent = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent
-      : conflict.theirsContent ? [conflict.theirsContent] : [];
+      : conflict.theirsContent
+        ? [conflict.theirsContent]
+        : [];
     const allContent = [...oursContent, ...theirsContent].join('\n');
     return structurePatterns.test(allContent);
   }
@@ -779,10 +795,14 @@ export class ConflictResolver {
     const risks: string[] = [];
     const oursContent = Array.isArray(conflict.oursContent)
       ? conflict.oursContent
-      : conflict.oursContent ? [conflict.oursContent] : [];
+      : conflict.oursContent
+        ? [conflict.oursContent]
+        : [];
     const theirsContent = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent
-      : conflict.theirsContent ? [conflict.theirsContent] : [];
+      : conflict.theirsContent
+        ? [conflict.theirsContent]
+        : [];
     const allContent = [...oursContent, ...theirsContent].join('\n');
 
     if (/delete|remove|drop/i.test(allContent)) risks.push('data_deletion');
@@ -807,10 +827,14 @@ export class ConflictResolver {
     const deps: string[] = [];
     const oursContent = Array.isArray(conflict.oursContent)
       ? conflict.oursContent
-      : conflict.oursContent ? [conflict.oursContent] : [];
+      : conflict.oursContent
+        ? [conflict.oursContent]
+        : [];
     const theirsContent = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent
-      : conflict.theirsContent ? [conflict.theirsContent] : [];
+      : conflict.theirsContent
+        ? [conflict.theirsContent]
+        : [];
     const allContent = [...oursContent, ...theirsContent].join('\n');
 
     const importMatches = allContent.match(
@@ -833,10 +857,14 @@ export class ConflictResolver {
       if (conflict.type && rule.conflictTypes.includes(conflict.type)) {
         const oursContent = Array.isArray(conflict.oursContent)
           ? conflict.oursContent
-          : conflict.oursContent ? [conflict.oursContent] : [];
+          : conflict.oursContent
+            ? [conflict.oursContent]
+            : [];
         const theirsContent = Array.isArray(conflict.theirsContent)
           ? conflict.theirsContent
-          : conflict.theirsContent ? [conflict.theirsContent] : [];
+          : conflict.theirsContent
+            ? [conflict.theirsContent]
+            : [];
         const allContent = [...oursContent, ...theirsContent].join('\n');
         if (rule.pattern.test(allContent)) {
           return rule;
@@ -859,7 +887,7 @@ export class ConflictResolver {
     if (semantic.functionalEquivalence) {
       const oursContent = Array.isArray(conflict.oursContent)
         ? conflict.oursContent.join('\n')
-        : (conflict.oursContent || '');
+        : conflict.oursContent || '';
       return {
         content: oursContent,
         confidence: 0.9,
@@ -927,10 +955,14 @@ export class ConflictResolver {
   } {
     const oursContent = Array.isArray(conflict.oursContent)
       ? conflict.oursContent
-      : conflict.oursContent ? [conflict.oursContent] : [];
+      : conflict.oursContent
+        ? [conflict.oursContent]
+        : [];
     const theirsContent = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent
-      : conflict.theirsContent ? [conflict.theirsContent] : [];
+      : conflict.theirsContent
+        ? [conflict.theirsContent]
+        : [];
 
     const allImports = [...oursContent, ...theirsContent]
       .filter((line) => line.trim())
@@ -951,10 +983,14 @@ export class ConflictResolver {
   } {
     const oursContent = Array.isArray(conflict.oursContent)
       ? conflict.oursContent
-      : conflict.oursContent ? [conflict.oursContent] : [];
+      : conflict.oursContent
+        ? [conflict.oursContent]
+        : [];
     const theirsContent = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent
-      : conflict.theirsContent ? [conflict.theirsContent] : [];
+      : conflict.theirsContent
+        ? [conflict.theirsContent]
+        : [];
 
     // Choose the version with better formatting (more consistent indentation)
     const oursFormatScore = this.calculateFormattingScore(oursContent);
@@ -979,10 +1015,10 @@ export class ConflictResolver {
   } {
     const oursContent = Array.isArray(conflict.oursContent)
       ? conflict.oursContent.join('\n')
-      : (conflict.oursContent || '');
+      : conflict.oursContent || '';
     const theirsContent = Array.isArray(conflict.theirsContent)
       ? conflict.theirsContent.join('\n')
-      : (conflict.theirsContent || '');
+      : conflict.theirsContent || '';
 
     // Extract version numbers and select the latest
     const oursVersion = this.extractVersion(oursContent);

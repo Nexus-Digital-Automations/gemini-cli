@@ -7,12 +7,8 @@
 import type { Config } from '../config/config.js';
 import type { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
 import type { Task } from './TaskExecutionEngine.js';
-import {
-  TaskType,
-  TaskStatus,
-  TaskPriority,
-  TaskComplexity,
-} from './types.js';
+import type { TaskStatus } from './types.js';
+import { TaskType, TaskPriority, TaskComplexity } from './types.js';
 import type { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { spawn, type ChildProcess } from 'node:child_process';
 import * as path from 'node:path';
@@ -609,7 +605,8 @@ export class InfiniteHookIntegration {
       const stats = this.taskEngine.getExecutionStats();
 
       // Check if all critical conditions are met
-      const allTasksComplete = stats.inProgress === 0 && (stats.total as number) > 0;
+      const allTasksComplete =
+        stats.inProgress === 0 && (stats.total as number) > 0;
       const highSuccessRate = (stats.successRate as number) >= 80;
       const noFailures = stats.failed === 0;
 

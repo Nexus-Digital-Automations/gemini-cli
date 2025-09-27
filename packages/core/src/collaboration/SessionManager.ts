@@ -21,7 +21,12 @@ import type {
   AsyncHandoff,
   SessionMetrics,
 } from './types.js';
-import { SessionStatus, SessionType, ParticipantRole, CollaborationEventType } from './types.js';
+import {
+  SessionStatus,
+  SessionType,
+  ParticipantRole,
+  CollaborationEventType,
+} from './types.js';
 import type { ContextItem } from '../context/types.js';
 import { ConflictResolver } from './ConflictResolver.js';
 import { ContextSynchronizer } from './ContextSynchronizer.js';
@@ -54,9 +59,12 @@ export class SessionManager extends EventEmitter {
    * Create a new collaboration session
    */
   async createSession(
-    hostParticipant: Omit<SessionParticipant, 'joinedAt' | 'lastActive' | 'isOnline'>,
+    hostParticipant: Omit<
+      SessionParticipant,
+      'joinedAt' | 'lastActive' | 'isOnline'
+    >,
     config: SessionConfig,
-    sessionName?: string
+    sessionName?: string,
   ): Promise<CollaborationSession> {
     const sessionId = this.generateSessionId();
     const now = new Date();
@@ -122,7 +130,10 @@ export class SessionManager extends EventEmitter {
    */
   async joinSession(
     sessionId: string,
-    participant: Omit<SessionParticipant, 'joinedAt' | 'lastActive' | 'isOnline'>
+    participant: Omit<
+      SessionParticipant,
+      'joinedAt' | 'lastActive' | 'isOnline'
+    >,
   ): Promise<CollaborationSession> {
     const session = this.activeSessions.get(sessionId);
     if (!session) {
@@ -138,7 +149,9 @@ export class SessionManager extends EventEmitter {
     }
 
     // Check if participant already exists
-    const existingParticipant = session.participants.find(p => p.userId === participant.userId);
+    const existingParticipant = session.participants.find(
+      (p) => p.userId === participant.userId,
+    );
     if (existingParticipant) {
       // Update existing participant to online status
       existingParticipant.isOnline = true;
@@ -157,8 +170,13 @@ export class SessionManager extends EventEmitter {
     session.lastActivity = new Date();
 
     // Synchronize context with new participant
-    const activeParticipant = existingParticipant || session.participants[session.participants.length - 1];
-    await this.contextSynchronizer.syncParticipant(sessionId, activeParticipant.id);
+    const activeParticipant =
+      existingParticipant ||
+      session.participants[session.participants.length - 1];
+    await this.contextSynchronizer.syncParticipant(
+      sessionId,
+      activeParticipant.id,
+    );
 
     // Log participant joined event
     await this.eventBus.publishEvent({
@@ -187,9 +205,13 @@ export class SessionManager extends EventEmitter {
       throw new Error(`Session ${sessionId} not found`);
     }
 
-    const participantIndex = session.participants.findIndex(p => p.id === participantId);
+    const participantIndex = session.participants.findIndex(
+      (p) => p.id === participantId,
+    );
     if (participantIndex === -1) {
-      throw new Error(`Participant ${participantId} not found in session ${sessionId}`);
+      throw new Error(
+        `Participant ${participantId} not found in session ${sessionId}`,
+      );
     }
 
     const participant = session.participants[participantIndex];
@@ -214,17 +236,18 @@ export class SessionManager extends EventEmitter {
       timestamp: new Date(),
       data: {
         participantName: participant.name,
-        remainingParticipants: session.participants.filter(p => p.isOnline).length,
+        remainingParticipants: session.participants.filter((p) => p.isOnline)
+          .length,
       },
     });
 
     // End session if no participants remain
-    if (session.participants.filter(p => p.isOnline).length === 0) {
+    if (session.participants.filter((p) => p.isOnline).length === 0) {
       await this.endSession(sessionId, 'No active participants');
     } else {
       // Reassign host if current host left
       if (participant.id === session.host.id) {
-        const newHost = session.participants.find(p => p.isOnline);
+        const newHost = session.participants.find((p) => p.isOnline);
         if (newHost) {
           session.host = newHost;
           newHost.role = ParticipantRole.DRIVER;
@@ -254,7 +277,8 @@ export class SessionManager extends EventEmitter {
 
     // Calculate final metrics
     const endTime = new Date();
-    session.metadata.durationMs = endTime.getTime() - session.createdAt.getTime();
+    session.metadata.durationMs =
+      endTime.getTime() - session.createdAt.getTime();
 
     // Log session ended event
     await this.eventBus.publishEvent({
@@ -287,7 +311,7 @@ export class SessionManager extends EventEmitter {
   async shareContext(
     sessionId: string,
     participantId: string,
-    contextItems: ContextItem[]
+    contextItems: ContextItem[],
   ): Promise<void> {
     const session = this.activeSessions.get(sessionId);
     if (!session) {
@@ -295,7 +319,9 @@ export class SessionManager extends EventEmitter {
     }
 
     // Verify participant is in session
-    const participant = session.participants.find(p => p.id === participantId);
+    const participant = session.participants.find(
+      (p) => p.id === participantId,
+    );
     if (!participant) {
       throw new Error(`Participant ${participantId} not found in session`);
     }
@@ -335,7 +361,7 @@ export class SessionManager extends EventEmitter {
     toParticipantId: string,
     message: string,
     contextItems: ContextItem[],
-    expiryHours: number = 24
+    expiryHours: number = 24,
   ): Promise<AsyncHandoff> {
     const session = this.activeSessions.get(sessionId);
     if (!session || session.config.type !== SessionType.ASYNC) {
@@ -383,7 +409,9 @@ export class SessionManager extends EventEmitter {
 
     for (const participant of session.participants) {
       const joinTime = participant.joinedAt.getTime();
-      const leaveTime = participant.isOnline ? currentTime : participant.lastActive.getTime();
+      const leaveTime = participant.isOnline
+        ? currentTime
+        : participant.lastActive.getTime();
       participantDurations.set(participant.id, leaveTime - joinTime);
       participantActivities.set(participant.id, 0);
     }
@@ -394,22 +422,37 @@ export class SessionManager extends EventEmitter {
       participantActivities.set(event.participantId, current + 1);
     }
 
-    const mostActiveParticipant = Array.from(participantActivities.entries())
-      .sort(([, a], [, b]) => b - a)[0]?.[0] || session.host.id;
+    const mostActiveParticipant =
+      Array.from(participantActivities.entries()).sort(
+        ([, a], [, b]) => b - a,
+      )[0]?.[0] || session.host.id;
 
     // Count events by type
-    const editEvents = events.filter(e => e.type === CollaborationEventType.CODE_EDIT).length;
-    const messageEvents = events.filter(e => e.type === CollaborationEventType.MESSAGE_SENT).length;
-    const contextEvents = events.filter(e => e.type === CollaborationEventType.CONTEXT_SHARED).length;
-    const conflictEvents = events.filter(e => e.type === CollaborationEventType.CONFLICT_DETECTED).length;
-    const resolvedConflicts = events.filter(e => e.type === CollaborationEventType.CONFLICT_RESOLVED).length;
+    const editEvents = events.filter(
+      (e) => e.type === CollaborationEventType.CODE_EDIT,
+    ).length;
+    const messageEvents = events.filter(
+      (e) => e.type === CollaborationEventType.MESSAGE_SENT,
+    ).length;
+    const contextEvents = events.filter(
+      (e) => e.type === CollaborationEventType.CONTEXT_SHARED,
+    ).length;
+    const conflictEvents = events.filter(
+      (e) => e.type === CollaborationEventType.CONFLICT_DETECTED,
+    ).length;
+    const resolvedConflicts = events.filter(
+      (e) => e.type === CollaborationEventType.CONFLICT_RESOLVED,
+    ).length;
 
     return {
       sessionId,
       participation: {
         totalParticipants: session.participants.length,
-        avgDurationPerParticipant: Array.from(participantDurations.values())
-          .reduce((sum, duration) => sum + duration, 0) / session.participants.length,
+        avgDurationPerParticipant:
+          Array.from(participantDurations.values()).reduce(
+            (sum, duration) => sum + duration,
+            0,
+          ) / session.participants.length,
         mostActiveParticipant,
       },
       activity: {
@@ -417,11 +460,13 @@ export class SessionManager extends EventEmitter {
         totalMessages: messageEvents,
         totalContextShared: contextEvents,
         totalConflicts: conflictEvents,
-        conflictResolutionRate: conflictEvents > 0 ? (resolvedConflicts / conflictEvents) * 100 : 100,
+        conflictResolutionRate:
+          conflictEvents > 0 ? (resolvedConflicts / conflictEvents) * 100 : 100,
       },
       effectiveness: {
         avgResponseTimeMs: this.calculateAverageResponseTime(events),
-        contextSharingRate: contextEvents / (sessionDuration / (1000 * 60 * 60)), // per hour
+        contextSharingRate:
+          contextEvents / (sessionDuration / (1000 * 60 * 60)), // per hour
         productivityScore: this.calculateProductivityScore(session, events),
       },
     };
@@ -431,8 +476,9 @@ export class SessionManager extends EventEmitter {
    * Get active sessions
    */
   getActiveSessions(): CollaborationSession[] {
-    return Array.from(this.activeSessions.values())
-      .filter(session => session.status === SessionStatus.ACTIVE);
+    return Array.from(this.activeSessions.values()).filter(
+      (session) => session.status === SessionStatus.ACTIVE,
+    );
   }
 
   /**
@@ -445,7 +491,10 @@ export class SessionManager extends EventEmitter {
   /**
    * Update session status
    */
-  private async updateSessionStatus(sessionId: string, status: SessionStatus): Promise<void> {
+  private async updateSessionStatus(
+    sessionId: string,
+    status: SessionStatus,
+  ): Promise<void> {
     const session = this.activeSessions.get(sessionId);
     if (!session) {
       return;
@@ -473,7 +522,9 @@ export class SessionManager extends EventEmitter {
     this.conflictResolver.on('conflictResolved', async (conflict) => {
       const session = this.activeSessions.get(conflict.sessionId);
       if (session) {
-        const index = session.activeConflicts.findIndex(c => c.id === conflict.id);
+        const index = session.activeConflicts.findIndex(
+          (c) => c.id === conflict.id,
+        );
         if (index >= 0) {
           session.activeConflicts.splice(index, 1);
         }
@@ -525,7 +576,8 @@ export class SessionManager extends EventEmitter {
       const previous = events[i - 1];
 
       if (current.participantId !== previous.participantId) {
-        const responseTime = current.timestamp.getTime() - previous.timestamp.getTime();
+        const responseTime =
+          current.timestamp.getTime() - previous.timestamp.getTime();
         totalResponseTime += responseTime;
         responseCount++;
       }
@@ -539,18 +591,24 @@ export class SessionManager extends EventEmitter {
    */
   private calculateProductivityScore(
     session: CollaborationSession,
-    events: CollaborationEvent[]
+    events: CollaborationEvent[],
   ): number {
     // Productivity score based on various factors (0-100)
     let score = 0;
 
     // Base score for active participation
-    const activeParticipants = session.participants.filter(p => p.isOnline).length;
+    const activeParticipants = session.participants.filter(
+      (p) => p.isOnline,
+    ).length;
     score += Math.min(activeParticipants * 10, 50);
 
     // Score for collaboration activities
-    const editEvents = events.filter(e => e.type === CollaborationEventType.CODE_EDIT).length;
-    const contextEvents = events.filter(e => e.type === CollaborationEventType.CONTEXT_SHARED).length;
+    const editEvents = events.filter(
+      (e) => e.type === CollaborationEventType.CODE_EDIT,
+    ).length;
+    const contextEvents = events.filter(
+      (e) => e.type === CollaborationEventType.CONTEXT_SHARED,
+    ).length;
     score += Math.min(editEvents * 2, 30);
     score += Math.min(contextEvents * 3, 20);
 

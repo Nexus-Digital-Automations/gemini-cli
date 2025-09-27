@@ -13,10 +13,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type {
-  CollaborationEvent,
-  SessionParticipant,
-} from './types.js';
+import type { CollaborationEvent, SessionParticipant } from './types.js';
 import { CollaborationEventType } from './types.js';
 
 /**
@@ -74,7 +71,7 @@ export class CollaborationEventBus extends EventEmitter {
     sessionId: string,
     participantId: string,
     eventTypes: CollaborationEventType[],
-    handler: EventHandler
+    handler: EventHandler,
   ): string {
     const subscriptionId = this.generateSubscriptionId();
 
@@ -101,7 +98,10 @@ export class CollaborationEventBus extends EventEmitter {
    * Unsubscribe from events
    */
   unsubscribe(subscriptionId: string): boolean {
-    for (const [sessionId, subscriptions] of this.eventSubscriptions.entries()) {
+    for (const [
+      sessionId,
+      subscriptions,
+    ] of this.eventSubscriptions.entries()) {
       for (const subscription of subscriptions) {
         if (subscription.id === subscriptionId) {
           subscription.isActive = false;
@@ -130,29 +130,39 @@ export class CollaborationEventBus extends EventEmitter {
       startTime?: Date;
       endTime?: Date;
       limit?: number;
-    }
+    },
   ): CollaborationEvent[] {
     const sessionHistory = this.eventHistory.get(sessionId) || [];
     let filteredEvents = [...sessionHistory];
 
     if (options?.eventTypes) {
-      filteredEvents = filteredEvents.filter(event => options.eventTypes!.includes(event.type));
+      filteredEvents = filteredEvents.filter((event) =>
+        options.eventTypes!.includes(event.type),
+      );
     }
 
     if (options?.participantId) {
-      filteredEvents = filteredEvents.filter(event => event.participantId === options.participantId);
+      filteredEvents = filteredEvents.filter(
+        (event) => event.participantId === options.participantId,
+      );
     }
 
     if (options?.startTime) {
-      filteredEvents = filteredEvents.filter(event => event.timestamp >= options.startTime!);
+      filteredEvents = filteredEvents.filter(
+        (event) => event.timestamp >= options.startTime!,
+      );
     }
 
     if (options?.endTime) {
-      filteredEvents = filteredEvents.filter(event => event.timestamp <= options.endTime!);
+      filteredEvents = filteredEvents.filter(
+        (event) => event.timestamp <= options.endTime!,
+      );
     }
 
     // Sort by timestamp (most recent first)
-    filteredEvents.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    filteredEvents.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
 
     if (options?.limit && options.limit > 0) {
       filteredEvents = filteredEvents.slice(0, options.limit);
@@ -167,7 +177,7 @@ export class CollaborationEventBus extends EventEmitter {
   getRecentEvents(
     sessionId: string,
     sinceTimestamp: Date,
-    participantId?: string
+    participantId?: string,
   ): CollaborationEvent[] {
     return this.getSessionEvents(sessionId, {
       startTime: sinceTimestamp,
@@ -196,7 +206,7 @@ export class CollaborationEventBus extends EventEmitter {
   async broadcastToSession(
     sessionId: string,
     message: unknown,
-    excludeParticipant?: string
+    excludeParticipant?: string,
   ): Promise<void> {
     const event: CollaborationEvent = {
       id: this.generateEventId(),
@@ -221,7 +231,7 @@ export class CollaborationEventBus extends EventEmitter {
     sessionId: string,
     fromParticipantId: string,
     toParticipantId: string,
-    message: unknown
+    message: unknown,
   ): Promise<void> {
     const event: CollaborationEvent = {
       id: this.generateEventId(),
@@ -271,7 +281,8 @@ export class CollaborationEventBus extends EventEmitter {
     for (const event of events) {
       eventsByType[event.type]++;
 
-      eventsByParticipant[event.participantId] = (eventsByParticipant[event.participantId] || 0) + 1;
+      eventsByParticipant[event.participantId] =
+        (eventsByParticipant[event.participantId] || 0) + 1;
 
       if (!mostRecentEvent || event.timestamp > mostRecentEvent) {
         mostRecentEvent = event.timestamp;
@@ -282,10 +293,13 @@ export class CollaborationEventBus extends EventEmitter {
     let eventsPerHour = 0;
     if (events.length > 0 && mostRecentEvent) {
       const oldestEvent = events.reduce((oldest, event) =>
-        event.timestamp < oldest.timestamp ? event : oldest
+        event.timestamp < oldest.timestamp ? event : oldest,
       );
-      const timeSpanHours = (mostRecentEvent.getTime() - oldestEvent.timestamp.getTime()) / (1000 * 60 * 60);
-      eventsPerHour = timeSpanHours > 0 ? events.length / timeSpanHours : events.length;
+      const timeSpanHours =
+        (mostRecentEvent.getTime() - oldestEvent.timestamp.getTime()) /
+        (1000 * 60 * 60);
+      eventsPerHour =
+        timeSpanHours > 0 ? events.length / timeSpanHours : events.length;
     }
 
     return {
@@ -325,9 +339,16 @@ export class CollaborationEventBus extends EventEmitter {
       participantIds: string[];
     }> = [];
 
-    for (const [sessionId, subscriptions] of this.eventSubscriptions.entries()) {
-      const activeSubscriptions = Array.from(subscriptions).filter(sub => sub.isActive);
-      const participantIds = Array.from(new Set(activeSubscriptions.map(sub => sub.participantId)));
+    for (const [
+      sessionId,
+      subscriptions,
+    ] of this.eventSubscriptions.entries()) {
+      const activeSubscriptions = Array.from(subscriptions).filter(
+        (sub) => sub.isActive,
+      );
+      const participantIds = Array.from(
+        new Set(activeSubscriptions.map((sub) => sub.participantId)),
+      );
 
       result.push({
         sessionId,
@@ -352,14 +373,19 @@ export class CollaborationEventBus extends EventEmitter {
 
     // Trim history if it exceeds maximum
     if (sessionHistory.length > this.maxHistoryPerSession) {
-      sessionHistory.splice(0, sessionHistory.length - this.maxHistoryPerSession);
+      sessionHistory.splice(
+        0,
+        sessionHistory.length - this.maxHistoryPerSession,
+      );
     }
   }
 
   /**
    * Apply filters to events
    */
-  private async applyFilters(event: CollaborationEvent): Promise<CollaborationEvent | null> {
+  private async applyFilters(
+    event: CollaborationEvent,
+  ): Promise<CollaborationEvent | null> {
     const filter = this.eventFilters.get(event.sessionId);
     if (!filter) {
       return event; // No filter, return original event
@@ -380,12 +406,17 @@ export class CollaborationEventBus extends EventEmitter {
     const notifications: Array<Promise<void>> = [];
 
     for (const subscription of sessionSubscriptions) {
-      if (subscription.isActive && subscription.eventTypes.includes(event.type)) {
+      if (
+        subscription.isActive &&
+        subscription.eventTypes.includes(event.type)
+      ) {
         // Don't notify participants of their own events unless explicitly requested
-        if (subscription.participantId !== event.participantId ||
-            subscription.eventTypes.includes(event.type)) {
+        if (
+          subscription.participantId !== event.participantId ||
+          subscription.eventTypes.includes(event.type)
+        ) {
           notifications.push(
-            this.handleSubscriptionNotification(subscription, event)
+            this.handleSubscriptionNotification(subscription, event),
           );
         }
       }
@@ -400,12 +431,15 @@ export class CollaborationEventBus extends EventEmitter {
    */
   private async handleSubscriptionNotification(
     subscription: EventSubscription,
-    event: CollaborationEvent
+    event: CollaborationEvent,
   ): Promise<void> {
     try {
       await subscription.handler(event, subscription);
     } catch (error) {
-      console.error(`Error in event subscription handler ${subscription.id}:`, error);
+      console.error(
+        `Error in event subscription handler ${subscription.id}:`,
+        error,
+      );
 
       // Emit error event for debugging
       this.emit('subscriptionError', {
@@ -463,9 +497,14 @@ interface EventSubscription {
 /**
  * Event handler function type
  */
-type EventHandler = (event: CollaborationEvent, subscription: EventSubscription) => Promise<void> | void;
+type EventHandler = (
+  event: CollaborationEvent,
+  subscription: EventSubscription,
+) => Promise<void> | void;
 
 /**
  * Event filter function type
  */
-type EventFilter = (event: CollaborationEvent) => Promise<CollaborationEvent | null> | CollaborationEvent | null;
+type EventFilter = (
+  event: CollaborationEvent,
+) => Promise<CollaborationEvent | null> | CollaborationEvent | null;

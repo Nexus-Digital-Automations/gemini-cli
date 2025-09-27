@@ -167,22 +167,47 @@ export class TaskExecutionEngine {
       ...(data as unknown as Task),
       createdAt: new Date(data.createdAt as string | number | Date),
       updatedAt: new Date(data.updatedAt as string | number | Date),
-      scheduledAt: data.scheduledAt ? new Date(data.scheduledAt as string | number | Date) : undefined,
-      startedAt: data.startedAt ? new Date(data.startedAt as string | number | Date) : undefined,
-      completedAt: data.completedAt ? new Date(data.completedAt as string | number | Date) : undefined,
+      scheduledAt: data.scheduledAt
+        ? new Date(data.scheduledAt as string | number | Date)
+        : undefined,
+      startedAt: data.startedAt
+        ? new Date(data.startedAt as string | number | Date)
+        : undefined,
+      completedAt: data.completedAt
+        ? new Date(data.completedAt as string | number | Date)
+        : undefined,
       metrics: data.metrics
         ? {
             ...(data.metrics as Record<string, unknown>),
-            startTime: new Date((data.metrics as Record<string, unknown>).startTime as string | number | Date),
+            startTime: new Date(
+              (data.metrics as Record<string, unknown>).startTime as
+                | string
+                | number
+                | Date,
+            ),
             endTime: (data.metrics as Record<string, unknown>).endTime
-              ? new Date((data.metrics as Record<string, unknown>).endTime as string | number | Date)
+              ? new Date(
+                  (data.metrics as Record<string, unknown>).endTime as
+                    | string
+                    | number
+                    | Date,
+                )
               : undefined,
-            durationMs: Number((data.metrics as Record<string, unknown>).durationMs) || 0,
-            tokenUsage: Number((data.metrics as Record<string, unknown>).tokenUsage) || 0,
-            toolCallsCount: Number((data.metrics as Record<string, unknown>).toolCallsCount) || 0,
-            subAgentCount: Number((data.metrics as Record<string, unknown>).subAgentCount) || 0,
-            errorCount: Number((data.metrics as Record<string, unknown>).errorCount) || 0,
-            retryCount: Number((data.metrics as Record<string, unknown>).retryCount) || 0,
+            durationMs:
+              Number((data.metrics as Record<string, unknown>).durationMs) || 0,
+            tokenUsage:
+              Number((data.metrics as Record<string, unknown>).tokenUsage) || 0,
+            toolCallsCount:
+              Number(
+                (data.metrics as Record<string, unknown>).toolCallsCount,
+              ) || 0,
+            subAgentCount:
+              Number((data.metrics as Record<string, unknown>).subAgentCount) ||
+              0,
+            errorCount:
+              Number((data.metrics as Record<string, unknown>).errorCount) || 0,
+            retryCount:
+              Number((data.metrics as Record<string, unknown>).retryCount) || 0,
           }
         : undefined,
     };

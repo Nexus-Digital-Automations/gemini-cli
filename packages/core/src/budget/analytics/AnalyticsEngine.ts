@@ -872,14 +872,20 @@ export class AnalyticsEngine {
     recommendations: OptimizationRecommendation[];
   }> {
     try {
-      const metrics = await this.getMetricsInRange(params.startDate, params.endDate);
+      const metrics = await this.getMetricsInRange(
+        params.startDate,
+        params.endDate,
+      );
       const filteredMetrics = this.applyFilters(metrics, params.filters || {});
 
       const analytics = {
-        dataPoints: this.groupByGranularity(filteredMetrics, params.granularity),
+        dataPoints: this.groupByGranularity(
+          filteredMetrics,
+          params.granularity,
+        ),
         summary: this.calculateSummaryStats(filteredMetrics),
         patterns: await this.recognizePatterns(filteredMetrics),
-        recommendations: await this.generateRecommendations(filteredMetrics)
+        recommendations: await this.generateRecommendations(filteredMetrics),
       };
 
       return analytics;
@@ -891,10 +897,10 @@ export class AnalyticsEngine {
           totalCost: 0,
           totalRequests: 0,
           averageCost: 0,
-          costRange: { min: 0, max: 0 }
+          costRange: { min: 0, max: 0 },
         },
         patterns: [],
-        recommendations: []
+        recommendations: [],
       };
     }
   }
@@ -922,7 +928,10 @@ export class AnalyticsEngine {
     }>;
   }> {
     try {
-      const metrics = await this.getMetricsInRange(params.startDate, params.endDate);
+      const metrics = await this.getMetricsInRange(
+        params.startDate,
+        params.endDate,
+      );
       const trends = this.calculateTrends(metrics);
       const patterns = await this.recognizePatterns(metrics);
 
@@ -930,7 +939,7 @@ export class AnalyticsEngine {
         trends,
         patterns,
         volatility: this.calculateVolatility(metrics),
-        forecast: this.generateSimpleForecast(metrics)
+        forecast: this.generateSimpleForecast(metrics),
       };
     } catch (error) {
       console.error('Failed to analyze trends:', error);
@@ -957,16 +966,28 @@ export class AnalyticsEngine {
     totalRequests: number;
   }> {
     try {
-      const metrics = await this.getMetricsInRange(params.startDate, params.endDate);
+      const metrics = await this.getMetricsInRange(
+        params.startDate,
+        params.endDate,
+      );
       const filteredMetrics = this.applyFilters(metrics, params.filters || {});
 
-      const breakdown = this.groupMetricsByField(filteredMetrics, params.groupBy);
+      const breakdown = this.groupMetricsByField(
+        filteredMetrics,
+        params.groupBy,
+      );
       const categories = this.calculateCategoryStats(breakdown);
 
       return {
         categories,
-        totalCost: categories.reduce((sum: number, cat: { cost: number }) => sum + cat.cost, 0),
-        totalRequests: categories.reduce((sum: number, cat: { requests: number }) => sum + cat.requests, 0)
+        totalCost: categories.reduce(
+          (sum: number, cat: { cost: number }) => sum + cat.cost,
+          0,
+        ),
+        totalRequests: categories.reduce(
+          (sum: number, cat: { requests: number }) => sum + cat.requests,
+          0,
+        ),
       };
     } catch (error) {
       console.error('Failed to generate cost breakdown:', error);
@@ -992,20 +1013,30 @@ export class AnalyticsEngine {
     try {
       // Basic implementation for custom queries
       const allMetrics = await this.loadMetrics();
-      const filteredMetrics = this.applyFilters(allMetrics || [], params.filters);
+      const filteredMetrics = this.applyFilters(
+        allMetrics || [],
+        params.filters,
+      );
 
       // Apply custom aggregations
-      const results = this.applyAggregations(filteredMetrics || [], params.aggregations);
+      const results = this.applyAggregations(
+        filteredMetrics || [],
+        params.aggregations,
+      );
 
       return {
         results,
         totalRecords: filteredMetrics.length,
         appliedFilters: params.filters,
-        executionTime: Date.now()
+        executionTime: Date.now(),
       };
     } catch (error) {
       console.error('Failed to execute custom query:', error);
-      return { results: [], totalRecords: 0, error: error instanceof Error ? error.message : 'Unknown error' };
+      return {
+        results: {},
+        totalRecords: 0,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
     }
   }
 
@@ -1016,10 +1047,14 @@ export class AnalyticsEngine {
     return await this.getMetricsInRange(thirtyDaysAgo, today);
   }
 
-  private applyFilters(metrics: UsageMetrics[], filters: Record<string, unknown>): UsageMetrics[] {
-    return metrics.filter(metric => {
+  private applyFilters(
+    metrics: UsageMetrics[],
+    filters: Record<string, unknown>,
+  ): UsageMetrics[] {
+    return metrics.filter((metric) => {
       for (const [key, value] of Object.entries(filters)) {
-        if ((metric as any)[key] !== value) {
+        const metricRecord = metric as Record<string, unknown>;
+        if (metricRecord[key] !== value) {
           return false;
         }
       }
@@ -1027,7 +1062,10 @@ export class AnalyticsEngine {
     });
   }
 
-  private groupByGranularity(metrics: UsageMetrics[], granularity: string): Array<{
+  private groupByGranularity(
+    metrics: UsageMetrics[],
+    granularity: string,
+  ): Array<{
     period: string;
     cost: number;
     requests: number;
@@ -1069,7 +1107,9 @@ export class AnalyticsEngine {
       period,
       cost: periodMetrics.reduce((sum, m) => sum + m.cost, 0),
       requests: periodMetrics.length,
-      averageCost: periodMetrics.reduce((sum, m) => sum + m.cost, 0) / periodMetrics.length || 0
+      averageCost:
+        periodMetrics.reduce((sum, m) => sum + m.cost, 0) /
+          periodMetrics.length || 0,
     }));
   }
 
@@ -1095,13 +1135,15 @@ export class AnalyticsEngine {
       totalRequests,
       averageCost,
       costRange: {
-        min: Math.min(...metrics.map(m => m.cost)),
-        max: Math.max(...metrics.map(m => m.cost))
-      }
+        min: Math.min(...metrics.map((m) => m.cost)),
+        max: Math.max(...metrics.map((m) => m.cost)),
+      },
     };
   }
 
-  private async generateRecommendations(metrics: UsageMetrics[]): Promise<OptimizationRecommendation[]> {
+  private async generateRecommendations(
+    metrics: UsageMetrics[],
+  ): Promise<OptimizationRecommendation[]> {
     // Simple implementation using existing feature analysis
     const featureAnalysis = await this.analyzeFeatureCosts(metrics);
     const recommendations: OptimizationRecommendation[] = [];
@@ -1122,31 +1164,41 @@ export class AnalyticsEngine {
     if (metrics.length < 2) return [];
 
     // Simple linear trend calculation
-    const sortedMetrics = metrics.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    const sortedMetrics = metrics.sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
     const halfwayPoint = Math.floor(sortedMetrics.length / 2);
 
     const firstHalf = sortedMetrics.slice(0, halfwayPoint);
     const secondHalf = sortedMetrics.slice(halfwayPoint);
 
-    const firstHalfAvg = firstHalf.reduce((sum, m) => sum + m.cost, 0) / firstHalf.length;
-    const secondHalfAvg = secondHalf.reduce((sum, m) => sum + m.cost, 0) / secondHalf.length;
+    const firstHalfAvg =
+      firstHalf.reduce((sum, m) => sum + m.cost, 0) / firstHalf.length;
+    const secondHalfAvg =
+      secondHalf.reduce((sum, m) => sum + m.cost, 0) / secondHalf.length;
 
     const change = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100;
 
-    return [{
-      metric: 'cost',
-      direction: change > 5 ? 'increasing' : change < -5 ? 'decreasing' : 'stable',
-      changePercentage: Math.abs(change),
-      confidence: Math.min(0.9, metrics.length / 100) // Higher confidence with more data
-    }];
+    return [
+      {
+        metric: 'cost',
+        direction:
+          change > 5 ? 'increasing' : change < -5 ? 'decreasing' : 'stable',
+        changePercentage: Math.abs(change),
+        confidence: Math.min(0.9, metrics.length / 100), // Higher confidence with more data
+      },
+    ];
   }
 
   private calculateVolatility(metrics: UsageMetrics[]): string {
     if (metrics.length < 3) return 'insufficient_data';
 
-    const costs = metrics.map(m => m.cost);
+    const costs = metrics.map((m) => m.cost);
     const mean = costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
-    const variance = costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) / costs.length;
+    const variance =
+      costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) /
+      costs.length;
     const standardDeviation = Math.sqrt(variance);
     const coefficientOfVariation = standardDeviation / mean;
 
@@ -1164,7 +1216,8 @@ export class AnalyticsEngine {
 
     // Simple moving average forecast
     const recentMetrics = metrics.slice(-5);
-    const avgCost = recentMetrics.reduce((sum, m) => sum + m.cost, 0) / recentMetrics.length;
+    const avgCost =
+      recentMetrics.reduce((sum, m) => sum + m.cost, 0) / recentMetrics.length;
 
     const forecast = [];
     const now = new Date();
@@ -1176,18 +1229,22 @@ export class AnalyticsEngine {
       forecast.push({
         date: forecastDate.toISOString(),
         predictedCost: avgCost * (0.9 + Math.random() * 0.2), // Add some variation
-        confidence: Math.max(0.5, 1 - (i * 0.1)) // Decreasing confidence over time
+        confidence: Math.max(0.5, 1 - i * 0.1), // Decreasing confidence over time
       });
     }
 
     return forecast;
   }
 
-  private groupMetricsByField(metrics: UsageMetrics[], field: string): Map<string, UsageMetrics[]> {
+  private groupMetricsByField(
+    metrics: UsageMetrics[],
+    field: string,
+  ): Map<string, UsageMetrics[]> {
     const groups = new Map<string, UsageMetrics[]>();
 
     for (const metric of metrics) {
-      const key = String((metric as any)[field] || 'unknown');
+      const metricRecord = metric as Record<string, unknown>;
+      const key = String(metricRecord[field] || 'unknown');
       if (!groups.has(key)) {
         groups.set(key, []);
       }
@@ -1197,41 +1254,67 @@ export class AnalyticsEngine {
     return groups;
   }
 
-  private calculateCategoryStats(breakdown: Map<string, UsageMetrics[]>): Array<{
+  private calculateCategoryStats(
+    breakdown: Map<string, UsageMetrics[]>,
+  ): Array<{
     category: string;
     cost: number;
     requests: number;
     averageCost: number;
   }> {
-    return Array.from(breakdown.entries()).map(([category, categoryMetrics]) => ({
-      category,
-      cost: categoryMetrics.reduce((sum, m) => sum + m.cost, 0),
-      requests: categoryMetrics.length,
-      averageCost: categoryMetrics.reduce((sum, m) => sum + m.cost, 0) / categoryMetrics.length || 0
-    })).sort((a, b) => b.cost - a.cost);
+    return Array.from(breakdown.entries())
+      .map(([category, categoryMetrics]) => ({
+        category,
+        cost: categoryMetrics.reduce((sum, m) => sum + m.cost, 0),
+        requests: categoryMetrics.length,
+        averageCost:
+          categoryMetrics.reduce((sum, m) => sum + m.cost, 0) /
+            categoryMetrics.length || 0,
+      }))
+      .sort((a, b) => b.cost - a.cost);
   }
 
-  private applyAggregations(metrics: UsageMetrics[], aggregations: Record<string, string>): Record<string, unknown> {
+  private applyAggregations(
+    metrics: UsageMetrics[],
+    aggregations: Record<string, string>,
+  ): Record<string, unknown> {
     const results: Record<string, unknown> = {};
 
     for (const [field, aggType] of Object.entries(aggregations)) {
-      const values = metrics.map(m => (m as any)[field]).filter(v => v !== undefined);
+      const values = metrics
+        .map((m) => (m as Record<string, unknown>)[field])
+        .filter((v) => v !== undefined);
 
       switch (aggType) {
         case 'sum':
-          results[field] = values.reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0);
+          results[field] = values.reduce(
+            (sum, v) => sum + (typeof v === 'number' ? v : 0),
+            0,
+          );
           break;
         case 'avg':
-          results[field] = values.length > 0 ? values.reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0) / values.length : 0;
+          results[field] =
+            values.length > 0
+              ? values.reduce(
+                  (sum, v) => sum + (typeof v === 'number' ? v : 0),
+                  0,
+                ) / values.length
+              : 0;
           break;
         case 'count':
           results[field] = values.length;
           break;
         case 'min':
-          results[field] = values.length > 0 ? Math.min(...values.filter(v => typeof v === 'number')) : 0;
+          results[field] =
+            values.length > 0
+              ? Math.min(...values.filter((v) => typeof v === 'number'))
+              : 0;
           break;
         case 'max':
-          results[field] = values.length > 0 ? Math.max(...values.filter(v => typeof v === 'number')) : 0;
+          results[field] =
+            values.length > 0
+              ? Math.max(...values.filter((v) => typeof v === 'number'))
+              : 0;
           break;
         default:
           results[field] = values;

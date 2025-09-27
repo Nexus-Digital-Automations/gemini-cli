@@ -282,8 +282,8 @@ export class SemanticCompressor {
   /**
    * Utility function to chunk array into smaller batches
    */
-  private chunkArray<T>(array: Array<T>, size: number): Array<Array<T>> {
-    const chunks: Array<Array<T>> = [];
+  private chunkArray<T>(array: T[], size: number): T[][] {
+    const chunks: T[][] = [];
     for (let i = 0; i < array.length; i += size) {
       chunks.push(array.slice(i, i + size));
     }

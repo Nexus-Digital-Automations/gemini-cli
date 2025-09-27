@@ -17,7 +17,8 @@ import type {
   GraphValidationError,
   GraphValidationWarning,
   Bottleneck,
-  BreakingPoint} from '../types/Dependency.js';
+  BreakingPoint,
+} from '../types/Dependency.js';
 import {
   DependencyNode,
   DependencyEdge,
@@ -28,7 +29,7 @@ import {
   GraphErrorType,
   GraphWarningType,
   OptimizationType,
-  OptimizationComplexity
+  OptimizationComplexity,
 } from '../types/Dependency.js';
 import type { Task, TaskId } from '../types/Task.js';
 
@@ -49,9 +50,7 @@ export class DependencyAnalysisEngine {
   /**
    * Validates dependency graph for structural integrity and logical consistency
    */
-  async validateGraph(
-    graph: DependencyGraph,
-  ): Promise<GraphValidationStatus> {
+  async validateGraph(graph: DependencyGraph): Promise<GraphValidationStatus> {
     const startTime = performance.now();
     console.log(`Validating dependency graph: ${graph.name}`);
 
@@ -203,9 +202,7 @@ export class DependencyAnalysisEngine {
   /**
    * Performs topological sorting to determine optimal execution order
    */
-  async topologicalSort(
-    graph: DependencyGraph,
-  ): Promise<DependencyNodeId[]> {
+  async topologicalSort(graph: DependencyGraph): Promise<DependencyNodeId[]> {
     console.log('Performing topological sort for execution order');
 
     const inDegree = new Map<DependencyNodeId, number>();
@@ -341,9 +338,7 @@ export class DependencyAnalysisEngine {
   /**
    * Calculates critical path using Forward and Backward Pass algorithms
    */
-  async calculateCriticalPath(
-    graph: DependencyGraph,
-  ): Promise<CriticalPath> {
+  async calculateCriticalPath(graph: DependencyGraph): Promise<CriticalPath> {
     console.log('Calculating critical path using CPM algorithm');
 
     const executionOrder = await this.topologicalSort(graph);

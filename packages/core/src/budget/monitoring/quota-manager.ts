@@ -619,10 +619,10 @@ export class QuotaManager extends EventEmitter {
             config.minDelay +
             Math.random() * (config.maxDelay - config.minDelay);
           break;
-      default:
-        // Handle unexpected values
-        break;
-    }
+        default:
+          // Handle unexpected values
+          break;
+      }
     }
 
     delay = Math.min(delay, config.maxDelay);
@@ -644,7 +644,7 @@ export class QuotaManager extends EventEmitter {
   private async handleQuotaViolation(
     limitId: string,
     limit: QuotaLimit,
-    validation: BudgetValidationResult
+    validation: BudgetValidationResult,
   ): Promise<void> {
     const usage = this.quotaUsage.get(limitId);
     if (!usage) return;

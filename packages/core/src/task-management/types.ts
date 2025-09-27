@@ -142,6 +142,35 @@ export interface TaskMetadata {
   tags?: string[];
   /** Custom metadata */
   custom?: Record<string, unknown>;
+  /** Whether this task is a subtask */
+  isSubtask?: boolean;
+  /** Whether this task can run in parallel */
+  canRunInParallel?: boolean;
+  /** Whether this task is a breakdown tracker */
+  isBreakdownTracker?: boolean;
+  /** Parent task ID if this is a subtask */
+  parentTaskId?: string;
+  /** Breakdown strategy used */
+  breakdownStrategy?: string;
+  /** Sequence order in breakdown */
+  sequenceOrder?: number;
+  /** Risk level */
+  riskLevel?: string;
+  /** Quality gates */
+  qualityGates?: string[];
+  /** Validation criteria */
+  validationCriteria?: string[];
+  /** Subtask IDs if this is a tracker */
+  subtaskIds?: string[];
+  /** Breakdown metadata */
+  breakdownMetadata?: Record<string, unknown>;
+  /** Original task ID for tracking */
+  originalTaskId?: string;
+  /** Autonomous analysis metadata */
+  autonomousAnalysis?: {
+    analyzedAt: Date;
+    queueVersion: string;
+  };
   /** ML predictions for task execution */
   mlPredictions?: {
     complexity: number;
@@ -234,7 +263,18 @@ export interface Task {
   /** Task last update timestamp */
   updatedAt?: Date;
   /** Function to execute the task */
-  executeFunction?: (task: Task, context: Record<string, unknown>) => Promise<{ success: boolean; result?: unknown; duration: number; error?: Error; metadata?: Record<string, unknown>; artifacts?: string[]; nextTasks?: Array<Partial<Task>> }>;
+  executeFunction?: (
+    task: Task,
+    context: Record<string, unknown>,
+  ) => Promise<{
+    success: boolean;
+    result?: unknown;
+    duration: number;
+    error?: Error;
+    metadata?: Record<string, unknown>;
+    artifacts?: string[];
+    nextTasks?: Array<Partial<Task>>;
+  }>;
 }
 
 /**
@@ -434,7 +474,8 @@ export interface TaskQueueConfig {
     | 'fifo'
     | 'priority'
     | 'dependency_aware'
-    | 'resource_optimal';
+    | 'resource_optimal'
+    | 'hybrid';
   /** Auto-dependency learning enabled */
   autoDependencyLearning: boolean;
   /** Performance monitoring enabled */

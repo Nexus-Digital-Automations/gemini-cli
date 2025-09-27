@@ -12,7 +12,10 @@
  * @version 1.0.0
  */
 
-import { getComponentLogger, type StructuredLogger } from '../../utils/logger.js';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '../../utils/logger.js';
 import type { BudgetSecurityContext } from '../types.js';
 import { BudgetPermission } from '../types.js';
 

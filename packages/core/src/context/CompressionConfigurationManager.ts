@@ -317,7 +317,7 @@ export enum ConfigurationPreset {
   PRODUCTION = 'production',
 
   /** High-volume settings - optimized for high-traffic scenarios */
-  HIGH_VOLUME = 'high_volume'
+  HIGH_VOLUME = 'high_volume',
 }
 
 /**
@@ -327,32 +327,32 @@ export const DEFAULT_COMPRESSION_CONFIG: CompressionSystemConfig = {
   tokenLimits: {
     maxTokenLimit: 1048576, // 1M tokens - Claude API limit
     thresholds: {
-      info: 0.70,     // 700K tokens
-      warning: 0.80,  // 819K tokens
+      info: 0.7, // 700K tokens
+      warning: 0.8, // 819K tokens
       critical: 0.85, // 891K tokens
-      emergency: 0.95 // 996K tokens
+      emergency: 0.95, // 996K tokens
     },
     predictive: {
       enabled: true,
       minutesAhead: 30,
-      minGrowthRate: 1000 // tokens per minute
-    }
+      minGrowthRate: 1000, // tokens per minute
+    },
   },
 
   compressionRatios: {
     targets: {
-      normal: 0.70,    // 70% of original
-      aggressive: 0.50, // 50% of original
-      emergency: 0.30,  // 30% of original
-      fallback: 0.60    // 60% of original
+      normal: 0.7, // 70% of original
+      aggressive: 0.5, // 50% of original
+      emergency: 0.3, // 30% of original
+      fallback: 0.6, // 60% of original
     },
     contentTypeAdjustments: {
-      code: 1.2,           // 20% more lenient for code
-      logs: 0.8,           // 20% more aggressive for logs
-      conversation: 1.0,   // No adjustment
-      documentation: 0.9   // 10% more aggressive for docs
+      code: 1.2, // 20% more lenient for code
+      logs: 0.8, // 20% more aggressive for logs
+      conversation: 1.0, // No adjustment
+      documentation: 0.9, // 10% more aggressive for docs
     },
-    minimumImprovement: 0.1 // Must reduce by at least 10%
+    minimumImprovement: 0.1, // Must reduce by at least 10%
   },
 
   algorithms: {
@@ -360,7 +360,7 @@ export const DEFAULT_COMPRESSION_CONFIG: CompressionSystemConfig = {
       [CompressionStrategy.PROGRESSIVE_DETAIL]: 10,
       [CompressionStrategy.SEMANTIC_CLUSTERING]: 8,
       [CompressionStrategy.SUMMARIZATION]: 6,
-      [CompressionStrategy.KEYWORD_EXTRACTION]: 4
+      [CompressionStrategy.KEYWORD_EXTRACTION]: 4,
     },
     enableEnhancedAlgorithms: true,
     selectionRules: {
@@ -368,24 +368,24 @@ export const DEFAULT_COMPRESSION_CONFIG: CompressionSystemConfig = {
         [CompressionStrategy.PROGRESSIVE_DETAIL]: 0,
         [CompressionStrategy.SEMANTIC_CLUSTERING]: 50000,
         [CompressionStrategy.SUMMARIZATION]: 100000,
-        [CompressionStrategy.KEYWORD_EXTRACTION]: 200000
+        [CompressionStrategy.KEYWORD_EXTRACTION]: 200000,
       },
       contentTypePreferences: {
-        'javascript': CompressionStrategy.SEMANTIC_CLUSTERING,
-        'typescript': CompressionStrategy.SEMANTIC_CLUSTERING,
-        'json': CompressionStrategy.PROGRESSIVE_DETAIL,
-        'conversation': CompressionStrategy.SUMMARIZATION,
-        'logs': CompressionStrategy.KEYWORD_EXTRACTION
+        javascript: CompressionStrategy.SEMANTIC_CLUSTERING,
+        typescript: CompressionStrategy.SEMANTIC_CLUSTERING,
+        json: CompressionStrategy.PROGRESSIVE_DETAIL,
+        conversation: CompressionStrategy.SUMMARIZATION,
+        logs: CompressionStrategy.KEYWORD_EXTRACTION,
       },
       complexityThresholds: {
         low: 0.3,
         high: 0.7,
         lowComplexityStrategy: CompressionStrategy.PROGRESSIVE_DETAIL,
-        highComplexityStrategy: CompressionStrategy.SEMANTIC_CLUSTERING
-      }
+        highComplexityStrategy: CompressionStrategy.SEMANTIC_CLUSTERING,
+      },
     },
     qualityLevel: 0.8,
-    maxProcessingTime: 10000 // 10 seconds
+    maxProcessingTime: 10000, // 10 seconds
   },
 
   fallback: {
@@ -404,7 +404,7 @@ export const DEFAULT_COMPRESSION_CONFIG: CompressionSystemConfig = {
       [FallbackStrategy.MEMORY_OPTIMIZED_COMPRESSION]: 6,
       [FallbackStrategy.AGGRESSIVE_TRUNCATION]: 3,
       [FallbackStrategy.EMERGENCY_CONTENT_PURGE]: 2,
-      [FallbackStrategy.MINIMAL_CONTEXT_PRESERVATION]: 1
+      [FallbackStrategy.MINIMAL_CONTEXT_PRESERVATION]: 1,
     },
     enableEmergencyRemoval: true,
     minPreservationRatio: 0.1,
@@ -412,36 +412,36 @@ export const DEFAULT_COMPRESSION_CONFIG: CompressionSystemConfig = {
     enableAutoRecovery: true,
     recoveryRetryDelay: 2000,
     errorStrategies: {
-      'memory_exhaustion': [
+      memory_exhaustion: [
         FallbackStrategy.CHUNK_BASED_PROCESSING,
-        FallbackStrategy.MEMORY_OPTIMIZED_COMPRESSION
+        FallbackStrategy.MEMORY_OPTIMIZED_COMPRESSION,
       ],
-      'timeout_exceeded': [
+      timeout_exceeded: [
         FallbackStrategy.SIMPLE_COMPRESSION,
-        FallbackStrategy.WHITESPACE_COMPRESSION
+        FallbackStrategy.WHITESPACE_COMPRESSION,
       ],
-      'algorithm_failure': [
+      algorithm_failure: [
         FallbackStrategy.RETRY_WITH_DIFFERENT_ALGORITHM,
-        FallbackStrategy.SIMPLE_COMPRESSION
-      ]
-    }
+        FallbackStrategy.SIMPLE_COMPRESSION,
+      ],
+    },
   },
 
   monitoring: {
     enabled: true,
-    interval: 30000,     // 30 seconds
+    interval: 30000, // 30 seconds
     criticalInterval: 5000, // 5 seconds when critical
     enableEvents: true,
     performance: {
       enabled: true,
       historySize: 100,
-      slowThreshold: 5000 // 5 seconds
+      slowThreshold: 5000, // 5 seconds
     },
     history: {
       enabled: true,
       maxEntries: 1000,
-      cleanupInterval: 300000 // 5 minutes
-    }
+      cleanupInterval: 300000, // 5 minutes
+    },
   },
 
   performance: {
@@ -449,61 +449,64 @@ export const DEFAULT_COMPRESSION_CONFIG: CompressionSystemConfig = {
       enabled: true,
       batchSize: 10,
       concurrencyLimit: 3,
-      timeoutMs: 30000
+      timeoutMs: 30000,
     },
     caching: {
       enabled: true,
       maxEntries: 500,
-      ttlMs: 3600000 // 1 hour
+      ttlMs: 3600000, // 1 hour
     },
     memory: {
       enabled: true,
       thresholdMb: 100,
-      chunkSize: 1000
+      chunkSize: 1000,
     },
     rateLimiting: {
       enabled: true,
       maxPerMinute: 10,
-      minInterval: 60000 // 1 minute
-    }
+      minInterval: 60000, // 1 minute
+    },
   },
 
   metadata: {
     version: '1.0.0',
     created: new Date(),
     modified: new Date(),
-    description: 'Default compression system configuration'
-  }
+    description: 'Default compression system configuration',
+  },
 };
 
 /**
  * Configuration presets for different use cases
  */
-export const CONFIGURATION_PRESETS: Record<ConfigurationPreset, Partial<CompressionSystemConfig>> = {
+export const CONFIGURATION_PRESETS: Record<
+  ConfigurationPreset,
+  Partial<CompressionSystemConfig>
+> = {
   [ConfigurationPreset.CONSERVATIVE]: {
     tokenLimits: {
       ...DEFAULT_COMPRESSION_CONFIG.tokenLimits,
       thresholds: {
-        info: 0.60,
-        warning: 0.70,
+        info: 0.6,
+        warning: 0.7,
         critical: 0.75,
-        emergency: 0.85
-      }
+        emergency: 0.85,
+      },
     },
     compressionRatios: {
       ...DEFAULT_COMPRESSION_CONFIG.compressionRatios,
       targets: {
-        normal: 0.80,
-        aggressive: 0.70,
-        emergency: 0.50,
-        fallback: 0.75
-      }
+        normal: 0.8,
+        aggressive: 0.7,
+        emergency: 0.5,
+        fallback: 0.75,
+      },
     },
     fallback: {
       ...DEFAULT_COMPRESSION_CONFIG.fallback,
       maxAttempts: 2,
-      enableEmergencyRemoval: false
-    }
+      enableEmergencyRemoval: false,
+    },
   },
 
   [ConfigurationPreset.BALANCED]: {
@@ -514,46 +517,46 @@ export const CONFIGURATION_PRESETS: Record<ConfigurationPreset, Partial<Compress
     tokenLimits: {
       ...DEFAULT_COMPRESSION_CONFIG.tokenLimits,
       thresholds: {
-        info: 0.80,
+        info: 0.8,
         warning: 0.85,
-        critical: 0.90,
-        emergency: 0.98
-      }
+        critical: 0.9,
+        emergency: 0.98,
+      },
     },
     compressionRatios: {
       ...DEFAULT_COMPRESSION_CONFIG.compressionRatios,
       targets: {
-        normal: 0.50,
-        aggressive: 0.30,
+        normal: 0.5,
+        aggressive: 0.3,
         emergency: 0.15,
-        fallback: 0.40
-      }
+        fallback: 0.4,
+      },
     },
     fallback: {
       ...DEFAULT_COMPRESSION_CONFIG.fallback,
       maxAttempts: 5,
       enableEmergencyRemoval: true,
-      minPreservationRatio: 0.05
-    }
+      minPreservationRatio: 0.05,
+    },
   },
 
   [ConfigurationPreset.DEVELOPMENT]: {
     monitoring: {
       ...DEFAULT_COMPRESSION_CONFIG.monitoring,
       interval: 10000, // More frequent monitoring
-      criticalInterval: 2000
+      criticalInterval: 2000,
     },
     performance: {
       ...DEFAULT_COMPRESSION_CONFIG.performance,
       caching: {
         ...DEFAULT_COMPRESSION_CONFIG.performance.caching,
-        enabled: false // Disable caching for development
-      }
+        enabled: false, // Disable caching for development
+      },
     },
     algorithms: {
       ...DEFAULT_COMPRESSION_CONFIG.algorithms,
-      maxProcessingTime: 5000 // Faster timeout for development
-    }
+      maxProcessingTime: 5000, // Faster timeout for development
+    },
   },
 
   [ConfigurationPreset.PRODUCTION]: {
@@ -563,22 +566,22 @@ export const CONFIGURATION_PRESETS: Record<ConfigurationPreset, Partial<Compress
       performance: {
         enabled: true,
         historySize: 50,
-        slowThreshold: 10000
-      }
+        slowThreshold: 10000,
+      },
     },
     performance: {
       ...DEFAULT_COMPRESSION_CONFIG.performance,
       caching: {
         enabled: true,
         maxEntries: 1000,
-        ttlMs: 7200000 // 2 hours
+        ttlMs: 7200000, // 2 hours
       },
       rateLimiting: {
         enabled: true,
         maxPerMinute: 5,
-        minInterval: 120000 // 2 minutes
-      }
-    }
+        minInterval: 120000, // 2 minutes
+      },
+    },
   },
 
   [ConfigurationPreset.HIGH_VOLUME]: {
@@ -588,20 +591,20 @@ export const CONFIGURATION_PRESETS: Record<ConfigurationPreset, Partial<Compress
         enabled: true,
         batchSize: 20,
         concurrencyLimit: 5,
-        timeoutMs: 60000
+        timeoutMs: 60000,
       },
       caching: {
         enabled: true,
         maxEntries: 2000,
-        ttlMs: 14400000 // 4 hours
-      }
+        ttlMs: 14400000, // 4 hours
+      },
     },
     algorithms: {
       ...DEFAULT_COMPRESSION_CONFIG.algorithms,
       qualityLevel: 0.6, // Lower quality for performance
-      maxProcessingTime: 15000
-    }
-  }
+      maxProcessingTime: 15000,
+    },
+  },
 };
 
 /**
@@ -610,7 +613,8 @@ export const CONFIGURATION_PRESETS: Record<ConfigurationPreset, Partial<Compress
 export class CompressionConfigurationManager {
   private config: CompressionSystemConfig;
   private configPath?: string;
-  private watchers: Map<string, (config: CompressionSystemConfig) => void> = new Map();
+  private watchers: Map<string, (config: CompressionSystemConfig) => void> =
+    new Map();
 
   constructor(initialConfig?: Partial<CompressionSystemConfig>) {
     this.config = this.mergeConfigs(DEFAULT_COMPRESSION_CONFIG, initialConfig);
@@ -620,7 +624,7 @@ export class CompressionConfigurationManager {
       presetUsed: initialConfig ? 'custom' : 'default',
       enhancedAlgorithms: this.config.algorithms.enableEnhancedAlgorithms,
       fallbackEnabled: this.config.fallback.enabled,
-      monitoringEnabled: this.config.monitoring.enabled
+      monitoringEnabled: this.config.monitoring.enabled,
     });
   }
 
@@ -642,7 +646,7 @@ export class CompressionConfigurationManager {
       hasTokenLimitChanges: updates.tokenLimits !== undefined,
       hasAlgorithmChanges: updates.algorithms !== undefined,
       hasFallbackChanges: updates.fallback !== undefined,
-      hasMonitoringChanges: updates.monitoring !== undefined
+      hasMonitoringChanges: updates.monitoring !== undefined,
     });
 
     this.notifyWatchers();
@@ -657,18 +661,21 @@ export class CompressionConfigurationManager {
       throw new Error(`Unknown configuration preset: ${preset}`);
     }
 
-    const updatedConfig = this.mergeConfigs(DEFAULT_COMPRESSION_CONFIG, presetConfig);
+    const updatedConfig = this.mergeConfigs(
+      DEFAULT_COMPRESSION_CONFIG,
+      presetConfig,
+    );
     updatedConfig.metadata = {
       ...this.config.metadata,
       description: `Configuration preset: ${preset}`,
-      modified: new Date()
+      modified: new Date(),
     };
 
     this.config = updatedConfig;
 
     logger.info('Configuration preset applied', {
       preset,
-      description: updatedConfig.metadata.description
+      description: updatedConfig.metadata.description,
     });
 
     this.notifyWatchers();
@@ -689,14 +696,14 @@ export class CompressionConfigurationManager {
       logger.info('Configuration loaded from file', {
         filePath,
         version: this.config.metadata.version,
-        description: this.config.metadata.description
+        description: this.config.metadata.description,
       });
 
       this.notifyWatchers();
     } catch (error) {
       logger.error('Failed to load configuration from file', {
         filePath,
-        error: error as Error
+        error: error as Error,
       });
       throw error;
     }
@@ -719,12 +726,12 @@ export class CompressionConfigurationManager {
 
       logger.info('Configuration saved to file', {
         filePath: targetPath,
-        version: this.config.metadata.version
+        version: this.config.metadata.version,
       });
     } catch (error) {
       logger.error('Failed to save configuration to file', {
         filePath: targetPath,
-        error: error as Error
+        error: error as Error,
       });
       throw error;
     }
@@ -752,7 +759,7 @@ export class CompressionConfigurationManager {
       tokenLimits.thresholds.info,
       tokenLimits.thresholds.warning,
       tokenLimits.thresholds.critical,
-      tokenLimits.thresholds.emergency
+      tokenLimits.thresholds.emergency,
     ];
 
     for (let i = 1; i < thresholds.length; i++) {
@@ -777,17 +784,21 @@ export class CompressionConfigurationManager {
 
     // Warnings for potentially problematic settings
     if (tokenLimits.thresholds.critical > 0.9) {
-      warnings.push('Critical threshold is very high (>90%), may not leave enough time for compression');
+      warnings.push(
+        'Critical threshold is very high (>90%), may not leave enough time for compression',
+      );
     }
 
     if (ratios.emergency < 0.2) {
-      warnings.push('Emergency compression ratio is very aggressive (<20%), may result in significant information loss');
+      warnings.push(
+        'Emergency compression ratio is very aggressive (<20%), may result in significant information loss',
+      );
     }
 
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -821,7 +832,10 @@ export class CompressionConfigurationManager {
   /**
    * Register configuration change watcher
    */
-  watchConfig(id: string, callback: (config: CompressionSystemConfig) => void): void {
+  watchConfig(
+    id: string,
+    callback: (config: CompressionSystemConfig) => void,
+  ): void {
     this.watchers.set(id, callback);
   }
 
@@ -845,14 +859,17 @@ export class CompressionConfigurationManager {
   importConfig(configJson: string): void {
     try {
       const importedConfig = JSON.parse(configJson);
-      this.config = this.mergeConfigs(DEFAULT_COMPRESSION_CONFIG, importedConfig);
+      this.config = this.mergeConfigs(
+        DEFAULT_COMPRESSION_CONFIG,
+        importedConfig,
+      );
       this.config.metadata.modified = new Date();
 
       logger.info('Configuration imported from JSON');
       this.notifyWatchers();
     } catch (error) {
       logger.error('Failed to import configuration from JSON', {
-        error: error as Error
+        error: error as Error,
       });
       throw error;
     }
@@ -881,18 +898,29 @@ export class CompressionConfigurationManager {
    */
   private mergeConfigs(
     base: CompressionSystemConfig,
-    override?: Partial<CompressionSystemConfig>
+    override?: Partial<CompressionSystemConfig>,
   ): CompressionSystemConfig {
     if (!override) return JSON.parse(JSON.stringify(base));
 
     const result = JSON.parse(JSON.stringify(base)) as CompressionSystemConfig;
 
-    Object.keys(override).forEach(key => {
+    Object.keys(override).forEach((key) => {
       const value = override[key as keyof CompressionSystemConfig];
-      if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
-        (result[key as keyof CompressionSystemConfig] as Record<string, unknown>) = {
-          ...(result[key as keyof CompressionSystemConfig] as Record<string, unknown>),
-          ...(value as Record<string, unknown>)
+      if (
+        value &&
+        typeof value === 'object' &&
+        !Array.isArray(value) &&
+        !(value instanceof Date)
+      ) {
+        (result[key as keyof CompressionSystemConfig] as Record<
+          string,
+          unknown
+        >) = {
+          ...(result[key as keyof CompressionSystemConfig] as Record<
+            string,
+            unknown
+          >),
+          ...(value as Record<string, unknown>),
         };
       } else {
         (result[key as keyof CompressionSystemConfig] as unknown) = value;
@@ -912,7 +940,7 @@ export class CompressionConfigurationManager {
       } catch (error) {
         logger.error('Configuration watcher failed', {
           watcherId: id,
-          error: error as Error
+          error: error as Error,
         });
       }
     }
@@ -923,7 +951,7 @@ export class CompressionConfigurationManager {
  * Create configuration manager instance
  */
 export function createCompressionConfigurationManager(
-  initialConfig?: Partial<CompressionSystemConfig>
+  initialConfig?: Partial<CompressionSystemConfig>,
 ): CompressionConfigurationManager {
   return new CompressionConfigurationManager(initialConfig);
 }
@@ -932,7 +960,7 @@ export function createCompressionConfigurationManager(
  * Create configuration manager with preset
  */
 export function createCompressionConfigurationManagerWithPreset(
-  preset: ConfigurationPreset
+  preset: ConfigurationPreset,
 ): CompressionConfigurationManager {
   const manager = new CompressionConfigurationManager();
   manager.applyPreset(preset);

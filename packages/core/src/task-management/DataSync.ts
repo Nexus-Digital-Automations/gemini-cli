@@ -698,7 +698,9 @@ export class DataSync extends EventEmitter {
       this.changeBuffer.set(id, change);
     });
 
-    logger().debug(`Trimmed change buffer to ${this.changeBuffer.size} entries`);
+    logger().debug(
+      `Trimmed change buffer to ${this.changeBuffer.size} entries`,
+    );
   }
 
   /**
@@ -840,7 +842,9 @@ export class DataSync extends EventEmitter {
   private async applyTaskChange(change: DataChange): Promise<void> {
     // In a real implementation, this would apply the change to the task
     // For now, we'll just log it
-    logger().debug(`Applied task change ${change.id} to task ${change.entityId}`);
+    logger().debug(
+      `Applied task change ${change.id} to task ${change.entityId}`,
+    );
   }
 
   /**

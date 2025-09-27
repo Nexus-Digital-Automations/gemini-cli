@@ -89,7 +89,10 @@ export class MLBudgetCLI {
         console.log('─'.repeat(50));
 
         for (const rec of recommendations.slice(0, 5)) {
-          const icon = this.getRecommendationIcon(rec.type.toString(), rec.priority.toString());
+          const icon = this.getRecommendationIcon(
+            rec.type.toString(),
+            rec.priority.toString(),
+          );
           console.log(`${icon} [${rec.priority}] ${rec.description}`);
           if (rec.actions && rec.actions.length > 0) {
             console.log(`   💡 Action: ${rec.actions[0]}`);
@@ -149,9 +152,7 @@ export class MLBudgetCLI {
       console.log(
         `📊 Potential Savings: ${potentialSavings.percentage.toFixed(1)}% (${potentialSavings.estimatedRequests} requests)`,
       );
-      console.log(
-        `🎯 Confidence: ${potentialSavings.confidence}`,
-      );
+      console.log(`🎯 Confidence: ${potentialSavings.confidence}`);
 
       // Display categorized recommendations
       this.displayRecommendationCategory('🚨 Immediate Actions', immediate);
@@ -417,16 +418,15 @@ export class MLBudgetCLI {
           console.log('─'.repeat(50));
 
           const topRecs = mlPredictions.recommendations
-            .filter(
-              (rec) => rec.priority >= 3,
-            )
+            .filter((rec) => rec.priority >= 3)
             .slice(0, 3);
 
           for (const rec of topRecs) {
-            const icon = this.getRecommendationIcon(rec.type.toString(), rec.priority.toString());
-            console.log(
-              `${icon} [${rec.priority}] ${rec.description}`,
+            const icon = this.getRecommendationIcon(
+              rec.type.toString(),
+              rec.priority.toString(),
             );
+            console.log(`${icon} [${rec.priority}] ${rec.description}`);
           }
         }
       }
@@ -505,7 +505,9 @@ export class MLBudgetCLI {
 
       for (const rec of recommendations) {
         const icon = this.getRecommendationIcon(rec.type, rec.priority);
-        console.log(`${icon} [${rec.expectedImpact.confidence}] ${rec.description}`);
+        console.log(
+          `${icon} [${rec.expectedImpact.confidence}] ${rec.description}`,
+        );
         if (rec.actions && rec.actions.length > 0) {
           console.log(`   💡 Action: ${rec.actions[0]}`);
         }

@@ -13,14 +13,8 @@ import type {
   SchedulingFactors,
   ResourceAllocation,
 } from '../task-management/types.js';
-import {
-  DecisionType,
-  DecisionPriority,
-} from './types.js';
-import type {
-  Decision,
-  DecisionContext,
-} from './types.js';
+import { DecisionType, DecisionPriority } from './types.js';
+import type { Decision, DecisionContext } from './types.js';
 import {
   DependencyAnalyzer,
   type DependencyAnalysisResult,

@@ -11,19 +11,11 @@ import type {
   TaskDependency,
   DependencyType,
   CircularDependency,
-} from '../task-management/types.js';
-import {
   TaskPriority,
-  TaskCategory,
 } from '../task-management/types.js';
-import type {
-  Decision,
-  DecisionContext,
-} from './types.js';
-import {
-  DecisionType,
-  DecisionPriority,
-} from './types.js';
+import { TaskCategory } from '../task-management/types.js';
+import type { Decision, DecisionContext } from './types.js';
+import { DecisionType, DecisionPriority } from './types.js';
 import { getComponentLogger } from '../utils/logger.js';
 
 const logger = getComponentLogger('DependencyAnalyzer');
@@ -842,7 +834,8 @@ export class DependencyAnalyzer {
     // Documentation pattern
     this.dependencyPatterns.set('feature-docs', {
       id: 'feature-docs',
-      description: 'Documentation can run parallel or after feature implementation',
+      description:
+        'Documentation can run parallel or after feature implementation',
       categories: [TaskCategory.FEATURE, TaskCategory.DOCUMENTATION],
       confidence: 0.7,
       occurrences: 0,
@@ -897,7 +890,11 @@ export class DependencyAnalyzer {
       [TaskCategory.FEATURE]: [TaskCategory.TEST, TaskCategory.DOCUMENTATION],
       [TaskCategory.BUG_FIX]: [TaskCategory.TEST, TaskCategory.DOCUMENTATION],
       [TaskCategory.TEST]: [TaskCategory.FEATURE, TaskCategory.BUG_FIX],
-      [TaskCategory.DOCUMENTATION]: [TaskCategory.FEATURE, TaskCategory.BUG_FIX, TaskCategory.TEST],
+      [TaskCategory.DOCUMENTATION]: [
+        TaskCategory.FEATURE,
+        TaskCategory.BUG_FIX,
+        TaskCategory.TEST,
+      ],
       [TaskCategory.REFACTOR]: [TaskCategory.TEST],
       [TaskCategory.INFRASTRUCTURE]: [TaskCategory.FEATURE, TaskCategory.TEST],
     };

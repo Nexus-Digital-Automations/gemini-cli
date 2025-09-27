@@ -13,7 +13,8 @@ import { marked } from 'marked';
 const logger = {
   debug: (...args: unknown[]) =>
     console.debug('[DEBUG] [ImportProcessor]', ...args),
-  warn: (...args: unknown[]) => console.warn('[WARN] [ImportProcessor]', ...args),
+  warn: (...args: unknown[]) =>
+    console.warn('[WARN] [ImportProcessor]', ...args),
   error: (...args: unknown[]) =>
     console.error('[ERROR] [ImportProcessor]', ...args),
 };

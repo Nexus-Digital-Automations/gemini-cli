@@ -8,9 +8,7 @@ import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import {
-  MLCostPredictor,
-} from '../ml-cost-predictor.js';
+import { MLCostPredictor } from '../ml-cost-predictor.js';
 import type { BudgetUsageData } from '../types.js';
 
 describe('MLCostPredictor', () => {

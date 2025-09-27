@@ -19,9 +19,7 @@ import type {
   ContextSections,
   ContextSection,
 } from './types.js';
-import {
-  ContextPriority,
-} from './types.js';
+import { ContextPriority } from './types.js';
 import { ContextPrioritizer } from './ContextPrioritizer.js';
 import { SemanticCompressor } from './SemanticCompressor.js';
 

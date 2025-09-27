@@ -139,7 +139,6 @@ describe('Token Limit Validation - 1,272,932 → 1,048,576 Issue', () => {
           },
         })),
         updateContextWindowTotals: vi.fn(),
-
       };
 
       compressionManager.registerContextManager(
@@ -716,6 +715,5 @@ function createMockContextManager(
       },
     })),
     updateContextWindowTotals: vi.fn(),
-
   };
 }

@@ -128,7 +128,9 @@ export class DependencyResolver extends EventEmitter {
     const hasCycles = cycles.length > 0;
 
     if (hasCycles && strategy === ResolutionStrategy.STRICT) {
-      logger().warn('Circular dependencies detected in strict mode', { cycles });
+      logger().warn('Circular dependencies detected in strict mode', {
+        cycles,
+      });
     }
 
     const criticalPath = this.findCriticalPath();
@@ -534,19 +536,17 @@ export class DependencyResolver extends EventEmitter {
         case ResolutionStrategy.PARALLEL_OPTIMIZED:
           this.resolveConflictParallelOptimized(cycle);
           break;
-      default:
+        default:
           // Handle unexpected values
           break;
-    }
+      }
     }
   }
 
   /**
    * Resolve conflict using best effort strategy
    */
-  private resolveConflictBestEffort(
-    cycle: string[]
-  ): void {
+  private resolveConflictBestEffort(cycle: string[]): void {
     // Remove the dependency with the lowest priority impact
     let minImpact = Infinity;
     let targetDependency: TaskDependency | null = null;

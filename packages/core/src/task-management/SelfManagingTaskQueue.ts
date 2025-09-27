@@ -550,15 +550,20 @@ export class SelfManagingTaskQueue extends EventEmitter {
       ...taskDefinition,
       id: taskId,
       title: taskDefinition.title || 'Deferred Task',
-      description: taskDefinition.description || 'Task queued for later execution',
-      executeFunction: taskDefinition.executeFunction || (async () => ({ success: true, result: undefined, duration: 0 })),
+      description:
+        taskDefinition.description || 'Task queued for later execution',
+      executeFunction:
+        taskDefinition.executeFunction ||
+        (async () => ({ success: true, result: undefined, duration: 0 })),
       priority: TaskPriority.BACKGROUND, // Lower priority for deferred tasks
       metadata: {
         ...taskDefinition.metadata,
         deferred: {
           deferredUntil: new Date(Date.now() + 60000), // Default to 1 minute from now
           reason,
-          originalPriority: String(taskDefinition.priority || TaskPriority.MEDIUM),
+          originalPriority: String(
+            taskDefinition.priority || TaskPriority.MEDIUM,
+          ),
         },
       },
     };

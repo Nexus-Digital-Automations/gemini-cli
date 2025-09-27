@@ -10,7 +10,10 @@ import type {
   ValidationFramework,
   ValidationResult,
 } from './ValidationFramework.js';
-import { ValidationSeverity, ValidationCategory } from './ValidationFramework.js';
+import {
+  ValidationSeverity,
+  ValidationCategory,
+} from './ValidationFramework.js';
 import type { TaskValidator, TaskExecutionMetrics } from './TaskValidator.js';
 import type { Task, TaskResult } from '../task-management/types.js';
 

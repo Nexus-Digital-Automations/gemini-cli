@@ -20,7 +20,7 @@ import {
   type CompressionResult as BaseCompressionResult,
   type ContextItem,
   ContextType as _ContextType,
-  ContextPriority
+  ContextPriority,
 } from './types.js';
 import { performance } from 'node:perf_hooks';
 
@@ -65,7 +65,7 @@ export enum FallbackStrategy {
   // Recovery strategies
   RETRY_WITH_DIFFERENT_ALGORITHM = 'retry_with_different_algorithm',
   CHUNK_BASED_PROCESSING = 'chunk_based_processing',
-  MEMORY_OPTIMIZED_COMPRESSION = 'memory_optimized_compression'
+  MEMORY_OPTIMIZED_COMPRESSION = 'memory_optimized_compression',
 }
 
 /**
@@ -108,11 +108,11 @@ export const DEFAULT_FALLBACK_CONFIG: FallbackConfig = {
     [FallbackStrategy.MEMORY_OPTIMIZED_COMPRESSION]: 6,
     [FallbackStrategy.AGGRESSIVE_TRUNCATION]: 3,
     [FallbackStrategy.EMERGENCY_CONTENT_PURGE]: 2,
-    [FallbackStrategy.MINIMAL_CONTEXT_PRESERVATION]: 1
+    [FallbackStrategy.MINIMAL_CONTEXT_PRESERVATION]: 1,
   },
   fallbackTimeoutMs: 10000, // 10 seconds per fallback attempt
   enableAutoRecovery: true,
-  recoveryRetryDelay: 2000 // 2 second delay between recovery attempts
+  recoveryRetryDelay: 2000, // 2 second delay between recovery attempts
 };
 
 /**
@@ -126,7 +126,7 @@ export enum CompressionErrorType {
   PARSING_ERROR = 'parsing_error',
   INVALID_INPUT = 'invalid_input',
   SYSTEM_RESOURCE_LIMIT = 'system_resource_limit',
-  UNEXPECTED_ERROR = 'unexpected_error'
+  UNEXPECTED_ERROR = 'unexpected_error',
 }
 
 /**
@@ -147,7 +147,7 @@ export class CompressionFallbackSystem {
     logger.info('CompressionFallbackSystem initialized', {
       maxFallbackAttempts: this.config.maxFallbackAttempts,
       enableEmergencyRemoval: this.config.enableEmergencyRemoval,
-      enableAutoRecovery: this.config.enableAutoRecovery
+      enableAutoRecovery: this.config.enableAutoRecovery,
     });
   }
 
@@ -158,7 +158,7 @@ export class CompressionFallbackSystem {
     items: ContextItem[],
     targetRatio: number,
     primaryError: Error,
-    isEmergency: boolean = false
+    isEmergency: boolean = false,
   ): Promise<FallbackCompressionResult> {
     const startTime = performance.now();
     const sessionId = this.generateSessionId(items);
@@ -168,7 +168,7 @@ export class CompressionFallbackSystem {
       targetRatio,
       primaryError: primaryError.message,
       isEmergency,
-      sessionId
+      sessionId,
     });
 
     const fallbackErrors: string[] = [primaryError.message];
@@ -178,7 +178,10 @@ export class CompressionFallbackSystem {
 
     // Classify the primary error to determine best fallback strategy
     const errorType = this.classifyCompressionError(primaryError);
-    const fallbackStrategies = this.selectFallbackStrategies(errorType, isEmergency);
+    const fallbackStrategies = this.selectFallbackStrategies(
+      errorType,
+      isEmergency,
+    );
 
     let bestResult: FallbackCompressionResult | null = null;
     const workingItems = [...items]; // Work with a copy
@@ -188,7 +191,7 @@ export class CompressionFallbackSystem {
         logger.warn('Maximum fallback attempts reached', {
           attempts: fallbackAttempts,
           maxAttempts: this.config.maxFallbackAttempts,
-          sessionId
+          sessionId,
         });
         break;
       }
@@ -198,7 +201,7 @@ export class CompressionFallbackSystem {
         logger.info(`Attempting fallback strategy: ${strategy}`, {
           attempt: fallbackAttempts,
           sessionId,
-          remainingItems: workingItems.length
+          remainingItems: workingItems.length,
         });
 
         const result = await this.applyFallbackStrategy(
@@ -206,7 +209,7 @@ export class CompressionFallbackSystem {
           workingItems,
           targetRatio,
           isEmergency,
-          sessionId
+          sessionId,
         );
 
         if (result.success) {
@@ -216,44 +219,49 @@ export class CompressionFallbackSystem {
             fallbackAttempts,
             fallbackErrors,
             emergencyMeasuresApplied,
-            recoveryActions
+            recoveryActions,
           };
 
           logger.info('Fallback strategy succeeded', {
             strategy,
             attempt: fallbackAttempts,
             compressionRatio: result.compressionRatio,
-            sessionId
+            sessionId,
           });
 
           // If we achieved good compression, break out
-          if (result.compressionRatio <= targetRatio * 1.2) { // Within 20% of target
+          if (result.compressionRatio <= targetRatio * 1.2) {
+            // Within 20% of target
             break;
           }
         } else {
           fallbackErrors.push('Compression failed - success is false');
         }
-
       } catch (error) {
         logger.warn('Fallback strategy failed', {
           strategy,
           error: error as Error,
           attempt: fallbackAttempts,
-          sessionId
+          sessionId,
         });
-        fallbackErrors.push(error instanceof Error ? error.message : String(error));
+        fallbackErrors.push(
+          error instanceof Error ? error.message : String(error),
+        );
       }
     }
 
     // Apply emergency measures if all fallbacks failed and emergency enabled
     if (!bestResult && isEmergency && this.config.enableEmergencyRemoval) {
-      logger.error('All fallback strategies failed, applying emergency measures', { sessionId });
+      logger.error(
+        'All fallback strategies failed, applying emergency measures',
+        { sessionId },
+      );
 
       try {
         const emergencyResult = await this.applyEmergencyMeasures(
           workingItems,
           targetRatio,
-          sessionId
+          sessionId,
         );
 
         emergencyMeasuresApplied = true;
@@ -265,14 +273,18 @@ export class CompressionFallbackSystem {
           fallbackAttempts,
           fallbackErrors,
           emergencyMeasuresApplied,
-          recoveryActions
+          recoveryActions,
         };
       } catch (emergencyError) {
         logger.error('Emergency measures failed', {
           error: emergencyError as Error,
-          sessionId
+          sessionId,
         });
-        fallbackErrors.push(emergencyError instanceof Error ? emergencyError.message : String(emergencyError));
+        fallbackErrors.push(
+          emergencyError instanceof Error
+            ? emergencyError.message
+            : String(emergencyError),
+        );
       }
     }
 
@@ -285,14 +297,14 @@ export class CompressionFallbackSystem {
         attempts: fallbackAttempts,
         duration,
         success: true,
-        sessionId
+        sessionId,
       });
       return bestResult;
     } else {
       logger.error('All fallback strategies exhausted', {
         attempts: fallbackAttempts,
         duration,
-        sessionId
+        sessionId,
       });
 
       return this.createFailureResult(
@@ -301,7 +313,7 @@ export class CompressionFallbackSystem {
         fallbackErrors,
         emergencyMeasuresApplied,
         recoveryActions,
-        duration
+        duration,
       );
     }
   }
@@ -313,31 +325,59 @@ export class CompressionFallbackSystem {
     const message = error.message.toLowerCase();
     const stack = error.stack?.toLowerCase() || '';
 
-    if (message.includes('memory') || message.includes('heap') || stack.includes('memory')) {
+    if (
+      message.includes('memory') ||
+      message.includes('heap') ||
+      stack.includes('memory')
+    ) {
       return CompressionErrorType.MEMORY_EXHAUSTION;
     }
 
-    if (message.includes('timeout') || message.includes('time') || message.includes('slow')) {
+    if (
+      message.includes('timeout') ||
+      message.includes('time') ||
+      message.includes('slow')
+    ) {
       return CompressionErrorType.TIMEOUT_EXCEEDED;
     }
 
-    if (message.includes('parse') || message.includes('syntax') || message.includes('json')) {
+    if (
+      message.includes('parse') ||
+      message.includes('syntax') ||
+      message.includes('json')
+    ) {
       return CompressionErrorType.PARSING_ERROR;
     }
 
-    if (message.includes('unknown') || message.includes('unsupported') || message.includes('type')) {
+    if (
+      message.includes('unknown') ||
+      message.includes('unsupported') ||
+      message.includes('type')
+    ) {
       return CompressionErrorType.CONTENT_TYPE_UNKNOWN;
     }
 
-    if (message.includes('invalid') || message.includes('malformed') || message.includes('corrupt')) {
+    if (
+      message.includes('invalid') ||
+      message.includes('malformed') ||
+      message.includes('corrupt')
+    ) {
       return CompressionErrorType.INVALID_INPUT;
     }
 
-    if (message.includes('resource') || message.includes('limit') || message.includes('quota')) {
+    if (
+      message.includes('resource') ||
+      message.includes('limit') ||
+      message.includes('quota')
+    ) {
       return CompressionErrorType.SYSTEM_RESOURCE_LIMIT;
     }
 
-    if (message.includes('algorithm') || message.includes('compression') || message.includes('strategy')) {
+    if (
+      message.includes('algorithm') ||
+      message.includes('compression') ||
+      message.includes('strategy')
+    ) {
       return CompressionErrorType.ALGORITHM_FAILURE;
     }
 
@@ -347,7 +387,10 @@ export class CompressionFallbackSystem {
   /**
    * Select appropriate fallback strategies based on error type and emergency status
    */
-  private selectFallbackStrategies(errorType: CompressionErrorType, isEmergency: boolean): FallbackStrategy[] {
+  private selectFallbackStrategies(
+    errorType: CompressionErrorType,
+    isEmergency: boolean,
+  ): FallbackStrategy[] {
     let strategies: FallbackStrategy[] = [];
 
     switch (errorType) {
@@ -356,7 +399,7 @@ export class CompressionFallbackSystem {
           FallbackStrategy.CHUNK_BASED_PROCESSING,
           FallbackStrategy.MEMORY_OPTIMIZED_COMPRESSION,
           FallbackStrategy.SIMPLE_COMPRESSION,
-          FallbackStrategy.WHITESPACE_COMPRESSION
+          FallbackStrategy.WHITESPACE_COMPRESSION,
         ];
         break;
 
@@ -365,7 +408,7 @@ export class CompressionFallbackSystem {
           FallbackStrategy.SIMPLE_COMPRESSION,
           FallbackStrategy.WHITESPACE_COMPRESSION,
           FallbackStrategy.TEXT_TRUNCATION,
-          FallbackStrategy.LINE_REMOVAL
+          FallbackStrategy.LINE_REMOVAL,
         ];
         break;
 
@@ -373,7 +416,7 @@ export class CompressionFallbackSystem {
         strategies = [
           FallbackStrategy.RETRY_WITH_DIFFERENT_ALGORITHM,
           FallbackStrategy.SIMPLE_COMPRESSION,
-          FallbackStrategy.TEXT_TRUNCATION
+          FallbackStrategy.TEXT_TRUNCATION,
         ];
         break;
 
@@ -382,7 +425,7 @@ export class CompressionFallbackSystem {
           FallbackStrategy.SIMPLE_COMPRESSION,
           FallbackStrategy.WHITESPACE_COMPRESSION,
           FallbackStrategy.LINE_REMOVAL,
-          FallbackStrategy.TEXT_TRUNCATION
+          FallbackStrategy.TEXT_TRUNCATION,
         ];
         break;
 
@@ -391,7 +434,7 @@ export class CompressionFallbackSystem {
           FallbackStrategy.WHITESPACE_COMPRESSION,
           FallbackStrategy.LINE_REMOVAL,
           FallbackStrategy.TEXT_TRUNCATION,
-          FallbackStrategy.SIMPLE_COMPRESSION
+          FallbackStrategy.SIMPLE_COMPRESSION,
         ];
         break;
 
@@ -400,7 +443,7 @@ export class CompressionFallbackSystem {
           FallbackStrategy.SIMPLE_COMPRESSION,
           FallbackStrategy.WHITESPACE_COMPRESSION,
           FallbackStrategy.TEXT_TRUNCATION,
-          FallbackStrategy.LOW_PRIORITY_REMOVAL
+          FallbackStrategy.LOW_PRIORITY_REMOVAL,
         ];
     }
 
@@ -409,13 +452,14 @@ export class CompressionFallbackSystem {
       strategies.push(
         FallbackStrategy.LOW_PRIORITY_REMOVAL,
         FallbackStrategy.OLDEST_CONTENT_REMOVAL,
-        FallbackStrategy.AGGRESSIVE_TRUNCATION
+        FallbackStrategy.AGGRESSIVE_TRUNCATION,
       );
     }
 
     // Sort by priority
-    return strategies.sort((a, b) =>
-      this.config.strategyPriorities[b] - this.config.strategyPriorities[a]
+    return strategies.sort(
+      (a, b) =>
+        this.config.strategyPriorities[b] - this.config.strategyPriorities[a],
     );
   }
 
@@ -427,7 +471,7 @@ export class CompressionFallbackSystem {
     items: ContextItem[],
     targetRatio: number,
     _isEmergency: boolean,
-    _sessionId: string
+    _sessionId: string,
   ): Promise<BaseCompressionResult> {
     const _startTime = performance.now();
 
@@ -470,7 +514,10 @@ export class CompressionFallbackSystem {
   /**
    * Apply simple character-based compression
    */
-  private async applySimpleCompression(items: ContextItem[], _targetRatio: number): Promise<BaseCompressionResult> {
+  private async applySimpleCompression(
+    items: ContextItem[],
+    _targetRatio: number,
+  ): Promise<BaseCompressionResult> {
     let totalOriginalTokens = 0;
     let totalCompressedTokens = 0;
     const compressedItems: ContextItem[] = [];
@@ -491,27 +538,30 @@ export class CompressionFallbackSystem {
       compressedItems.push({
         ...item,
         content: compressed,
-        tokenCount: compressedTokenCount
+        tokenCount: compressedTokenCount,
       });
     }
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
-      compressed: compressedItems.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
+      compressed: compressedItems.map((i) => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: totalCompressedTokens,
       compressionRatio: totalCompressedTokens / totalOriginalTokens,
       preservedConcepts: ['whitespace_normalized'],
       informationLoss: 0.1, // Minimal information loss
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
   /**
    * Apply whitespace-only compression
    */
-  private async applyWhitespaceCompression(items: ContextItem[], _targetRatio: number): Promise<BaseCompressionResult> {
+  private async applyWhitespaceCompression(
+    items: ContextItem[],
+    _targetRatio: number,
+  ): Promise<BaseCompressionResult> {
     let totalOriginalTokens = 0;
     let totalCompressedTokens = 0;
     const compressedItems: ContextItem[] = [];
@@ -532,30 +582,34 @@ export class CompressionFallbackSystem {
       compressedItems.push({
         ...item,
         content: compressed,
-        tokenCount: compressedTokenCount
+        tokenCount: compressedTokenCount,
       });
     }
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
-      compressed: compressedItems.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
+      compressed: compressedItems.map((i) => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: totalCompressedTokens,
       compressionRatio: totalCompressedTokens / totalOriginalTokens,
       preservedConcepts: ['content_preserved', 'whitespace_compressed'],
       informationLoss: 0.05, // Very minimal information loss
-      strategy: CompressionStrategy.KEYWORD_EXTRACTION
+      strategy: CompressionStrategy.KEYWORD_EXTRACTION,
     };
   }
 
   /**
    * Apply text truncation based on priority
    */
-  private async applyTextTruncation(items: ContextItem[], targetRatio: number): Promise<BaseCompressionResult> {
+  private async applyTextTruncation(
+    items: ContextItem[],
+    targetRatio: number,
+  ): Promise<BaseCompressionResult> {
     let totalOriginalTokens = 0;
     let totalCompressedTokens = 0;
-    const targetTotalTokens = items.reduce((sum, item) => sum + item.tokenCount, 0) * targetRatio;
+    const targetTotalTokens =
+      items.reduce((sum, item) => sum + item.tokenCount, 0) * targetRatio;
 
     // Sort items by priority (critical items preserved fully)
     const prioritizedItems = items.sort((a, b) => {
@@ -564,7 +618,7 @@ export class CompressionFallbackSystem {
         [ContextPriority.HIGH]: 3,
         [ContextPriority.MEDIUM]: 2,
         [ContextPriority.LOW]: 1,
-        [ContextPriority.CACHED]: 0
+        [ContextPriority.CACHED]: 0,
       };
       return priorityOrder[b.priority] - priorityOrder[a.priority];
     });
@@ -577,7 +631,10 @@ export class CompressionFallbackSystem {
 
       const remainingBudget = targetTotalTokens - currentTokens;
 
-      if (item.priority === ContextPriority.CRITICAL || remainingBudget >= item.tokenCount) {
+      if (
+        item.priority === ContextPriority.CRITICAL ||
+        remainingBudget >= item.tokenCount
+      ) {
         // Keep item fully
         compressedItems.push(item);
         currentTokens += item.tokenCount;
@@ -605,7 +662,7 @@ export class CompressionFallbackSystem {
         compressedItems.push({
           ...item,
           content: truncated,
-          tokenCount: compressedTokenCount
+          tokenCount: compressedTokenCount,
         });
 
         currentTokens += compressedTokenCount;
@@ -616,21 +673,27 @@ export class CompressionFallbackSystem {
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
-      compressed: compressedItems.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
+      compressed: compressedItems.map((i) => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: totalCompressedTokens,
       compressionRatio: totalCompressedTokens / totalOriginalTokens,
       preservedConcepts: ['critical_content_preserved', 'natural_boundaries'],
-      informationLoss: Math.max(0.2, 1 - (totalCompressedTokens / totalOriginalTokens)),
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      informationLoss: Math.max(
+        0.2,
+        1 - totalCompressedTokens / totalOriginalTokens,
+      ),
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
   /**
    * Apply line-based removal
    */
-  private async applyLineRemoval(items: ContextItem[], targetRatio: number): Promise<BaseCompressionResult> {
+  private async applyLineRemoval(
+    items: ContextItem[],
+    targetRatio: number,
+  ): Promise<BaseCompressionResult> {
     let totalOriginalTokens = 0;
     let totalCompressedTokens = 0;
     const compressedItems: ContextItem[] = [];
@@ -655,7 +718,11 @@ export class CompressionFallbackSystem {
         const middleTarget = Math.max(0, targetLines - 2);
         const step = Math.max(1, Math.floor(middleLines.length / middleTarget));
 
-        for (let i = 0; i < middleLines.length && selectedLines.length - 1 < middleTarget; i += step) {
+        for (
+          let i = 0;
+          i < middleLines.length && selectedLines.length - 1 < middleTarget;
+          i += step
+        ) {
           selectedLines.push(middleLines[i]);
         }
 
@@ -672,28 +739,37 @@ export class CompressionFallbackSystem {
       compressedItems.push({
         ...item,
         content: compressed,
-        tokenCount: compressedTokenCount
+        tokenCount: compressedTokenCount,
       });
     }
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
-      compressed: compressedItems.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
+      compressed: compressedItems.map((i) => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: totalCompressedTokens,
       compressionRatio: totalCompressedTokens / totalOriginalTokens,
       preservedConcepts: ['first_last_lines_preserved', 'sampled_content'],
-      informationLoss: Math.max(0.3, 1 - (totalCompressedTokens / totalOriginalTokens)),
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      informationLoss: Math.max(
+        0.3,
+        1 - totalCompressedTokens / totalOriginalTokens,
+      ),
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
   /**
    * Remove low priority items
    */
-  private async applyLowPriorityRemoval(items: ContextItem[], targetRatio: number): Promise<BaseCompressionResult> {
-    const totalOriginalTokens = items.reduce((sum, item) => sum + item.tokenCount, 0);
+  private async applyLowPriorityRemoval(
+    items: ContextItem[],
+    targetRatio: number,
+  ): Promise<BaseCompressionResult> {
+    const totalOriginalTokens = items.reduce(
+      (sum, item) => sum + item.tokenCount,
+      0,
+    );
     const targetTokens = totalOriginalTokens * targetRatio;
 
     // Sort by priority (keep higher priority items)
@@ -703,7 +779,7 @@ export class CompressionFallbackSystem {
         [ContextPriority.HIGH]: 3,
         [ContextPriority.MEDIUM]: 2,
         [ContextPriority.LOW]: 1,
-        [ContextPriority.CACHED]: 0
+        [ContextPriority.CACHED]: 0,
       };
       return priorityOrder[b.priority] - priorityOrder[a.priority];
     });
@@ -712,7 +788,10 @@ export class CompressionFallbackSystem {
     let currentTokens = 0;
 
     for (const item of prioritizedItems) {
-      if (currentTokens + item.tokenCount <= targetTokens || selectedItems.length === 0) {
+      if (
+        currentTokens + item.tokenCount <= targetTokens ||
+        selectedItems.length === 0
+      ) {
         selectedItems.push(item);
         currentTokens += item.tokenCount;
       }
@@ -720,27 +799,33 @@ export class CompressionFallbackSystem {
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
-      compressed: selectedItems.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
+      compressed: selectedItems.map((i) => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: currentTokens,
       compressionRatio: currentTokens / totalOriginalTokens,
       preservedConcepts: ['high_priority_items_preserved'],
-      informationLoss: Math.max(0.2, 1 - (currentTokens / totalOriginalTokens)),
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      informationLoss: Math.max(0.2, 1 - currentTokens / totalOriginalTokens),
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
   /**
    * Remove oldest content first
    */
-  private async applyOldestContentRemoval(items: ContextItem[], targetRatio: number): Promise<BaseCompressionResult> {
-    const totalOriginalTokens = items.reduce((sum, item) => sum + item.tokenCount, 0);
+  private async applyOldestContentRemoval(
+    items: ContextItem[],
+    targetRatio: number,
+  ): Promise<BaseCompressionResult> {
+    const totalOriginalTokens = items.reduce(
+      (sum, item) => sum + item.tokenCount,
+      0,
+    );
     const targetTokens = totalOriginalTokens * targetRatio;
 
     // Sort by timestamp (newest first)
-    const sortedItems = items.sort((a, b) =>
-      b.timestamp.getTime() - a.timestamp.getTime()
+    const sortedItems = items.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
     );
 
     const selectedItems: ContextItem[] = [];
@@ -758,24 +843,30 @@ export class CompressionFallbackSystem {
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
-      compressed: selectedItems.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
+      compressed: selectedItems.map((i) => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: currentTokens,
       compressionRatio: currentTokens / totalOriginalTokens,
       preservedConcepts: ['recent_content_preserved'],
-      informationLoss: Math.max(0.3, 1 - (currentTokens / totalOriginalTokens)),
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      informationLoss: Math.max(0.3, 1 - currentTokens / totalOriginalTokens),
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
   /**
    * Retry with different compression algorithm
    */
-  private async retryWithDifferentAlgorithm(items: ContextItem[], targetRatio: number): Promise<BaseCompressionResult> {
+  private async retryWithDifferentAlgorithm(
+    items: ContextItem[],
+    targetRatio: number,
+  ): Promise<BaseCompressionResult> {
     // Try basic semantic compressor with different strategy
     try {
-      const results = await this.basicCompressor.batchCompress(items, targetRatio);
+      const results = await this.basicCompressor.batchCompress(
+        items,
+        targetRatio,
+      );
 
       let totalOriginalTokens = 0;
       let totalCompressedTokens = 0;
@@ -789,14 +880,17 @@ export class CompressionFallbackSystem {
 
       return {
         success: true,
-        original: items.map(i => i.content).join('\n'),
+        original: items.map((i) => i.content).join('\n'),
         compressed: compressedContent.join('\n'),
         originalTokens: totalOriginalTokens,
         compressedTokens: totalCompressedTokens,
         compressionRatio: totalCompressedTokens / totalOriginalTokens,
         preservedConcepts: ['semantic_compression_applied'],
-        informationLoss: Math.max(0.15, 1 - (totalCompressedTokens / totalOriginalTokens) * 0.9),
-        strategy: CompressionStrategy.SUMMARIZATION
+        informationLoss: Math.max(
+          0.15,
+          1 - (totalCompressedTokens / totalOriginalTokens) * 0.9,
+        ),
+        strategy: CompressionStrategy.SUMMARIZATION,
       };
     } catch (_error) {
       // Fall back to simple compression if semantic compression also fails
@@ -807,7 +901,10 @@ export class CompressionFallbackSystem {
   /**
    * Process items in chunks to avoid memory issues
    */
-  private async applyChunkBasedProcessing(items: ContextItem[], targetRatio: number): Promise<BaseCompressionResult> {
+  private async applyChunkBasedProcessing(
+    items: ContextItem[],
+    targetRatio: number,
+  ): Promise<BaseCompressionResult> {
     const chunkSize = 10; // Process 10 items at a time
     const chunks: ContextItem[][] = [];
 
@@ -822,15 +919,21 @@ export class CompressionFallbackSystem {
     for (const chunk of chunks) {
       try {
         // Apply simple compression to each chunk
-        const chunkResult = await this.applySimpleCompression(chunk, targetRatio);
+        const chunkResult = await this.applySimpleCompression(
+          chunk,
+          targetRatio,
+        );
 
         totalOriginalTokens += chunkResult.originalTokens;
         totalCompressedTokens += chunkResult.compressedTokens;
         allCompressedContent.push(chunkResult.compressed);
       } catch (_chunkError) {
         // If chunk fails, just use original content
-        const chunkOriginal = chunk.map(item => item.content).join('\n');
-        const chunkTokens = chunk.reduce((sum, item) => sum + item.tokenCount, 0);
+        const chunkOriginal = chunk.map((item) => item.content).join('\n');
+        const chunkTokens = chunk.reduce(
+          (sum, item) => sum + item.tokenCount,
+          0,
+        );
 
         totalOriginalTokens += chunkTokens;
         totalCompressedTokens += chunkTokens;
@@ -840,21 +943,27 @@ export class CompressionFallbackSystem {
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
       compressed: allCompressedContent.join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: totalCompressedTokens,
       compressionRatio: totalCompressedTokens / totalOriginalTokens,
       preservedConcepts: ['chunk_based_processing'],
-      informationLoss: Math.max(0.1, 1 - (totalCompressedTokens / totalOriginalTokens) * 0.9),
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      informationLoss: Math.max(
+        0.1,
+        1 - (totalCompressedTokens / totalOriginalTokens) * 0.9,
+      ),
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
   /**
    * Apply memory-optimized compression
    */
-  private async applyMemoryOptimizedCompression(items: ContextItem[], targetRatio: number): Promise<BaseCompressionResult> {
+  private async applyMemoryOptimizedCompression(
+    items: ContextItem[],
+    targetRatio: number,
+  ): Promise<BaseCompressionResult> {
     // Process one item at a time to minimize memory usage
     let totalOriginalTokens = 0;
     let totalCompressedTokens = 0;
@@ -885,29 +994,44 @@ export class CompressionFallbackSystem {
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
       compressed: compressedContent.join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: totalCompressedTokens,
       compressionRatio: totalCompressedTokens / totalOriginalTokens,
       preservedConcepts: ['memory_optimized'],
-      informationLoss: Math.max(0.2, 1 - (totalCompressedTokens / totalOriginalTokens) * 0.9),
-      strategy: CompressionStrategy.KEYWORD_EXTRACTION
+      informationLoss: Math.max(
+        0.2,
+        1 - (totalCompressedTokens / totalOriginalTokens) * 0.9,
+      ),
+      strategy: CompressionStrategy.KEYWORD_EXTRACTION,
     };
   }
 
   /**
    * Apply aggressive truncation for emergency situations
    */
-  private async applyAggressiveTruncation(items: ContextItem[], targetRatio: number): Promise<BaseCompressionResult> {
-    const totalOriginalTokens = items.reduce((sum, item) => sum + item.tokenCount, 0);
+  private async applyAggressiveTruncation(
+    items: ContextItem[],
+    targetRatio: number,
+  ): Promise<BaseCompressionResult> {
+    const totalOriginalTokens = items.reduce(
+      (sum, item) => sum + item.tokenCount,
+      0,
+    );
     const targetTokens = totalOriginalTokens * targetRatio;
 
     // Keep only the most essential items and truncate heavily
-    const criticalItems = items.filter(item => item.priority === ContextPriority.CRITICAL);
-    const highItems = items.filter(item => item.priority === ContextPriority.HIGH);
-    const otherItems = items.filter(item =>
-      item.priority !== ContextPriority.CRITICAL && item.priority !== ContextPriority.HIGH
+    const criticalItems = items.filter(
+      (item) => item.priority === ContextPriority.CRITICAL,
+    );
+    const highItems = items.filter(
+      (item) => item.priority === ContextPriority.HIGH,
+    );
+    const otherItems = items.filter(
+      (item) =>
+        item.priority !== ContextPriority.CRITICAL &&
+        item.priority !== ContextPriority.HIGH,
     );
 
     const selectedItems: ContextItem[] = [];
@@ -916,11 +1040,14 @@ export class CompressionFallbackSystem {
     // Add critical items with minimal truncation
     for (const item of criticalItems) {
       const maxTokensForItem = Math.min(item.tokenCount, targetTokens * 0.3); // Max 30% of budget per critical item
-      const targetLength = Math.floor(item.content.length * (maxTokensForItem / item.tokenCount));
+      const targetLength = Math.floor(
+        item.content.length * (maxTokensForItem / item.tokenCount),
+      );
 
       let content = item.content;
       if (content.length > targetLength) {
-        content = content.substring(0, targetLength) + '... [truncated - critical]';
+        content =
+          content.substring(0, targetLength) + '... [truncated - critical]';
       }
 
       const tokenCount = this.estimateTokenCount(content);
@@ -934,7 +1061,9 @@ export class CompressionFallbackSystem {
 
       const remainingBudget = targetTokens * 0.8 - currentTokens;
       const maxTokensForItem = Math.min(item.tokenCount * 0.5, remainingBudget);
-      const targetLength = Math.floor(item.content.length * (maxTokensForItem / item.tokenCount));
+      const targetLength = Math.floor(
+        item.content.length * (maxTokensForItem / item.tokenCount),
+      );
 
       let content = item.content;
       if (content.length > targetLength) {
@@ -951,10 +1080,14 @@ export class CompressionFallbackSystem {
       if (currentTokens >= targetTokens) break;
 
       const remainingBudget = targetTokens - currentTokens;
-      if (remainingBudget > item.tokenCount * 0.2) { // Need at least 20% of original size
-        const targetLength = Math.floor(item.content.length * (remainingBudget / item.tokenCount));
+      if (remainingBudget > item.tokenCount * 0.2) {
+        // Need at least 20% of original size
+        const targetLength = Math.floor(
+          item.content.length * (remainingBudget / item.tokenCount),
+        );
 
-        const content = item.content.substring(0, targetLength) + '... [truncated]';
+        const content =
+          item.content.substring(0, targetLength) + '... [truncated]';
         const tokenCount = this.estimateTokenCount(content);
 
         selectedItems.push({ ...item, content, tokenCount });
@@ -964,14 +1097,17 @@ export class CompressionFallbackSystem {
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
-      compressed: selectedItems.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
+      compressed: selectedItems.map((i) => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: currentTokens,
       compressionRatio: currentTokens / totalOriginalTokens,
       preservedConcepts: ['critical_items_preserved', 'aggressive_truncation'],
-      informationLoss: Math.max(0.4, 1 - (currentTokens / totalOriginalTokens) * 0.8),
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      informationLoss: Math.max(
+        0.4,
+        1 - (currentTokens / totalOriginalTokens) * 0.8,
+      ),
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
@@ -981,60 +1117,78 @@ export class CompressionFallbackSystem {
   private async applyEmergencyMeasures(
     items: ContextItem[],
     targetRatio: number,
-    sessionId: string
+    sessionId: string,
   ): Promise<BaseCompressionResult> {
     logger.error('Applying emergency content removal measures', { sessionId });
 
-    const totalOriginalTokens = items.reduce((sum, item) => sum + item.tokenCount, 0);
+    const totalOriginalTokens = items.reduce(
+      (sum, item) => sum + item.tokenCount,
+      0,
+    );
     const targetTokens = Math.max(
       totalOriginalTokens * targetRatio,
-      totalOriginalTokens * this.config.minPreservationRatio
+      totalOriginalTokens * this.config.minPreservationRatio,
     );
 
     // Keep only absolutely critical items
-    const criticalItems = items.filter(item => item.priority === ContextPriority.CRITICAL);
+    const criticalItems = items.filter(
+      (item) => item.priority === ContextPriority.CRITICAL,
+    );
 
     // If no critical items, keep the most recent high priority items
     let selectedItems = criticalItems;
     if (criticalItems.length === 0) {
       const highPriorityItems = items
-        .filter(item => item.priority === ContextPriority.HIGH)
+        .filter((item) => item.priority === ContextPriority.HIGH)
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         .slice(0, 3); // Keep max 3 high priority items
       selectedItems = highPriorityItems;
     }
 
     // If still over budget, truncate each item to fit
-    const currentTokens = selectedItems.reduce((sum, item) => sum + item.tokenCount, 0);
+    const currentTokens = selectedItems.reduce(
+      (sum, item) => sum + item.tokenCount,
+      0,
+    );
 
     if (currentTokens > targetTokens && selectedItems.length > 0) {
       const tokensPerItem = Math.floor(targetTokens / selectedItems.length);
 
-      selectedItems = selectedItems.map(item => {
+      selectedItems = selectedItems.map((item) => {
         if (item.tokenCount <= tokensPerItem) {
           return item;
         }
 
-        const targetLength = Math.floor(item.content.length * (tokensPerItem / item.tokenCount));
-        const content = item.content.substring(0, targetLength) + '... [EMERGENCY TRUNCATION]';
+        const targetLength = Math.floor(
+          item.content.length * (tokensPerItem / item.tokenCount),
+        );
+        const content =
+          item.content.substring(0, targetLength) +
+          '... [EMERGENCY TRUNCATION]';
         const tokenCount = this.estimateTokenCount(content);
 
         return { ...item, content, tokenCount };
       });
     }
 
-    const finalTokens = selectedItems.reduce((sum, item) => sum + item.tokenCount, 0);
+    const finalTokens = selectedItems.reduce(
+      (sum, item) => sum + item.tokenCount,
+      0,
+    );
 
     return {
       success: true,
-      original: items.map(i => i.content).join('\n'),
-      compressed: selectedItems.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
+      compressed: selectedItems.map((i) => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
       compressedTokens: finalTokens,
       compressionRatio: finalTokens / totalOriginalTokens,
       preservedConcepts: ['emergency_preservation_only'],
-      informationLoss: Math.max(0.7, 1 - (finalTokens / totalOriginalTokens) * 0.5),
-      strategy: CompressionStrategy.PROGRESSIVE_DETAIL
+      informationLoss: Math.max(
+        0.7,
+        1 - (finalTokens / totalOriginalTokens) * 0.5,
+      ),
+      strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
     };
   }
 
@@ -1047,14 +1201,14 @@ export class CompressionFallbackSystem {
     fallbackErrors: string[],
     emergencyMeasuresApplied: boolean,
     recoveryActions: string[],
-    _duration: number
+    _duration: number,
   ): FallbackCompressionResult {
     const totalTokens = items.reduce((sum, item) => sum + item.tokenCount, 0);
 
     return {
       success: false,
-      original: items.map(i => i.content).join('\n'),
-      compressed: items.map(i => i.content).join('\n'),
+      original: items.map((i) => i.content).join('\n'),
+      compressed: items.map((i) => i.content).join('\n'),
       originalTokens: totalTokens,
       compressedTokens: totalTokens,
       compressionRatio: 1.0,
@@ -1064,7 +1218,7 @@ export class CompressionFallbackSystem {
       fallbackAttempts,
       fallbackErrors,
       emergencyMeasuresApplied,
-      recoveryActions
+      recoveryActions,
     };
   }
 
@@ -1091,7 +1245,7 @@ export class CompressionFallbackSystem {
   updateConfig(newConfig: Partial<FallbackConfig>): void {
     this.config = { ...this.config, ...newConfig };
     logger.info('CompressionFallbackSystem configuration updated', {
-      newConfig: this.config
+      newConfig: this.config,
     });
   }
 
@@ -1107,7 +1261,7 @@ export class CompressionFallbackSystem {
  * Create a compression fallback system instance
  */
 export function createCompressionFallbackSystem(
-  config?: Partial<FallbackConfig>
+  config?: Partial<FallbackConfig>,
 ): CompressionFallbackSystem {
   return new CompressionFallbackSystem(config);
 }

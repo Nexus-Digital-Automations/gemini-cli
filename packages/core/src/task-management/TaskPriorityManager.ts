@@ -7,7 +7,7 @@
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
 import type { Task, PriorityFactors } from './TaskQueue.js';
-import type { TaskPriority} from './types.js';
+import type { TaskPriority } from './types.js';
 import { TaskCategory, TaskStatus } from './types.js';
 
 /**

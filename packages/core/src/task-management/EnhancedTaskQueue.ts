@@ -503,7 +503,9 @@ export class EnhancedTaskQueue extends TaskQueue {
 
     // Use ML model to predict optimal scheduling order
     const taskFeatures = allTasks.map((task) => this.extractTaskFeatures(task));
-    const predictions = (this.predictionModel as any)?.predict?.(taskFeatures) || taskFeatures.map(() => Math.random());
+    const predictions =
+      (this.predictionModel as any)?.predict?.(taskFeatures) ||
+      taskFeatures.map(() => Math.random());
 
     // Combine predictions with task objects and sort
     const tasksWithPredictions = allTasks
@@ -704,7 +706,8 @@ export class EnhancedTaskQueue extends TaskQueue {
     const boostLevels = Math.floor(
       waitTime / this.schedulingConfig.maxStarvationTime,
     );
-    const priorityValues = Object.values(TaskPriority).sort((a, b) => b - a);
+    const priorityValues = Object.values(TaskPriority).filter(value => typeof value === 'number') as TaskPriority[];
+    priorityValues.sort((a, b) => b - a);
     const currentIndex = priorityValues.indexOf(originalPriority);
     const boostedIndex = Math.max(0, currentIndex - boostLevels);
 

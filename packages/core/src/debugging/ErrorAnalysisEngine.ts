@@ -313,7 +313,7 @@ export class ErrorAnalysisEngine {
       const signature = this.generateErrorSignature(errorText, context);
 
       // Extract ErrorPattern objects from PatternMatchResult
-      const patterns = patternMatches.map(match => match.pattern);
+      const patterns = patternMatches.map((match) => match.pattern);
 
       // Perform comprehensive analysis
       const analysis: ErrorAnalysis = {
@@ -322,18 +322,11 @@ export class ErrorAnalysisEngine {
         severity: this.calculateSeverity(patterns, errorText, context),
         language: this.detectLanguage(context),
         originalMessage: errorText,
-        enhancedMessage: await this.enhanceErrorMessage(
-          errorText,
-          patterns,
-        ),
+        enhancedMessage: await this.enhanceErrorMessage(errorText, patterns),
         errorText,
         category: this.determineCategory(patterns, errorText),
         location: this.extractLocation(context),
-        rootCause: await this.identifyRootCause(
-          errorText,
-          patterns,
-          context,
-        ),
+        rootCause: await this.identifyRootCause(errorText, patterns, context),
         affectedComponents: this.identifyAffectedComponents(errorText, context),
         suggestedFixes: (
           await this.generateFixSuggestions(patterns, context)
@@ -370,11 +363,7 @@ export class ErrorAnalysisEngine {
         patterns,
         metadata: {
           analysisVersion: '1.0.0',
-          insights: await this.generateInsights(
-            errorText,
-            patterns,
-            context,
-          ),
+          insights: await this.generateInsights(errorText, patterns, context),
           contextualFactors: await this.analyzeContextualFactors(context),
           relatedErrors: this.findRelatedErrors(signature, context),
           performanceImpact: this.config.enablePerformanceAnalysis
@@ -431,7 +420,9 @@ export class ErrorAnalysisEngine {
   getErrorTrends(): Map<string, ErrorTrend> {
     const trends = new Map<string, ErrorTrend>();
 
-    for (const [signature, frequencyData] of Array.from(this.errorHistory.entries())) {
+    for (const [signature, frequencyData] of Array.from(
+      this.errorHistory.entries(),
+    )) {
       if (frequencyData.occurrences.length >= 2) {
         const trend = this.calculateErrorTrend(frequencyData);
         trends.set(signature, trend);
@@ -466,10 +457,9 @@ export class ErrorAnalysisEngine {
     }> = [];
 
     // Compare with known error signatures
-    for (const [
-      knownSignature,
-      _frequencyData,
-    ] of Array.from(this.errorHistory.entries())) {
+    for (const [knownSignature, _frequencyData] of Array.from(
+      this.errorHistory.entries(),
+    )) {
       if (knownSignature === signature.id) continue;
 
       const similarity = this.calculateErrorSimilarity(
@@ -859,10 +849,9 @@ export class ErrorAnalysisEngine {
     const related: RelatedError[] = [];
     const maxRelated = Math.min(this.config.maxRelatedErrors, 5);
 
-    for (const [
-      errorSignature,
-      _frequencyData,
-    ] of Array.from(this.errorHistory.entries())) {
+    for (const [errorSignature, _frequencyData] of Array.from(
+      this.errorHistory.entries(),
+    )) {
       if (related.length >= maxRelated) break;
       if (errorSignature === signature.id) continue;
 
@@ -1247,7 +1236,9 @@ export class ErrorAnalysisEngine {
     // Text similarity (Jaccard similarity of words)
     const words1 = new Set(s1.split(/\W+/));
     const words2 = new Set(s2.split(/\W+/));
-    const intersection = new Set(Array.from(words1).filter((x) => words2.has(x)));
+    const intersection = new Set(
+      Array.from(words1).filter((x) => words2.has(x)),
+    );
     const union = new Set([...Array.from(words1), ...Array.from(words2)]);
 
     textSimilarity = intersection.size / union.size;

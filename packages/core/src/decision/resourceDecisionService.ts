@@ -18,14 +18,8 @@ import {
   type AllocationStrategy,
   type ResourceRequirement,
 } from './resourceAllocator.js';
-import {
-  DecisionType,
-  DecisionPriority,
-} from './types.js';
-import type {
-  DecisionContext,
-  Decision,
-} from './types.js';
+import { DecisionType, DecisionPriority } from './types.js';
+import type { DecisionContext, Decision } from './types.js';
 
 /**
  * Task resource profile for decision making

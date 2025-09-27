@@ -6,7 +6,11 @@
 
 // Type definition for PTY module interface
 interface PtyModule {
-  spawn?: (shell?: string, args?: string[], options?: Record<string, unknown>) => PtyProcess;
+  spawn?: (
+    shell?: string,
+    args?: string[],
+    options?: Record<string, unknown>,
+  ) => PtyProcess;
   [key: string]: unknown;
 }
 

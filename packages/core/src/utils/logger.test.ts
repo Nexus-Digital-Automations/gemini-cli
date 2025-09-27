@@ -93,8 +93,13 @@ describe('Structured Logger', () => {
     childLogger.info('Test message');
 
     // Verify child logger was created and used
-    expect(mockWinstonLogger.child).toHaveBeenCalledWith({ component: 'test-component' });
-    expect(mockWinstonLogger.child().info).toHaveBeenCalledWith('Test message', {});
+    expect(mockWinstonLogger.child).toHaveBeenCalledWith({
+      component: 'test-component',
+    });
+    expect(mockWinstonLogger.child().info).toHaveBeenCalledWith(
+      'Test message',
+      {},
+    );
   });
 
   it('should handle error objects properly', () => {
@@ -104,7 +109,9 @@ describe('Structured Logger', () => {
     logger.error('Error occurred', { error: testError });
 
     // Verify error was logged with proper metadata
-    expect(mockWinstonLogger.error).toHaveBeenCalledWith('Error occurred', { error: testError });
+    expect(mockWinstonLogger.error).toHaveBeenCalledWith('Error occurred', {
+      error: testError,
+    });
   });
 
   it('should create timer utility correctly', async () => {
@@ -120,8 +127,8 @@ describe('Structured Logger', () => {
     expect(mockWinstonLogger.debug).toHaveBeenCalledWith(
       'test-operation completed',
       expect.objectContaining({
-        duration: expect.any(Number)
-      })
+        duration: expect.any(Number),
+      }),
     );
   });
 

@@ -34,7 +34,11 @@ class MockTaskExecutionEngine {
     this.handlers = handlers;
   }
 
-  async queueTask(_title: string, _description: string, _options?: TaskOptions): Promise<string> {
+  async queueTask(
+    _title: string,
+    _description: string,
+    _options?: TaskOptions,
+  ): Promise<string> {
     // Simulate task ID generation
     const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -69,7 +73,7 @@ describe('TaskExecutionEngine', () => {
   it('should queue a task successfully', async () => {
     const taskId = await taskExecutionEngine.queueTask(
       'Test Task',
-      'This is a test task for validation'
+      'This is a test task for validation',
     );
 
     expect(taskId).toBeDefined();
@@ -80,12 +84,12 @@ describe('TaskExecutionEngine', () => {
   it('should queue multiple tasks with different complexities', async () => {
     const simpleTaskId = await taskExecutionEngine.queueTask(
       'Simple Task',
-      'A simple task that should be completed quickly'
+      'A simple task that should be completed quickly',
     );
 
     const complexTaskId = await taskExecutionEngine.queueTask(
       'Complex Multi-Agent Integration Task',
-      'This is a comprehensive enterprise-level task requiring distributed processing, microservices architecture, and real-time orchestration across multiple agents with concurrent execution patterns'
+      'This is a comprehensive enterprise-level task requiring distributed processing, microservices architecture, and real-time orchestration across multiple agents with concurrent execution patterns',
     );
 
     expect(simpleTaskId).toBeDefined();
@@ -101,8 +105,11 @@ describe('TaskExecutionEngine', () => {
         priority: 'HIGH',
         maxExecutionTimeMinutes: 120,
         context: { userId: '123', feature: 'authentication' },
-        expectedOutputs: { result: 'Task completion status', logs: 'Execution logs' }
-      }
+        expectedOutputs: {
+          result: 'Task completion status',
+          logs: 'Execution logs',
+        },
+      },
     );
 
     expect(taskId).toBeDefined();
@@ -113,13 +120,13 @@ describe('TaskExecutionEngine', () => {
     const implementationTaskId = await taskExecutionEngine.queueTask(
       'Implementation Task',
       'Implement a new feature',
-      { type: 'IMPLEMENTATION' }
+      { type: 'IMPLEMENTATION' },
     );
 
     const testingTaskId = await taskExecutionEngine.queueTask(
       'Testing Task',
       'Create comprehensive tests',
-      { type: 'TESTING' }
+      { type: 'TESTING' },
     );
 
     expect(implementationTaskId).toBeDefined();
@@ -130,13 +137,13 @@ describe('TaskExecutionEngine', () => {
     // Test trivial complexity
     const trivialTaskId = await taskExecutionEngine.queueTask(
       'Fix typo',
-      'Fix a simple typo in documentation'
+      'Fix a simple typo in documentation',
     );
 
     // Test enterprise complexity
     const enterpriseTaskId = await taskExecutionEngine.queueTask(
       'Enterprise Multi-Agent System',
-      'Design and implement a comprehensive distributed multi-agent enterprise architecture with scalable microservices, real-time orchestration, concurrent processing, and comprehensive monitoring across multiple deployment environments'
+      'Design and implement a comprehensive distributed multi-agent enterprise architecture with scalable microservices, real-time orchestration, concurrent processing, and comprehensive monitoring across multiple deployment environments',
     );
 
     expect(trivialTaskId).toBeDefined();
@@ -148,18 +155,15 @@ describe('TaskExecutionEngine', () => {
     const onTaskComplete = vi.fn();
     const onTaskFailed = vi.fn();
 
-    const engineWithHandlers = new MockTaskExecutionEngine(
-      mockConfig,
-      {
-        onTaskStatusChange,
-        onTaskComplete,
-        onTaskFailed
-      }
-    );
+    const engineWithHandlers = new MockTaskExecutionEngine(mockConfig, {
+      onTaskStatusChange,
+      onTaskComplete,
+      onTaskFailed,
+    });
 
     const taskId = await engineWithHandlers.queueTask(
       'Test Task with Handlers',
-      'A task to test event handlers'
+      'A task to test event handlers',
     );
 
     expect(taskId).toBeDefined();
@@ -172,14 +176,13 @@ describe('TaskExecutionEngine', () => {
       statusChanges.push(task);
     });
 
-    const engineWithHandlers = new MockTaskExecutionEngine(
-      mockConfig,
-      { onTaskStatusChange }
-    );
+    const engineWithHandlers = new MockTaskExecutionEngine(mockConfig, {
+      onTaskStatusChange,
+    });
 
     const taskId = await engineWithHandlers.queueTask(
       'Status Tracking Task',
-      'A task to test status tracking'
+      'A task to test status tracking',
     );
 
     expect(taskId).toBeDefined();
@@ -192,7 +195,7 @@ describe('TaskExecutionEngine', () => {
     // Test with minimal parameters
     const minimalTaskId = await taskExecutionEngine.queueTask(
       'Minimal Task',
-      'Task with minimal parameters'
+      'Task with minimal parameters',
     );
     expect(minimalTaskId).toBeDefined();
 
@@ -207,14 +210,14 @@ describe('TaskExecutionEngine', () => {
         context: {
           project: 'test-project',
           environment: 'development',
-          features: ['auth', 'validation']
+          features: ['auth', 'validation'],
         },
         expectedOutputs: {
           result: 'Implementation results',
           artifacts: 'Generated files',
-          metrics: 'Performance metrics'
-        }
-      }
+          metrics: 'Performance metrics',
+        },
+      },
     );
     expect(fullTaskId).toBeDefined();
   });

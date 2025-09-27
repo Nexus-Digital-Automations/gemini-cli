@@ -375,10 +375,7 @@ export class PersonaManager {
    * @param updates - Partial persona data to merge
    * @throws Error if persona doesn't exist or is a system persona
    */
-  updatePersona(
-    personaId: string,
-    updates: Partial<PersonaProfile>,
-  ): void {
+  updatePersona(personaId: string, updates: Partial<PersonaProfile>): void {
     const existingPersona = this.personas.get(personaId);
     if (!existingPersona) {
       throw new Error(`Persona '${personaId}' not found`);

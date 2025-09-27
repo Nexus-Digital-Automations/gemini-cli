@@ -54,8 +54,27 @@ export interface CodeAnalysisConfig {
  */
 export const DEFAULT_CODE_ANALYSIS_CONFIG: CodeAnalysisConfig = {
   maxFileTreeDepth: 10,
-  supportedExtensions: ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.go', '.rs', '.c', '.cpp'],
-  excludedDirectories: ['node_modules', '.git', 'dist', 'build', 'coverage', '.next', '.cache'],
+  supportedExtensions: [
+    '.js',
+    '.ts',
+    '.jsx',
+    '.tsx',
+    '.py',
+    '.java',
+    '.go',
+    '.rs',
+    '.c',
+    '.cpp',
+  ],
+  excludedDirectories: [
+    'node_modules',
+    '.git',
+    'dist',
+    'build',
+    'coverage',
+    '.next',
+    '.cache',
+  ],
   excludedFiles: ['package-lock.json', 'yarn.lock', '.DS_Store'],
   maxFileSize: 1024 * 1024, // 1MB
   enableAstParsing: false, // Simple regex-based parsing by default
@@ -231,10 +250,16 @@ export class CodeContextAnalyzer {
         const entryPath = path.join(dirPath, entry);
 
         try {
-          const childTree = await this.buildFileTree(entryPath, depth + 1, maxDepth);
+          const childTree = await this.buildFileTree(
+            entryPath,
+            depth + 1,
+            maxDepth,
+          );
           children.push(childTree);
         } catch (error) {
-          logger.debug(`Skipping inaccessible entry: ${entry}`, { error: error as Error });
+          logger.debug(`Skipping inaccessible entry: ${entry}`, {
+            error: error as Error,
+          });
         }
       }
 
@@ -255,7 +280,9 @@ export class CodeContextAnalyzer {
         relevance: Math.max(...children.map((child) => child.relevance || 0)),
       };
     } catch (error) {
-      logger.warn(`Failed to analyze path: ${dirPath}`, { error: error as Error });
+      logger.warn(`Failed to analyze path: ${dirPath}`, {
+        error: error as Error,
+      });
       throw error;
     }
   }
@@ -290,7 +317,8 @@ export class CodeContextAnalyzer {
     }
 
     // Boost for recently modified files
-    const daysSinceModified = (Date.now() - stats.mtime.getTime()) / (1000 * 60 * 60 * 24);
+    const daysSinceModified =
+      (Date.now() - stats.mtime.getTime()) / (1000 * 60 * 60 * 24);
     if (daysSinceModified < 7) {
       relevance += 0.3 * Math.exp(-daysSinceModified / 3); // Exponential decay
     }
@@ -307,14 +335,18 @@ export class CodeContextAnalyzer {
   /**
    * Extract functions and classes from the project
    */
-  private async extractFunctions(fileTree: FileTree): Promise<FunctionSummary[]> {
+  private async extractFunctions(
+    fileTree: FileTree,
+  ): Promise<FunctionSummary[]> {
     const functions: FunctionSummary[] = [];
 
     await this.traverseTreeForFunctions(fileTree, functions);
 
     // Sort by relevance and limit count
     return functions
-      .sort((a, b) => b.complexity - a.complexity || b.usageCount - a.usageCount)
+      .sort(
+        (a, b) => b.complexity - a.complexity || b.usageCount - a.usageCount,
+      )
       .slice(0, this.config.maxFunctionsPerFile * 20); // Reasonable limit for large projects
   }
 
@@ -368,7 +400,9 @@ export class CodeContextAnalyzer {
   /**
    * Analyze functions in a specific file
    */
-  private async analyzeFunctionsInFile(filePath: string): Promise<FunctionSummary[]> {
+  private async analyzeFunctionsInFile(
+    filePath: string,
+  ): Promise<FunctionSummary[]> {
     try {
       const content = await fs.promises.readFile(filePath, 'utf-8');
       const functions: FunctionSummary[] = [];
@@ -399,11 +433,15 @@ export class CodeContextAnalyzer {
   /**
    * Parse JavaScript/TypeScript functions and classes
    */
-  private parseJavaScriptFunctions(content: string, filePath: string): FunctionSummary[] {
+  private parseJavaScriptFunctions(
+    content: string,
+    filePath: string,
+  ): FunctionSummary[] {
     const functions: FunctionSummary[] = [];
 
     // Function declarations
-    const functionRegex = /(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\([^)]*\)/g;
+    const functionRegex =
+      /(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\([^)]*\)/g;
     let match;
 
     while ((match = functionRegex.exec(content)) !== null) {
@@ -414,7 +452,10 @@ export class CodeContextAnalyzer {
         signature: fullMatch,
         description: this.extractNearbyComment(content, match.index),
         parameters: this.extractParameters(fullMatch),
-        dependencies: this.extractDependenciesFromFunction(content, match.index),
+        dependencies: this.extractDependenciesFromFunction(
+          content,
+          match.index,
+        ),
         usageCount: this.estimateUsageCount(content, name),
         lineCount: this.estimateLineCount(content, match.index),
         complexity: this.calculateComplexity(content, match.index),
@@ -422,7 +463,8 @@ export class CodeContextAnalyzer {
     }
 
     // Arrow functions
-    const arrowRegex = /(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:\([^)]*\)\s*=>|[^=]*=>\s*)/g;
+    const arrowRegex =
+      /(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:\([^)]*\)\s*=>|[^=]*=>\s*)/g;
 
     while ((match = arrowRegex.exec(content)) !== null) {
       const [fullMatch, name] = match;
@@ -432,7 +474,10 @@ export class CodeContextAnalyzer {
         signature: fullMatch,
         description: this.extractNearbyComment(content, match.index),
         parameters: this.extractParameters(fullMatch),
-        dependencies: this.extractDependenciesFromFunction(content, match.index),
+        dependencies: this.extractDependenciesFromFunction(
+          content,
+          match.index,
+        ),
         usageCount: this.estimateUsageCount(content, name),
         lineCount: this.estimateLineCount(content, match.index),
         complexity: this.calculateComplexity(content, match.index),
@@ -463,7 +508,10 @@ export class CodeContextAnalyzer {
   /**
    * Parse Python functions and classes
    */
-  private parsePythonFunctions(content: string, filePath: string): FunctionSummary[] {
+  private parsePythonFunctions(
+    content: string,
+    filePath: string,
+  ): FunctionSummary[] {
     const functions: FunctionSummary[] = [];
 
     // Function definitions
@@ -478,7 +526,10 @@ export class CodeContextAnalyzer {
         signature: fullMatch,
         description: this.extractNearbyComment(content, match.index),
         parameters: this.extractPythonParameters(fullMatch),
-        dependencies: this.extractDependenciesFromFunction(content, match.index),
+        dependencies: this.extractDependenciesFromFunction(
+          content,
+          match.index,
+        ),
         usageCount: this.estimateUsageCount(content, name),
         lineCount: this.estimateLineCount(content, match.index),
         complexity: this.calculateComplexity(content, match.index),
@@ -509,11 +560,15 @@ export class CodeContextAnalyzer {
   /**
    * Parse Java functions and classes (simplified)
    */
-  private parseJavaFunctions(content: string, filePath: string): FunctionSummary[] {
+  private parseJavaFunctions(
+    content: string,
+    filePath: string,
+  ): FunctionSummary[] {
     const functions: FunctionSummary[] = [];
 
     // Method declarations
-    const methodRegex = /(?:public|private|protected)?\s*(?:static)?\s*\w+\s+(\w+)\s*\([^)]*\)/g;
+    const methodRegex =
+      /(?:public|private|protected)?\s*(?:static)?\s*\w+\s+(\w+)\s*\([^)]*\)/g;
     let match;
 
     while ((match = methodRegex.exec(content)) !== null) {
@@ -537,7 +592,10 @@ export class CodeContextAnalyzer {
   /**
    * Parse Go functions (simplified)
    */
-  private parseGoFunctions(content: string, filePath: string): FunctionSummary[] {
+  private parseGoFunctions(
+    content: string,
+    filePath: string,
+  ): FunctionSummary[] {
     const functions: FunctionSummary[] = [];
 
     // Function declarations
@@ -583,7 +641,9 @@ export class CodeContextAnalyzer {
       const type = parts[1] || 'unknown';
 
       const optional = param.includes('?') || param.includes('=');
-      const defaultValue = param.includes('=') ? param.split('=')[1].trim() : undefined;
+      const defaultValue = param.includes('=')
+        ? param.split('=')[1].trim()
+        : undefined;
 
       parameters.push({
         name,
@@ -619,8 +679,12 @@ export class CodeContextAnalyzer {
       const type = parts[1]?.trim() || 'Any';
 
       const hasDefault = nameWithDefault.includes('=');
-      const name = hasDefault ? nameWithDefault.split('=')[0].trim() : nameWithDefault;
-      const defaultValue = hasDefault ? nameWithDefault.split('=')[1].trim() : undefined;
+      const name = hasDefault
+        ? nameWithDefault.split('=')[0].trim()
+        : nameWithDefault;
+      const defaultValue = hasDefault
+        ? nameWithDefault.split('=')[1].trim()
+        : undefined;
 
       parameters.push({
         name,
@@ -697,7 +761,10 @@ export class CodeContextAnalyzer {
   /**
    * Extract dependencies from function context
    */
-  private extractDependenciesFromFunction(content: string, index: number): string[] {
+  private extractDependenciesFromFunction(
+    content: string,
+    index: number,
+  ): string[] {
     const dependencies: string[] = [];
     const functionEnd = this.findFunctionEnd(content, index);
     const functionContent = content.substring(index, functionEnd);
@@ -722,7 +789,10 @@ export class CodeContextAnalyzer {
   /**
    * Extract dependencies from class context
    */
-  private extractDependenciesFromClass(content: string, index: number): string[] {
+  private extractDependenciesFromClass(
+    content: string,
+    index: number,
+  ): string[] {
     // Similar to function dependencies but look for class-level imports
     return this.extractDependenciesFromFunction(content, index);
   }
@@ -732,9 +802,9 @@ export class CodeContextAnalyzer {
    */
   private findFunctionEnd(content: string, startIndex: number): number {
     // Simplified - find next function/class declaration or end of file
-    const nextFunctionMatch = content.substring(startIndex + 1).search(
-      /(function\s+\w+|class\s+\w+|def\s+\w+)/
-    );
+    const nextFunctionMatch = content
+      .substring(startIndex + 1)
+      .search(/(function\s+\w+|class\s+\w+|def\s+\w+)/);
 
     return nextFunctionMatch === -1
       ? content.length
@@ -802,12 +872,16 @@ export class CodeContextAnalyzer {
   /**
    * Analyze dependencies between files
    */
-  private async analyzeDependencies(fileTree: FileTree): Promise<DependencyMap> {
+  private async analyzeDependencies(
+    fileTree: FileTree,
+  ): Promise<DependencyMap> {
     const dependencies: DependencyMap = {};
 
     await this.traverseTreeForDependencies(fileTree, dependencies);
 
-    logger.info(`Analyzed dependencies for ${Object.keys(dependencies).length} files`);
+    logger.info(
+      `Analyzed dependencies for ${Object.keys(dependencies).length} files`,
+    );
     return dependencies;
   }
 
@@ -873,19 +947,11 @@ export class CodeContextAnalyzer {
           /export\s+.*?\s+from\s+['"`]([^'"`]+)['"`]/g,
         ];
       } else if (ext === '.py') {
-        patterns = [
-          /from\s+([^\s]+)\s+import/g,
-          /import\s+([^\s,]+)/g,
-        ];
+        patterns = [/from\s+([^\s]+)\s+import/g, /import\s+([^\s,]+)/g];
       } else if (ext === '.java') {
-        patterns = [
-          /import\s+([^;]+);/g,
-        ];
+        patterns = [/import\s+([^;]+);/g];
       } else if (ext === '.go') {
-        patterns = [
-          /import\s+"([^"]+)"/g,
-          /import\s+\(\s*"([^"]+)"/g,
-        ];
+        patterns = [/import\s+"([^"]+)"/g, /import\s+\(\s*"([^"]+)"/g];
       }
 
       for (const pattern of patterns) {
@@ -942,7 +1008,11 @@ export class CodeContextAnalyzer {
         const relativePath = path.relative(this.projectPath, entryPath);
 
         // Skip excluded directories
-        if (this.config.excludedDirectories.some((excluded) => relativePath.includes(excluded))) {
+        if (
+          this.config.excludedDirectories.some((excluded) =>
+            relativePath.includes(excluded),
+          )
+        ) {
           continue;
         }
 
@@ -952,7 +1022,8 @@ export class CodeContextAnalyzer {
           if (stats.isDirectory()) {
             await this.findRecentlyModifiedFiles(entryPath, changes);
           } else if (stats.isFile()) {
-            const daysSinceModified = (Date.now() - stats.mtime.getTime()) / (1000 * 60 * 60 * 24);
+            const daysSinceModified =
+              (Date.now() - stats.mtime.getTime()) / (1000 * 60 * 60 * 24);
 
             if (daysSinceModified < 1) {
               // File modified in last 24 hours
@@ -986,7 +1057,9 @@ export class CodeContextAnalyzer {
   /**
    * Correlate test files with source files
    */
-  private async correlateTestFiles(fileTree: FileTree): Promise<TestContextMap> {
+  private async correlateTestFiles(
+    fileTree: FileTree,
+  ): Promise<TestContextMap> {
     const testToSource: Record<string, string[]> = {};
     const sourceToTest: Record<string, string[]> = {};
     const coverage: Record<string, number> = {};
@@ -999,7 +1072,10 @@ export class CodeContextAnalyzer {
 
     // Simple correlation based on naming patterns
     for (const testFile of testFiles) {
-      const correlatedSources = this.findCorrelatedSourceFiles(testFile, sourceFiles);
+      const correlatedSources = this.findCorrelatedSourceFiles(
+        testFile,
+        sourceFiles,
+      );
       if (correlatedSources.length > 0) {
         testToSource[testFile] = correlatedSources;
 
@@ -1018,7 +1094,9 @@ export class CodeContextAnalyzer {
       coverage[sourceFile] = sourceToTest[sourceFile] ? 0.8 : 0.0; // 80% if has tests, 0% otherwise
     }
 
-    logger.info(`Correlated ${testFiles.length} test files with ${sourceFiles.length} source files`);
+    logger.info(
+      `Correlated ${testFiles.length} test files with ${sourceFiles.length} source files`,
+    );
 
     return {
       testToSource,
@@ -1050,11 +1128,12 @@ export class CodeContextAnalyzer {
     }
 
     const filename = path.basename(node.path).toLowerCase();
-    const isTest = filename.includes('test') ||
-                   filename.includes('spec') ||
-                   node.path.includes('/test/') ||
-                   node.path.includes('/tests/') ||
-                   node.path.includes('/__tests__/');
+    const isTest =
+      filename.includes('test') ||
+      filename.includes('spec') ||
+      node.path.includes('/test/') ||
+      node.path.includes('/tests/') ||
+      node.path.includes('/__tests__/');
 
     if (isTest) {
       testFiles.push(node.path);
@@ -1066,17 +1145,26 @@ export class CodeContextAnalyzer {
   /**
    * Find source files that correlate with a test file
    */
-  private findCorrelatedSourceFiles(testFile: string, sourceFiles: string[]): string[] {
+  private findCorrelatedSourceFiles(
+    testFile: string,
+    sourceFiles: string[],
+  ): string[] {
     const correlatedFiles: string[] = [];
-    const testBasename = path.basename(testFile)
+    const testBasename = path
+      .basename(testFile)
       .replace(/\.(test|spec)\.(js|ts|jsx|tsx|py|java|go)$/i, '')
       .toLowerCase();
 
     for (const sourceFile of sourceFiles) {
-      const sourceBasename = path.basename(sourceFile, path.extname(sourceFile)).toLowerCase();
+      const sourceBasename = path
+        .basename(sourceFile, path.extname(sourceFile))
+        .toLowerCase();
 
       // Simple correlation: test file name contains source file name or vice versa
-      if (testBasename.includes(sourceBasename) || sourceBasename.includes(testBasename)) {
+      if (
+        testBasename.includes(sourceBasename) ||
+        sourceBasename.includes(testBasename)
+      ) {
         correlatedFiles.push(sourceFile);
       }
     }
@@ -1087,7 +1175,9 @@ export class CodeContextAnalyzer {
   /**
    * Identify currently active/relevant files
    */
-  private async identifyActiveFiles(recentChanges: CodeChange[]): Promise<string[]> {
+  private async identifyActiveFiles(
+    recentChanges: CodeChange[],
+  ): Promise<string[]> {
     const activeFiles = new Set<string>();
 
     // Add recently changed files
@@ -1104,7 +1194,11 @@ export class CodeContextAnalyzer {
     ];
 
     // Simple traversal to find important files (could be optimized)
-    await this.findImportantFiles(this.projectPath, activeFiles, importantPatterns);
+    await this.findImportantFiles(
+      this.projectPath,
+      activeFiles,
+      importantPatterns,
+    );
 
     return Array.from(activeFiles).slice(0, 20); // Limit to 20 most active files
   }
@@ -1125,7 +1219,11 @@ export class CodeContextAnalyzer {
         const relativePath = path.relative(this.projectPath, entryPath);
 
         // Skip excluded directories
-        if (this.config.excludedDirectories.some((excluded) => relativePath.includes(excluded))) {
+        if (
+          this.config.excludedDirectories.some((excluded) =>
+            relativePath.includes(excluded),
+          )
+        ) {
           continue;
         }
 
@@ -1183,7 +1281,9 @@ export class CodeContextAnalyzer {
       impactAnalysis[changedFile] = impacts;
     }
 
-    logger.info(`Change impact analysis: ${changedFiles.length} changed files affect ${affectedFiles.size} other files`);
+    logger.info(
+      `Change impact analysis: ${changedFiles.length} changed files affect ${affectedFiles.size} other files`,
+    );
 
     return {
       affectedFiles: Array.from(affectedFiles),
@@ -1194,10 +1294,19 @@ export class CodeContextAnalyzer {
   /**
    * Check if a dependency is related to a changed file
    */
-  private isRelatedDependency(dependency: string, changedFile: string): boolean {
+  private isRelatedDependency(
+    dependency: string,
+    changedFile: string,
+  ): boolean {
     // Simple check - in production would have more sophisticated matching
-    const changedBasename = path.basename(changedFile, path.extname(changedFile));
-    return dependency.includes(changedBasename) || changedBasename.includes(dependency);
+    const changedBasename = path.basename(
+      changedFile,
+      path.extname(changedFile),
+    );
+    return (
+      dependency.includes(changedBasename) ||
+      changedBasename.includes(dependency)
+    );
   }
 
   /**
@@ -1207,7 +1316,11 @@ export class CodeContextAnalyzer {
     this.config = { ...this.config, ...newConfig };
 
     // Clear caches if significant config changes
-    if (newConfig.supportedExtensions || newConfig.maxFileSize || newConfig.excludedDirectories) {
+    if (
+      newConfig.supportedExtensions ||
+      newConfig.maxFileSize ||
+      newConfig.excludedDirectories
+    ) {
       this.clearCaches();
     }
 

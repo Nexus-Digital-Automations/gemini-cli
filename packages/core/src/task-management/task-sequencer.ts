@@ -38,7 +38,9 @@ export class TaskSequencer {
   /**
    * Convert TaskPriority enum to priority order string
    */
-  private getPriorityString(priority: TaskPriority): 'critical' | 'high' | 'medium' | 'low' {
+  private getPriorityString(
+    priority: TaskPriority,
+  ): 'critical' | 'high' | 'medium' | 'low' {
     switch (priority) {
       case TaskPriority.CRITICAL:
         return 'critical';
@@ -60,6 +62,7 @@ export class TaskSequencer {
   generateExecutionSequence(
     tasks: Map<TaskId, Task>,
     algorithm:
+      | 'fifo'
       | 'priority'
       | 'dependency_aware'
       | 'resource_optimal'
@@ -71,6 +74,8 @@ export class TaskSequencer {
     });
 
     switch (algorithm) {
+      case 'fifo':
+        return this.generateFifoSequence(tasks);
       case 'priority':
         return this.generatePriorityBasedSequence(tasks);
       case 'dependency_aware':
@@ -82,6 +87,37 @@ export class TaskSequencer {
       default:
         throw new Error(`Unknown sequencing algorithm: ${algorithm}`);
     }
+  }
+
+  /**
+   * First-In-First-Out (FIFO) sequencing algorithm
+   */
+  private generateFifoSequence(
+    tasks: Map<TaskId, Task>,
+  ): ExecutionSequence {
+    logger.debug('Using FIFO sequencing');
+    const taskArray = Array.from(tasks.values());
+
+    // Sort by creation time (oldest first)
+    taskArray.sort((a, b) => a.metadata.createdAt.getTime() - b.metadata.createdAt.getTime());
+
+    const sequence = taskArray.map((task) => task.id);
+    const parallelGroups = this.identifyParallelGroups(sequence, tasks);
+    const criticalPath = this.dependencyGraph.calculateCriticalPath().filter((taskId) => tasks.has(taskId));
+    const estimatedDuration = this.calculateEstimatedDuration(sequence, tasks);
+
+    return {
+      sequence,
+      parallelGroups,
+      criticalPath,
+      estimatedDuration,
+      metadata: {
+        algorithm: 'fifo',
+        generatedAt: new Date(),
+        factors: ['creation_time'],
+        constraints: ['fifo_ordering'],
+      },
+    };
   }
 
   /**
@@ -97,8 +133,12 @@ export class TaskSequencer {
 
     // Sort by priority, then by creation time
     taskArray.sort((a, b) => {
-      const aPriorityIndex = priorityOrder.indexOf(this.getPriorityString(a.priority));
-      const bPriorityIndex = priorityOrder.indexOf(this.getPriorityString(b.priority));
+      const aPriorityIndex = priorityOrder.indexOf(
+        this.getPriorityString(a.priority),
+      );
+      const bPriorityIndex = priorityOrder.indexOf(
+        this.getPriorityString(b.priority),
+      );
 
       if (aPriorityIndex !== bPriorityIndex) {
         return aPriorityIndex - bPriorityIndex;
@@ -207,8 +247,12 @@ export class TaskSequencer {
 
       // If efficiency is similar, use priority
       const priorityOrder = ['critical', 'high', 'medium', 'low'] as const;
-      const aPriorityIndex = priorityOrder.indexOf(this.getPriorityString(a.priority));
-      const bPriorityIndex = priorityOrder.indexOf(this.getPriorityString(b.priority));
+      const aPriorityIndex = priorityOrder.indexOf(
+        this.getPriorityString(a.priority),
+      );
+      const bPriorityIndex = priorityOrder.indexOf(
+        this.getPriorityString(b.priority),
+      );
 
       return aPriorityIndex - bPriorityIndex;
     });
@@ -537,8 +581,12 @@ export class TaskSequencer {
     return tasks.sort((a, b) => {
       // Sort by priority first
       const priorityOrder = ['critical', 'high', 'medium', 'low'] as const;
-      const aPriorityIndex = priorityOrder.indexOf(this.getPriorityString(a.priority));
-      const bPriorityIndex = priorityOrder.indexOf(this.getPriorityString(b.priority));
+      const aPriorityIndex = priorityOrder.indexOf(
+        this.getPriorityString(a.priority),
+      );
+      const bPriorityIndex = priorityOrder.indexOf(
+        this.getPriorityString(b.priority),
+      );
 
       if (aPriorityIndex !== bPriorityIndex) {
         return aPriorityIndex - bPriorityIndex;

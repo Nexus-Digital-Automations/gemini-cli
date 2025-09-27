@@ -14,8 +14,14 @@
 
 import { EventEmitter } from 'node:events';
 import { getComponentLogger } from '../../utils/logger.js';
-import type { TokenTracker, TokenUsageStats as _TokenUsageStats } from './token-tracker.js';
-import type { MetricsCollector, MetricsSummary as _MetricsSummary } from './metrics-collector.js';
+import type {
+  TokenTracker,
+  TokenUsageStats as _TokenUsageStats,
+} from './token-tracker.js';
+import type {
+  MetricsCollector,
+  MetricsSummary as _MetricsSummary,
+} from './metrics-collector.js';
 import type { BudgetEventManager } from './events.js';
 import type {
   BudgetEvent as _BudgetEvent,

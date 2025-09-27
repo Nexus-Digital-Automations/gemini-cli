@@ -41,7 +41,7 @@ export class ContextSynchronizer extends EventEmitter {
    */
   async createSharedContext(
     sessionId?: string,
-    config?: WorkspaceConfig
+    config?: WorkspaceConfig,
   ): Promise<SharedContextManager> {
     const contextId = sessionId || this.generateContextId();
 
@@ -62,7 +62,8 @@ export class ContextSynchronizer extends EventEmitter {
         await this.removeContextItem(contextId, itemId, participantId);
       },
 
-      getContextForParticipant: (participantId: string) => this.getContextForParticipant(contextId, participantId),
+      getContextForParticipant: (participantId: string) =>
+        this.getContextForParticipant(contextId, participantId),
 
       synchronize: async () => {
         await this.synchronizeSession(contextId);
@@ -85,7 +86,7 @@ export class ContextSynchronizer extends EventEmitter {
   async addContextItem(
     sessionId: string,
     item: ContextItem,
-    participantId: string
+    participantId: string,
   ): Promise<void> {
     const sharedContext = this.sharedContexts.get(sessionId);
     if (!sharedContext) {
@@ -95,7 +96,12 @@ export class ContextSynchronizer extends EventEmitter {
     // Check for conflicts with existing items
     const existingItem = sharedContext.items.get(item.id);
     if (existingItem && existingItem.content !== item.content) {
-      await this.handleContextConflict(sessionId, item, existingItem, participantId);
+      await this.handleContextConflict(
+        sessionId,
+        item,
+        existingItem,
+        participantId,
+      );
       return;
     }
 
@@ -131,7 +137,10 @@ export class ContextSynchronizer extends EventEmitter {
     });
 
     // Trigger immediate sync for high-priority items
-    if (item.priority === ContextPriority.CRITICAL || item.priority === ContextPriority.HIGH) {
+    if (
+      item.priority === ContextPriority.CRITICAL ||
+      item.priority === ContextPriority.HIGH
+    ) {
       await this.synchronizeSession(sessionId);
     }
   }
@@ -142,7 +151,7 @@ export class ContextSynchronizer extends EventEmitter {
   async removeContextItem(
     sessionId: string,
     itemId: string,
-    participantId: string
+    participantId: string,
   ): Promise<void> {
     const sharedContext = this.sharedContexts.get(sessionId);
     if (!sharedContext) {
@@ -182,7 +191,7 @@ export class ContextSynchronizer extends EventEmitter {
    */
   getContextForParticipant(
     sessionId: string,
-    participantId: string
+    participantId: string,
   ): ContextItem[] {
     const sharedContext = this.sharedContexts.get(sessionId);
     if (!sharedContext) {
@@ -192,30 +201,34 @@ export class ContextSynchronizer extends EventEmitter {
     const items = Array.from(sharedContext.items.values());
 
     // Filter based on participant permissions and preferences
-    return items.filter(item => 
-      // Basic filtering - in production, this would be more sophisticated
-      // considering participant roles, permissions, and preferences
-       item.type !== ContextType.SYSTEM || this.hasSystemAccess(participantId)
-    ).sort((a, b) => {
-      // Sort by priority and recency
-      const priorityOrder = {
-        [ContextPriority.CRITICAL]: 0,
-        [ContextPriority.HIGH]: 1,
-        [ContextPriority.MEDIUM]: 2,
-        [ContextPriority.LOW]: 3,
-        [ContextPriority.CACHED]: 4,
-      };
+    return items
+      .filter(
+        (item) =>
+          // Basic filtering - in production, this would be more sophisticated
+          // considering participant roles, permissions, and preferences
+          item.type !== ContextType.SYSTEM ||
+          this.hasSystemAccess(participantId),
+      )
+      .sort((a, b) => {
+        // Sort by priority and recency
+        const priorityOrder = {
+          [ContextPriority.CRITICAL]: 0,
+          [ContextPriority.HIGH]: 1,
+          [ContextPriority.MEDIUM]: 2,
+          [ContextPriority.LOW]: 3,
+          [ContextPriority.CACHED]: 4,
+        };
 
-      const aPriority = priorityOrder[a.priority] || 999;
-      const bPriority = priorityOrder[b.priority] || 999;
+        const aPriority = priorityOrder[a.priority] || 999;
+        const bPriority = priorityOrder[b.priority] || 999;
 
-      if (aPriority !== bPriority) {
-        return aPriority - bPriority;
-      }
+        if (aPriority !== bPriority) {
+          return aPriority - bPriority;
+        }
 
-      // If same priority, sort by recency
-      return b.lastAccessed.getTime() - a.lastAccessed.getTime();
-    });
+        // If same priority, sort by recency
+        return b.lastAccessed.getTime() - a.lastAccessed.getTime();
+      });
   }
 
   /**
@@ -237,7 +250,9 @@ export class ContextSynchronizer extends EventEmitter {
       }
 
       // Process changes in chronological order
-      const sortedChanges = changes.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const sortedChanges = changes.sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
 
       // Apply changes
       for (const change of sortedChanges) {
@@ -254,9 +269,11 @@ export class ContextSynchronizer extends EventEmitter {
         changesProcessed: sortedChanges.length,
         timestamp: new Date(),
       });
-
     } catch (error) {
-      console.error(`Context synchronization failed for session ${sessionId}:`, error);
+      console.error(
+        `Context synchronization failed for session ${sessionId}:`,
+        error,
+      );
       this.emit('synchronizationFailed', {
         sessionId,
         error: error.message,
@@ -270,8 +287,14 @@ export class ContextSynchronizer extends EventEmitter {
   /**
    * Sync specific participant with session context
    */
-  async syncParticipant(sessionId: string, participantId: string): Promise<void> {
-    const participantContext = this.getContextForParticipant(sessionId, participantId);
+  async syncParticipant(
+    sessionId: string,
+    participantId: string,
+  ): Promise<void> {
+    const participantContext = this.getContextForParticipant(
+      sessionId,
+      participantId,
+    );
 
     // Emit event with participant's context
     this.emit('participantSynced', {
@@ -292,7 +315,7 @@ export class ContextSynchronizer extends EventEmitter {
     sessionId: string,
     newItem: ContextItem,
     existingItem: ContextItem,
-    participantId: string
+    participantId: string,
   ): Promise<void> {
     const sharedContext = this.sharedContexts.get(sessionId);
     if (!sharedContext) {
@@ -330,7 +353,10 @@ export class ContextSynchronizer extends EventEmitter {
   /**
    * Apply a context change during synchronization
    */
-  private async applyContextChange(sessionId: string, change: ContextChange): Promise<void> {
+  private async applyContextChange(
+    sessionId: string,
+    change: ContextChange,
+  ): Promise<void> {
     const sharedContext = this.sharedContexts.get(sessionId);
     if (!sharedContext) {
       return;
@@ -424,7 +450,9 @@ export class ContextSynchronizer extends EventEmitter {
       itemsByType,
       itemsByPriority,
       pendingChanges: sharedContext.syncState.pendingChanges.length,
-      activeConflicts: sharedContext.syncState.conflicts.filter(c => c.status === 'pending').length,
+      activeConflicts: sharedContext.syncState.conflicts.filter(
+        (c) => c.status === 'pending',
+      ).length,
     };
   }
 

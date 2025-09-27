@@ -391,8 +391,15 @@ export class TaskManagementSystemIntegrator {
         });
       } else if (this.taskEngine) {
         // Use traditional task engine
-        const { useAutonomousQueue: _useAutonomousQueue, ...taskEngineOptions } = options;
-        taskId = await this.taskEngine.queueTask(title, description, taskEngineOptions);
+        const {
+          useAutonomousQueue: _useAutonomousQueue,
+          ...taskEngineOptions
+        } = options;
+        taskId = await this.taskEngine.queueTask(
+          title,
+          description,
+          taskEngineOptions,
+        );
       } else {
         throw new Error('No task execution system available');
       }
@@ -440,7 +447,9 @@ export class TaskManagementSystemIntegrator {
     const autonomousQueueStatus =
       this.autonomousQueue?.getAutonomousQueueStatus();
     const monitoringMetrics = this.monitoring?.getSystemHealth(
-      await this.monitoring?.collectMetrics(this.taskEngine?.getAllTasks() || []),
+      await this.monitoring?.collectMetrics(
+        this.taskEngine?.getAllTasks() || [],
+      ),
     );
 
     return {
@@ -509,9 +518,7 @@ export class TaskManagementSystemIntegrator {
 
   // Private event handlers
   private async handleTaskStatusChange(task: Task) {
-    console.log(
-      `📋 Task ${task.id} status changed: ${task.status}`,
-    );
+    console.log(`📋 Task ${task.id} status changed: ${task.status}`);
 
     // Record monitoring event
     if (this.monitoring) {

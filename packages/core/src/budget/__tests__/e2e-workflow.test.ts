@@ -357,11 +357,21 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             index: 0,
           },
         ],
-        get text() { return 'Test response'; },
-        get data() { return undefined; },
-        get functionCalls() { return []; },
-        get executableCode() { return undefined; },
-        get codeExecutionResult() { return undefined; },
+        get text() {
+          return 'Test response';
+        },
+        get data() {
+          return undefined;
+        },
+        get functionCalls() {
+          return [];
+        },
+        get executableCode() {
+          return undefined;
+        },
+        get codeExecutionResult() {
+          return undefined;
+        },
       } as unknown as GenerateContentResponse;
 
       mockContentGenerator.generateContent = vi
@@ -493,11 +503,21 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
               index: 0,
             },
           ],
-          get text() { return 'Streaming chunk 1'; },
-          get data() { return undefined; },
-          get functionCalls() { return []; },
-          get executableCode() { return undefined; },
-          get codeExecutionResult() { return undefined; },
+          get text() {
+            return 'Streaming chunk 1';
+          },
+          get data() {
+            return undefined;
+          },
+          get functionCalls() {
+            return [];
+          },
+          get executableCode() {
+            return undefined;
+          },
+          get codeExecutionResult() {
+            return undefined;
+          },
         } as unknown as GenerateContentResponse;
         yield {
           candidates: [
@@ -510,11 +530,21 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
               index: 0,
             },
           ],
-          get text() { return 'Streaming chunk 2'; },
-          get data() { return undefined; },
-          get functionCalls() { return []; },
-          get executableCode() { return undefined; },
-          get codeExecutionResult() { return undefined; },
+          get text() {
+            return 'Streaming chunk 2';
+          },
+          get data() {
+            return undefined;
+          },
+          get functionCalls() {
+            return [];
+          },
+          get executableCode() {
+            return undefined;
+          },
+          get codeExecutionResult() {
+            return undefined;
+          },
         } as unknown as GenerateContentResponse;
       }
 
@@ -602,11 +632,21 @@ describe('Budget Analytics System - End-to-End Workflow Tests', () => {
             index: 0,
           },
         ],
-        get text() { return 'Response'; },
-        get data() { return undefined; },
-        get functionCalls() { return []; },
-        get executableCode() { return undefined; },
-        get codeExecutionResult() { return undefined; },
+        get text() {
+          return 'Response';
+        },
+        get data() {
+          return undefined;
+        },
+        get functionCalls() {
+          return [];
+        },
+        get executableCode() {
+          return undefined;
+        },
+        get codeExecutionResult() {
+          return undefined;
+        },
       } as unknown as GenerateContentResponse;
 
       mockContentGenerator.generateContent = vi

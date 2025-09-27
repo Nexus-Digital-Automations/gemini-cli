@@ -26,10 +26,7 @@ import {
 } from './EnhancedAutonomousTaskQueue.js';
 import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
-import {
-  TaskQueue,
-  type TaskExecutionResult,
-} from './TaskQueue.js';
+import { TaskQueue, type TaskExecutionResult } from './TaskQueue.js';
 import { TaskPriority } from './types.js';
 import { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
 import { CrossSessionPersistenceEngine } from './CrossSessionPersistenceEngine.js';
@@ -38,7 +35,8 @@ import type {
   TaskId,
   TaskResult,
   TaskExecutionContext,
- TaskStatus as QueueTaskStatus} from './types.js';
+  TaskStatus as QueueTaskStatus,
+} from './types.js';
 import { TaskStatus } from './types.js';
 
 /**

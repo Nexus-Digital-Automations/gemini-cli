@@ -1578,7 +1578,10 @@ class ConflictResolver {
     return mergedTask;
   }
 
-  private getMostAdvancedStatus(status1: TaskStatus, status2: TaskStatus): TaskStatus {
+  private getMostAdvancedStatus(
+    status1: TaskStatus,
+    status2: TaskStatus,
+  ): TaskStatus {
     // Define status progression order
     const statusOrder = [
       'pending',

@@ -78,7 +78,10 @@ export class SessionRecorder extends EventEmitter {
   /**
    * Start recording a collaboration session
    */
-  async startRecording(sessionId: string, metadata?: Record<string, unknown>): Promise<void> {
+  async startRecording(
+    sessionId: string,
+    metadata?: Record<string, unknown>,
+  ): Promise<void> {
     if (this.activeRecordings.has(sessionId)) {
       throw new Error(`Recording for session ${sessionId} is already active`);
     }
@@ -104,7 +107,9 @@ export class SessionRecorder extends EventEmitter {
     // Set up automatic stop after max duration
     setTimeout(() => {
       if (this.activeRecordings.has(sessionId)) {
-        this.stopRecording(sessionId, 'Maximum duration reached').catch(console.error);
+        this.stopRecording(sessionId, 'Maximum duration reached').catch(
+          console.error,
+        );
       }
     }, this.config.maxDurationMs);
 
@@ -118,7 +123,10 @@ export class SessionRecorder extends EventEmitter {
   /**
    * Record an event during active recording
    */
-  async recordEvent(sessionId: string, event: CollaborationEvent): Promise<void> {
+  async recordEvent(
+    sessionId: string,
+    event: CollaborationEvent,
+  ): Promise<void> {
     const recording = this.activeRecordings.get(sessionId);
     if (!recording || !recording.isActive) {
       return; // No active recording for this session
@@ -147,7 +155,10 @@ export class SessionRecorder extends EventEmitter {
   /**
    * Stop recording a session
    */
-  async stopRecording(sessionId: string, reason?: string): Promise<SessionRecording> {
+  async stopRecording(
+    sessionId: string,
+    reason?: string,
+  ): Promise<SessionRecording> {
     const activeRecording = this.activeRecordings.get(sessionId);
     if (!activeRecording) {
       throw new Error(`No active recording found for session ${sessionId}`);
@@ -202,13 +213,15 @@ export class SessionRecorder extends EventEmitter {
       // Restore Date objects
       recording.startTime = new Date(recording.startTime);
       recording.endTime = new Date(recording.endTime);
-      recording.events.forEach(event => {
+      recording.events.forEach((event) => {
         event.timestamp = new Date(event.timestamp);
       });
 
       return recording;
     } catch (error) {
-      throw new Error(`Failed to load recording ${recordingId}: ${error.message}`);
+      throw new Error(
+        `Failed to load recording ${recordingId}: ${error.message}`,
+      );
     }
   }
 
@@ -217,7 +230,7 @@ export class SessionRecorder extends EventEmitter {
    */
   async playRecording(
     recordingId: string,
-    config?: Partial<PlaybackConfig>
+    config?: Partial<PlaybackConfig>,
   ): Promise<void> {
     const recording = await this.loadRecording(recordingId);
 
@@ -229,7 +242,10 @@ export class SessionRecorder extends EventEmitter {
     };
 
     // Filter events based on configuration
-    const eventsToPlay = this.filterEventsForPlayback(recording.events, playbackConfig);
+    const eventsToPlay = this.filterEventsForPlayback(
+      recording.events,
+      playbackConfig,
+    );
 
     this.emit('playbackStarted', {
       recordingId,
@@ -265,7 +281,7 @@ export class SessionRecorder extends EventEmitter {
 
         // Wait before next event
         if (delay > 0) {
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
       }
     }
@@ -280,17 +296,19 @@ export class SessionRecorder extends EventEmitter {
   /**
    * Get list of available recordings
    */
-  async getRecordings(): Promise<Array<{
-    id: string;
-    sessionId: string;
-    startTime: Date;
-    duration: number;
-    eventCount: number;
-    size: number;
-  }>> {
+  async getRecordings(): Promise<
+    Array<{
+      id: string;
+      sessionId: string;
+      startTime: Date;
+      duration: number;
+      eventCount: number;
+      size: number;
+    }>
+  > {
     try {
       const files = await fs.readdir(this.config.recordingsPath);
-      const recordingFiles = files.filter(file => file.endsWith('.json'));
+      const recordingFiles = files.filter((file) => file.endsWith('.json'));
 
       const recordings = await Promise.all(
         recordingFiles.map(async (file) => {
@@ -307,10 +325,12 @@ export class SessionRecorder extends EventEmitter {
             eventCount: recording.metadata.eventCount,
             size: stats.size,
           };
-        })
+        }),
       );
 
-      return recordings.sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
+      return recordings.sort(
+        (a, b) => b.startTime.getTime() - a.startTime.getTime(),
+      );
     } catch (error) {
       console.error('Failed to get recordings list:', error);
       return [];
@@ -327,7 +347,9 @@ export class SessionRecorder extends EventEmitter {
       await fs.unlink(recordingPath);
       this.emit('recordingDeleted', { recordingId });
     } catch (error) {
-      throw new Error(`Failed to delete recording ${recordingId}: ${error.message}`);
+      throw new Error(
+        `Failed to delete recording ${recordingId}: ${error.message}`,
+      );
     }
   }
 
@@ -337,8 +359,16 @@ export class SessionRecorder extends EventEmitter {
   async getRecordingStats(recordingId: string): Promise<{
     eventsByType: Record<CollaborationEventType, number>;
     eventsByParticipant: Record<string, number>;
-    timeline: Array<{ timestamp: Date; eventType: CollaborationEventType; participantId: string }>;
-    participantActivity: Array<{ participantId: string; eventCount: number; duration: number }>;
+    timeline: Array<{
+      timestamp: Date;
+      eventType: CollaborationEventType;
+      participantId: string;
+    }>;
+    participantActivity: Array<{
+      participantId: string;
+      eventCount: number;
+      duration: number;
+    }>;
   }> {
     const recording = await this.loadRecording(recordingId);
 
@@ -359,9 +389,10 @@ export class SessionRecorder extends EventEmitter {
     const participantFirstSeen: Record<string, Date> = {};
     const participantLastSeen: Record<string, Date> = {};
 
-    const timeline = recording.events.map(event => {
+    const timeline = recording.events.map((event) => {
       eventsByType[event.type]++;
-      eventsByParticipant[event.participantId] = (eventsByParticipant[event.participantId] || 0) + 1;
+      eventsByParticipant[event.participantId] =
+        (eventsByParticipant[event.participantId] || 0) + 1;
 
       if (!participantFirstSeen[event.participantId]) {
         participantFirstSeen[event.participantId] = event.timestamp;
@@ -375,11 +406,15 @@ export class SessionRecorder extends EventEmitter {
       };
     });
 
-    const participantActivity = Object.keys(eventsByParticipant).map(participantId => ({
-      participantId,
-      eventCount: eventsByParticipant[participantId],
-      duration: participantLastSeen[participantId].getTime() - participantFirstSeen[participantId].getTime(),
-    }));
+    const participantActivity = Object.keys(eventsByParticipant).map(
+      (participantId) => ({
+        participantId,
+        eventCount: eventsByParticipant[participantId],
+        duration:
+          participantLastSeen[participantId].getTime() -
+          participantFirstSeen[participantId].getTime(),
+      }),
+    );
 
     return {
       eventsByType,
@@ -399,7 +434,10 @@ export class SessionRecorder extends EventEmitter {
     // Remove or mask sensitive data based on event type
     if (event.type === CollaborationEventType.MESSAGE_SENT && event.data) {
       const data = event.data as { message?: unknown };
-      if (typeof data.message === 'string' && this.containsSensitiveInfo(data.message)) {
+      if (
+        typeof data.message === 'string' &&
+        this.containsSensitiveInfo(data.message)
+      ) {
         filteredEvent.data = { ...data, message: '[REDACTED]' };
       }
     }
@@ -427,7 +465,7 @@ export class SessionRecorder extends EventEmitter {
       /secret[:\s]*[\w\d\-_]+/i,
     ];
 
-    return sensitivePatterns.some(pattern => pattern.test(text));
+    return sensitivePatterns.some((pattern) => pattern.test(text));
   }
 
   /**
@@ -435,32 +473,34 @@ export class SessionRecorder extends EventEmitter {
    */
   private filterEventsForPlayback(
     events: CollaborationEvent[],
-    config: PlaybackConfig
+    config: PlaybackConfig,
   ): CollaborationEvent[] {
     let filteredEvents = [...events];
 
     // Include specific event types
     if (config.includeEventTypes) {
-      filteredEvents = filteredEvents.filter(event =>
-        config.includeEventTypes!.includes(event.type)
+      filteredEvents = filteredEvents.filter((event) =>
+        config.includeEventTypes!.includes(event.type),
       );
     }
 
     // Exclude specific event types
     if (config.excludeEventTypes) {
-      filteredEvents = filteredEvents.filter(event =>
-        !config.excludeEventTypes!.includes(event.type)
+      filteredEvents = filteredEvents.filter(
+        (event) => !config.excludeEventTypes!.includes(event.type),
       );
     }
 
-    return filteredEvents.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    return filteredEvents.sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
   }
 
   /**
    * Count unique participants in event list
    */
   private countUniqueParticipants(events: CollaborationEvent[]): number {
-    const participantIds = new Set(events.map(event => event.participantId));
+    const participantIds = new Set(events.map((event) => event.participantId));
     return participantIds.size;
   }
 
@@ -471,10 +511,16 @@ export class SessionRecorder extends EventEmitter {
     const recordingPath = this.getRecordingPath(recording.id);
 
     try {
-      const recordingData = JSON.stringify(recording, null, this.config.compress ? 0 : 2);
+      const recordingData = JSON.stringify(
+        recording,
+        null,
+        this.config.compress ? 0 : 2,
+      );
       await fs.writeFile(recordingPath, recordingData, 'utf-8');
     } catch (error) {
-      throw new Error(`Failed to save recording ${recording.id}: ${error.message}`);
+      throw new Error(
+        `Failed to save recording ${recording.id}: ${error.message}`,
+      );
     }
   }
 
@@ -514,7 +560,7 @@ export class SessionRecorder extends EventEmitter {
     duration: number;
   }> {
     const now = Date.now();
-    return Array.from(this.activeRecordings.values()).map(recording => ({
+    return Array.from(this.activeRecordings.values()).map((recording) => ({
       id: recording.id,
       sessionId: recording.sessionId,
       startTime: recording.startTime,
@@ -530,7 +576,9 @@ export class SessionRecorder extends EventEmitter {
     // Stop all active recordings
     const activeSessionIds = Array.from(this.activeRecordings.keys());
     for (const sessionId of activeSessionIds) {
-      this.stopRecording(sessionId, 'Session recorder destroyed').catch(console.error);
+      this.stopRecording(sessionId, 'Session recorder destroyed').catch(
+        console.error,
+      );
     }
 
     this.activeRecordings.clear();

@@ -9,7 +9,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { logger as getLogger } from '../utils/logger.js';
 
 const logger = getLogger();
-import type { Task, TaskExecutionResult, PriorityFactors} from './TaskQueue.js';
+import type {
+  Task,
+  TaskExecutionResult,
+  PriorityFactors,
+} from './TaskQueue.js';
 import type { TaskCategory } from './types.js';
 import { TaskPriority, TaskStatus } from './types.js';
 
@@ -190,7 +194,10 @@ export class TaskPriorityScheduler extends EventEmitter {
       .filter((value): value is TaskPriority => typeof value === 'number')
       .forEach((priority) => {
         this.priorityQueues.set(priority, []);
-        this.executionQuotas.set(priority, this.calculateInitialQuota(priority));
+        this.executionQuotas.set(
+          priority,
+          this.calculateInitialQuota(priority),
+        );
       });
 
     // Start priority adjustment process

@@ -12,18 +12,9 @@ import type {
   DependencyType,
   CircularDependency,
 } from '../task-management/types.js';
-import {
-  TaskCategory,
-  TaskPriority,
-} from '../task-management/types.js';
-import type {
-  Decision,
-  DecisionContext,
-} from './types.js';
-import {
-  DecisionType,
-  DecisionPriority,
-} from './types.js';
+import { TaskCategory, TaskPriority } from '../task-management/types.js';
+import type { Decision, DecisionContext } from './types.js';
+import { DecisionType, DecisionPriority } from './types.js';
 import { getComponentLogger } from '../utils/logger.js';
 
 const logger = getComponentLogger('DecisionDependencyGraph');
@@ -501,10 +492,10 @@ export class DecisionDependencyGraphManager {
             confidence: 0.6,
           });
           break;
-      default:
+        default:
           // Handle unexpected values
           break;
-    }
+      }
     }
 
     // Analyze weak dependencies for removal
@@ -640,11 +631,10 @@ export class DecisionDependencyGraphManager {
             change.newConfidence || 1.0,
           );
           break;
-      default:
+        default:
           // Handle unexpected values
           break;
-    }
-
+      }
     }
 
     // Calculate projected metrics
@@ -739,7 +729,8 @@ export class DecisionDependencyGraphManager {
     task: Task,
     impactScore: number,
   ): 'low' | 'medium' | 'high' | 'critical' {
-    if (task.priority === TaskPriority.CRITICAL || impactScore > 15) return 'critical';
+    if (task.priority === TaskPriority.CRITICAL || impactScore > 15)
+      return 'critical';
     if (task.priority === TaskPriority.HIGH || impactScore > 10) return 'high';
     if (impactScore > 5) return 'medium';
     return 'low';

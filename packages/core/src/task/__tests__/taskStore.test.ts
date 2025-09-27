@@ -5,14 +5,18 @@
  */
 
 import { TaskStore } from '../taskStore.js';
-import type { Task} from '../types.js';
+import type { Task } from '../types.js';
 import { TaskStatus, TaskPriority } from '../types.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
 
-const MOCK_TASKS_DIR = path.join(os.tmpdir(), '.gemini_test_tasks', Math.random().toString(36).substring(7));
+const MOCK_TASKS_DIR = path.join(
+  os.tmpdir(),
+  '.gemini_test_tasks',
+  Math.random().toString(36).substring(7),
+);
 const MOCK_TASKS_FILE = path.join(MOCK_TASKS_DIR, 'tasks.json');
 
 // Mock fs.promises
@@ -55,7 +59,9 @@ describe('TaskStore', () => {
     mockedFs.rm.mockResolvedValue(undefined);
 
     taskStore = new TaskStore(MOCK_TASKS_DIR);
-    await (taskStore as unknown as { ensureTasksFileExists: () => Promise<void> }).ensureTasksFileExists();
+    await (
+      taskStore as unknown as { ensureTasksFileExists: () => Promise<void> }
+    ).ensureTasksFileExists();
   });
 
   afterEach(() => {
@@ -176,7 +182,11 @@ describe('TaskStore', () => {
     };
     mockedFs.readFile.mockResolvedValue(JSON.stringify([existingTask]));
 
-    const updatedTask = { ...existingTask, status: TaskStatus.Done, description: 'New Desc' };
+    const updatedTask = {
+      ...existingTask,
+      status: TaskStatus.Done,
+      description: 'New Desc',
+    };
     await taskStore.updateTask(updatedTask);
 
     expect(mockedFs.writeFile).toHaveBeenCalledWith(

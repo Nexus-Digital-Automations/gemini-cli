@@ -40,7 +40,10 @@ export class DashboardFormatter {
   /**
    * Format the complete dashboard with all sections
    */
-  formatDashboard(data: BudgetDashboardData, sections: BudgetDashboardSections): string {
+  formatDashboard(
+    data: BudgetDashboardData,
+    sections: BudgetDashboardSections,
+  ): string {
     let dashboard = '';
 
     // Header

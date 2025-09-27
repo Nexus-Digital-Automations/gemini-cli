@@ -37,10 +37,7 @@ import {
 } from '../core/subagent.js';
 
 // Re-export SubAgent types for external access
-export {
-  ContextState,
-  SubagentTerminateMode,
-} from '../core/subagent.js';
+export { ContextState, SubagentTerminateMode } from '../core/subagent.js';
 import { CoreToolScheduler as _CoreToolScheduler } from '../core/coreToolScheduler.js';
 import {
   Turn as _Turn,

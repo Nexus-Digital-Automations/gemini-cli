@@ -612,10 +612,11 @@ export class BranchManager {
       thresholdDate.getDate() - this.config.staleBranchThreshold,
     );
 
-    return allBranches.filter((_branch) => 
-      // This would check the actual last commit date
-      // For now, just return empty array
-       false
+    return allBranches.filter(
+      (_branch) =>
+        // This would check the actual last commit date
+        // For now, just return empty array
+        false,
     );
   }
 

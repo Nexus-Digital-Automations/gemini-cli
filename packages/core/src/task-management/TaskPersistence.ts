@@ -1074,7 +1074,10 @@ export class TaskPersistence extends EventEmitter {
   /**
    * Register a function for task execution
    */
-  registerFunction(name: string, func: (task: Task, context: any) => Promise<any>): void {
+  registerFunction(
+    name: string,
+    func: (task: Task, context: any) => Promise<any>,
+  ): void {
     this.functionRegistry.executeFunctions.set(name, func);
     logger().debug('Function registered', { name });
   }
@@ -1082,7 +1085,9 @@ export class TaskPersistence extends EventEmitter {
   /**
    * Get a registered function by name
    */
-  getRegisteredFunction(name: string): ((task: Task, context: any) => Promise<any>) | undefined {
+  getRegisteredFunction(
+    name: string,
+  ): ((task: Task, context: any) => Promise<any>) | undefined {
     const func = this.functionRegistry.executeFunctions.get(name);
     if (!func) {
       logger().warn('Function not found in registry', { name });

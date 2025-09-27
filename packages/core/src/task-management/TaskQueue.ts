@@ -41,6 +41,26 @@ export interface TaskContext {
   userContext?: Record<string, unknown>;
   environmentContext?: Record<string, unknown>;
   executionHistory?: TaskExecutionRecord[];
+  /** Autonomous execution context */
+  autonomous?: {
+    monitoringEnabled?: boolean;
+    startTime?: Date;
+    queueVersion?: string;
+    enqueuedAt?: Date;
+    analysisVersion?: string;
+    autonomousFeatures?: {
+      breakdown?: boolean;
+      adaptiveScheduling?: boolean;
+      optimization?: boolean;
+    };
+  };
+  /** Subtask context */
+  subtask?: {
+    parentTaskId: string;
+    breakdownStrategy: string;
+    sequenceOrder: number;
+    isSubtask: boolean;
+  };
 }
 
 /**

@@ -958,9 +958,12 @@ export class FixSuggestionEngine {
         tags: ['automated', 'linting'],
         source: 'automated-fix-generator',
         command: {
-          command: this.getLintFixCommand(String(errorAnalysis.context.language || '')),
+          command: this.getLintFixCommand(
+            String(errorAnalysis.context.language || ''),
+          ),
           description: 'Run linter with auto-fix flag',
-          workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath || '.',
+          workingDirectory:
+            (errorAnalysis.context.projectContext as any)?.rootPath || '.',
         },
       });
     }
@@ -1049,7 +1052,8 @@ export class FixSuggestionEngine {
           command: {
             command: cmd.command,
             description: cmd.description,
-            workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath || '.',
+            workingDirectory:
+              (errorAnalysis.context.projectContext as any)?.rootPath || '.',
           },
         });
       }
@@ -1084,7 +1088,8 @@ export class FixSuggestionEngine {
           command: {
             command: cmd.command,
             description: cmd.description,
-            workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath || '.',
+            workingDirectory:
+              (errorAnalysis.context.projectContext as any)?.rootPath || '.',
           },
         });
       }
@@ -1533,12 +1538,18 @@ export class FixSuggestionEngine {
     dryRun?: boolean,
   ): Promise<void> {
     if (dryRun) {
-      logger.info('DRY RUN: Would apply dependency change', depChange as unknown as Record<string, unknown>);
+      logger.info(
+        'DRY RUN: Would apply dependency change',
+        depChange as unknown as Record<string, unknown>,
+      );
       return;
     }
 
     // In a real implementation, would modify package.json, requirements.txt, etc.
-    logger.info('Applied dependency change', depChange as unknown as Record<string, unknown>);
+    logger.info(
+      'Applied dependency change',
+      depChange as unknown as Record<string, unknown>,
+    );
   }
 }
 

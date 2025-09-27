@@ -5,14 +5,8 @@
  */
 
 import type { Config } from '../config/config.js';
-import {
-  TaskComplexity,
-} from './TaskExecutionEngine.js';
-import type {
-  Task,
-  TaskType,
-  TaskPriority,
-} from './TaskExecutionEngine.js';
+import { TaskComplexity } from './TaskExecutionEngine.js';
+import type { Task, TaskType, TaskPriority } from './TaskExecutionEngine.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 

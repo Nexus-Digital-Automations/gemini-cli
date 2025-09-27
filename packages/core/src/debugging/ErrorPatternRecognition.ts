@@ -13,7 +13,14 @@
  */
 
 import { getComponentLogger } from '../utils/logger.js';
-import { ErrorSeverity, ErrorType, SupportedLanguage, FixPriority, FixCategory, ImpactScope } from './types.js';
+import {
+  ErrorSeverity,
+  ErrorType,
+  SupportedLanguage,
+  FixPriority,
+  FixCategory,
+  ImpactScope,
+} from './types.js';
 import type {
   ErrorPattern,
   ErrorAnalysisContext,
@@ -107,14 +114,14 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
             memoryImpact: 0,
             networkImpact: 0,
             overallScore: 0,
-            description: 'Minimal performance impact'
-          }
+            description: 'Minimal performance impact',
+          },
         },
         prerequisites: ['Identify undefined variable'],
         risks: ['May change program flow'],
         estimatedTime: '5 minutes',
         priority: FixPriority.HIGH,
-        category: FixCategory.QUICK_FIX
+        category: FixCategory.QUICK_FIX,
       },
     ],
     severity: ErrorSeverity.HIGH,
@@ -155,14 +162,14 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
             memoryImpact: 0,
             networkImpact: 0,
             overallScore: 0,
-            description: 'No performance impact'
-          }
+            description: 'No performance impact',
+          },
         },
         prerequisites: ['TypeScript compiler available'],
         risks: ['May require updating dependent code'],
         estimatedTime: '10 minutes',
         priority: FixPriority.HIGH,
-        category: FixCategory.QUICK_FIX
+        category: FixCategory.QUICK_FIX,
       },
     ],
     severity: ErrorSeverity.HIGH,
@@ -189,7 +196,8 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       {
         id: 'fix-syntax',
         description: 'Fix syntax error',
-        explanation: 'Check for missing brackets, parentheses, or invalid syntax',
+        explanation:
+          'Check for missing brackets, parentheses, or invalid syntax',
         codeChanges: [],
         confidence: 0.9,
         impact: {
@@ -203,14 +211,14 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
             memoryImpact: 0,
             networkImpact: 0,
             overallScore: 0,
-            description: 'No performance impact'
-          }
+            description: 'No performance impact',
+          },
         },
         prerequisites: ['Locate syntax error'],
         risks: ['Code will not compile until fixed'],
         estimatedTime: '2 minutes',
         priority: FixPriority.IMMEDIATE,
-        category: FixCategory.QUICK_FIX
+        category: FixCategory.QUICK_FIX,
       },
     ],
     severity: ErrorSeverity.HIGH,
@@ -864,10 +872,12 @@ export class ErrorPatternRecognition {
           pattern,
           confidence: matchResult.confidence,
           matches: matchResult.matchedText ? [matchResult.matchedText] : [],
-          location: matchResult.position ? {
-            start: matchResult.position.start,
-            end: matchResult.position.end,
-          } : undefined,
+          location: matchResult.position
+            ? {
+                start: matchResult.position.start,
+                end: matchResult.position.end,
+              }
+            : undefined,
           context: matchResult.context,
           isMatch: true,
         };
@@ -996,10 +1006,7 @@ export class ErrorPatternRecognition {
             return {
               isMatch: true,
               confidence: 0.8,
-              matchedText: errorText.substring(
-                index,
-                index + pattern.length,
-              ),
+              matchedText: errorText.substring(index, index + pattern.length),
               position: { start: index, end: index + pattern.length },
             };
           }
@@ -1121,10 +1128,7 @@ export class ErrorPatternRecognition {
     const suggestions: string[] = [];
 
     // Add common causes as suggestions
-    if (
-      pattern.commonCauses &&
-      Array.isArray(pattern.commonCauses)
-    ) {
+    if (pattern.commonCauses && Array.isArray(pattern.commonCauses)) {
       suggestions.push(
         ...pattern.commonCauses.map((cause) => `Check for: ${cause}`),
       );

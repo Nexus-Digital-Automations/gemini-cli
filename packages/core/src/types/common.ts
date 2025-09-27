@@ -13,7 +13,11 @@
  */
 
 // Re-export logger types from utils
-export type { StructuredLogger as Logger, LoggerConfig, LogMeta } from '../utils/logger.js';
+export type {
+  StructuredLogger as Logger,
+  LoggerConfig,
+  LogMeta,
+} from '../utils/logger.js';
 
 // Common utility types
 export type Timestamp = number;
@@ -47,7 +51,7 @@ export enum OperationStatus {
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
   FAILED = 'failed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 // Performance metrics

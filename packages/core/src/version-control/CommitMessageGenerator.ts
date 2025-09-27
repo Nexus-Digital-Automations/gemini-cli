@@ -87,14 +87,21 @@ export class CommitMessageGenerator {
    * Generate a commit message based on code analysis
    */
   async generateCommitMessage(
-    options: CommitGenerationOptions = { includeFileAnalysis: true, includeTestAnalysis: true, includePerformanceImpact: false },
+    options: CommitGenerationOptions = {
+      includeFileAnalysis: true,
+      includeTestAnalysis: true,
+      includePerformanceImpact: false,
+    },
   ): Promise<CommitMessage> {
     try {
       logger.info('Generating commit message', { options });
 
       const analysis = await this.analyzeChanges(options);
-      const commitType = options.overrideType || this.detectCommitType(analysis);
-      const scope = this.config.includeScope ? this.extractScope(analysis) : undefined;
+      const commitType =
+        options.overrideType || this.detectCommitType(analysis);
+      const scope = this.config.includeScope
+        ? this.extractScope(analysis)
+        : undefined;
       const description = this.generateDescription(commitType, analysis);
       const body = this.generateBody(analysis);
       const isBreakingChange = this.detectBreakingChange(analysis);
@@ -123,7 +130,9 @@ export class CommitMessageGenerator {
 
       return commitMessage;
     } catch (error) {
-      logger.error('Failed to generate commit message', { error: error as Error });
+      logger.error('Failed to generate commit message', {
+        error: error as Error,
+      });
       throw error as Error;
     }
   }
@@ -131,7 +140,9 @@ export class CommitMessageGenerator {
   /**
    * Analyze code changes
    */
-  async analyzeChanges(options: CommitGenerationOptions): Promise<CodeAnalysis> {
+  async analyzeChanges(
+    options: CommitGenerationOptions,
+  ): Promise<CodeAnalysis> {
     try {
       const modifiedFiles = this.getModifiedFiles();
       const stats = this.getChangeStats(modifiedFiles);
@@ -140,10 +151,18 @@ export class CommitMessageGenerator {
         modifiedFiles,
         linesAdded: stats.linesAdded,
         linesRemoved: stats.linesRemoved,
-        functionsModified: options.includeFileAnalysis ? await this.analyzeFunctionChanges(modifiedFiles) : [],
-        classesModified: options.includeFileAnalysis ? await this.analyzeClassChanges(modifiedFiles) : [],
-        importChanges: options.includeFileAnalysis ? await this.analyzeImportChanges(modifiedFiles) : [],
-        testFilesAffected: options.includeTestAnalysis ? this.identifyTestFiles(modifiedFiles) : [],
+        functionsModified: options.includeFileAnalysis
+          ? await this.analyzeFunctionChanges(modifiedFiles)
+          : [],
+        classesModified: options.includeFileAnalysis
+          ? await this.analyzeClassChanges(modifiedFiles)
+          : [],
+        importChanges: options.includeFileAnalysis
+          ? await this.analyzeImportChanges(modifiedFiles)
+          : [],
+        testFilesAffected: options.includeTestAnalysis
+          ? this.identifyTestFiles(modifiedFiles)
+          : [],
         docChanges: this.identifyDocumentationChanges(modifiedFiles),
         configChanges: this.identifyConfigurationChanges(modifiedFiles),
       };
@@ -182,7 +201,7 @@ export class CommitMessageGenerator {
     }
 
     // Package.json changes (dependencies)
-    if (analysis.modifiedFiles.some(f => f.includes('package.json'))) {
+    if (analysis.modifiedFiles.some((f) => f.includes('package.json'))) {
       return CommitType.CHORE;
     }
 
@@ -228,16 +247,18 @@ export class CommitMessageGenerator {
 
     // Check against scope patterns
     for (const [pattern, scope] of Object.entries(this.config.scopePatterns)) {
-      const regexPattern = pattern.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*');
+      const regexPattern = pattern
+        .replace(/\*\*/g, '.*')
+        .replace(/\*/g, '[^/]*');
       const regex = new RegExp(regexPattern);
 
-      if (analysis.modifiedFiles.some(file => regex.test(file))) {
+      if (analysis.modifiedFiles.some((file) => regex.test(file))) {
         return scope;
       }
     }
 
     // Extract from common directory patterns
-    const commonPaths = analysis.modifiedFiles.map(file => {
+    const commonPaths = analysis.modifiedFiles.map((file) => {
       const parts = file.split('/');
       if (parts.length > 1 && parts[0] === 'src') {
         return parts[1];
@@ -292,7 +313,8 @@ export class CommitMessageGenerator {
 
     // Ensure description doesn't exceed max length
     if (description.length > this.config.maxDescriptionLength) {
-      description = description.substring(0, this.config.maxDescriptionLength - 3) + '...';
+      description =
+        description.substring(0, this.config.maxDescriptionLength - 3) + '...';
     }
 
     return description;
@@ -306,29 +328,49 @@ export class CommitMessageGenerator {
 
     // Add function/class changes
     if (analysis.functionsModified.length > 0) {
-      bodyParts.push(`Functions modified: ${analysis.functionsModified.slice(0, 5).join(', ')}`);
+      bodyParts.push(
+        `Functions modified: ${analysis.functionsModified.slice(0, 5).join(', ')}`,
+      );
     }
 
     if (analysis.classesModified.length > 0) {
-      bodyParts.push(`Classes modified: ${analysis.classesModified.slice(0, 3).join(', ')}`);
+      bodyParts.push(
+        `Classes modified: ${analysis.classesModified.slice(0, 3).join(', ')}`,
+      );
     }
 
     // Add import changes
     if (analysis.importChanges.length > 0) {
-      const addedImports = analysis.importChanges.filter(c => c.changeType === 'added');
-      const removedImports = analysis.importChanges.filter(c => c.changeType === 'removed');
+      const addedImports = analysis.importChanges.filter(
+        (c) => c.changeType === 'added',
+      );
+      const removedImports = analysis.importChanges.filter(
+        (c) => c.changeType === 'removed',
+      );
 
       if (addedImports.length > 0) {
-        bodyParts.push(`New dependencies: ${addedImports.slice(0, 3).map(i => i.packageName).join(', ')}`);
+        bodyParts.push(
+          `New dependencies: ${addedImports
+            .slice(0, 3)
+            .map((i) => i.packageName)
+            .join(', ')}`,
+        );
       }
 
       if (removedImports.length > 0) {
-        bodyParts.push(`Removed dependencies: ${removedImports.slice(0, 3).map(i => i.packageName).join(', ')}`);
+        bodyParts.push(
+          `Removed dependencies: ${removedImports
+            .slice(0, 3)
+            .map((i) => i.packageName)
+            .join(', ')}`,
+        );
       }
     }
 
     const body = bodyParts.join('\n\n');
-    return body.length > 0 && body.length <= this.config.maxBodyLength ? body : null;
+    return body.length > 0 && body.length <= this.config.maxBodyLength
+      ? body
+      : null;
   }
 
   /**
@@ -346,10 +388,12 @@ export class CommitMessageGenerator {
     ];
 
     // Check file content for breaking change indicators
-    return analysis.modifiedFiles.some(file => {
+    return analysis.modifiedFiles.some((file) => {
       try {
-        const content = execSync(`git diff HEAD~1 HEAD -- "${file}"`, { encoding: 'utf8' });
-        return breakingPatterns.some(pattern => pattern.test(content));
+        const content = execSync(`git diff HEAD~1 HEAD -- "${file}"`, {
+          encoding: 'utf8',
+        });
+        return breakingPatterns.some((pattern) => pattern.test(content));
       } catch {
         return false;
       }
@@ -359,12 +403,16 @@ export class CommitMessageGenerator {
   /**
    * Extract issue references from commit messages or branch names
    */
-  extractIssueReferences(_analysis: CodeAnalysis): Array<{ type: string; id: string; url: string }> {
+  extractIssueReferences(
+    _analysis: CodeAnalysis,
+  ): Array<{ type: string; id: string; url: string }> {
     const references: Array<{ type: string; id: string; url: string }> = [];
 
     try {
       // Check current branch name for issue references
-      const branchName = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+      const branchName = execSync('git branch --show-current', {
+        encoding: 'utf8',
+      }).trim();
       const issuePatterns = [/#(\d+)/, /issue[-_](\d+)/i, /fix[-_](\d+)/i];
 
       for (const pattern of issuePatterns) {
@@ -374,17 +422,19 @@ export class CommitMessageGenerator {
           references.push({
             type: 'issue',
             id: issueId,
-            url: `https://github.com/repo/issues/${issueId}` // Mock URL - would be configurable
+            url: `https://github.com/repo/issues/${issueId}`, // Mock URL - would be configurable
           });
         }
       }
     } catch (error) {
-      logger.debug('Failed to extract issue references', { error: error as Error });
+      logger.debug('Failed to extract issue references', {
+        error: error as Error,
+      });
     }
 
     // Remove duplicates based on id
-    const uniqueRefs = references.filter((ref, index, arr) =>
-      arr.findIndex(r => r.id === ref.id) === index
+    const uniqueRefs = references.filter(
+      (ref, index, arr) => arr.findIndex((r) => r.id === ref.id) === index,
     );
     return uniqueRefs;
   }
@@ -392,7 +442,10 @@ export class CommitMessageGenerator {
   /**
    * Generate footer with breaking changes and references
    */
-  generateFooter(isBreakingChange: boolean, references: string[]): string | null {
+  generateFooter(
+    isBreakingChange: boolean,
+    references: string[],
+  ): string | null {
     const footerParts: string[] = [];
 
     if (isBreakingChange) {
@@ -411,7 +464,9 @@ export class CommitMessageGenerator {
    */
   extractCoAuthors(): string[] | undefined {
     try {
-      const coAuthors = execSync('git log -1 --format="%an <%ae>"', { encoding: 'utf8' }).trim();
+      const coAuthors = execSync('git log -1 --format="%an <%ae>"', {
+        encoding: 'utf8',
+      }).trim();
       return coAuthors ? [coAuthors] : undefined;
     } catch {
       return undefined;
@@ -422,23 +477,44 @@ export class CommitMessageGenerator {
 
   private getModifiedFiles(): string[] {
     try {
-      const output = execSync('git diff --cached --name-only', { encoding: 'utf8' });
-      return output.trim().split('\n').filter(file => file.length > 0);
+      const output = execSync('git diff --cached --name-only', {
+        encoding: 'utf8',
+      });
+      return output
+        .trim()
+        .split('\n')
+        .filter((file) => file.length > 0);
     } catch (error) {
-      logger.warn('Failed to get modified files, falling back to all changed files', { error: error as Error });
+      logger.warn(
+        'Failed to get modified files, falling back to all changed files',
+        { error: error as Error },
+      );
       try {
-        const output = execSync('git diff HEAD~1 --name-only', { encoding: 'utf8' });
-        return output.trim().split('\n').filter(file => file.length > 0);
+        const output = execSync('git diff HEAD~1 --name-only', {
+          encoding: 'utf8',
+        });
+        return output
+          .trim()
+          .split('\n')
+          .filter((file) => file.length > 0);
       } catch {
         return [];
       }
     }
   }
 
-  private getChangeStats(_files: string[]): { linesAdded: number; linesRemoved: number } {
+  private getChangeStats(_files: string[]): {
+    linesAdded: number;
+    linesRemoved: number;
+  } {
     try {
-      const output = execSync('git diff --cached --numstat', { encoding: 'utf8' });
-      const lines = output.trim().split('\n').filter(line => line.length > 0);
+      const output = execSync('git diff --cached --numstat', {
+        encoding: 'utf8',
+      });
+      const lines = output
+        .trim()
+        .split('\n')
+        .filter((line) => line.length > 0);
 
       let linesAdded = 0;
       let linesRemoved = 0;
@@ -460,9 +536,15 @@ export class CommitMessageGenerator {
 
     for (const file of files) {
       try {
-        const diff = execSync(`git diff --cached -- "${file}"`, { encoding: 'utf8' });
-        const functionMatches = diff.match(/[+-]\s*(function\s+\w+|const\s+\w+\s*=|class\s+\w+)/g) || [];
-        functions.push(...functionMatches.map(match => match.replace(/[+-]\s*/, '')));
+        const diff = execSync(`git diff --cached -- "${file}"`, {
+          encoding: 'utf8',
+        });
+        const functionMatches =
+          diff.match(/[+-]\s*(function\s+\w+|const\s+\w+\s*=|class\s+\w+)/g) ||
+          [];
+        functions.push(
+          ...functionMatches.map((match) => match.replace(/[+-]\s*/, '')),
+        );
       } catch {
         // Ignore files that can't be diffed
       }
@@ -476,9 +558,13 @@ export class CommitMessageGenerator {
 
     for (const file of files) {
       try {
-        const diff = execSync(`git diff --cached -- "${file}"`, { encoding: 'utf8' });
+        const diff = execSync(`git diff --cached -- "${file}"`, {
+          encoding: 'utf8',
+        });
         const classMatches = diff.match(/[+-]\s*class\s+(\w+)/g) || [];
-        classes.push(...classMatches.map(match => match.replace(/[+-]\s*class\s+/, '')));
+        classes.push(
+          ...classMatches.map((match) => match.replace(/[+-]\s*class\s+/, '')),
+        );
       } catch {
         // Ignore files that can't be diffed
       }
@@ -492,11 +578,16 @@ export class CommitMessageGenerator {
 
     for (const file of files) {
       try {
-        const diff = execSync(`git diff --cached -- "${file}"`, { encoding: 'utf8' });
+        const diff = execSync(`git diff --cached -- "${file}"`, {
+          encoding: 'utf8',
+        });
         const lines = diff.split('\n');
 
         for (const line of lines) {
-          if (line.startsWith('+') && (line.includes('import ') || line.includes('require('))) {
+          if (
+            line.startsWith('+') &&
+            (line.includes('import ') || line.includes('require('))
+          ) {
             const packageMatch = line.match(/['"]([^'"]+)['"]/);
             if (packageMatch) {
               changes.push({
@@ -506,7 +597,10 @@ export class CommitMessageGenerator {
                 packageName: packageMatch[1],
               });
             }
-          } else if (line.startsWith('-') && (line.includes('import ') || line.includes('require('))) {
+          } else if (
+            line.startsWith('-') &&
+            (line.includes('import ') || line.includes('require('))
+          ) {
             const packageMatch = line.match(/['"]([^'"]+)['"]/);
             if (packageMatch) {
               changes.push({
@@ -528,12 +622,16 @@ export class CommitMessageGenerator {
 
   private identifyTestFiles(files: string[]): string[] {
     const testPatterns = [/\.test\./i, /\.spec\./i, /test/i, /__tests__/i];
-    return files.filter(file => testPatterns.some(pattern => pattern.test(file)));
+    return files.filter((file) =>
+      testPatterns.some((pattern) => pattern.test(file)),
+    );
   }
 
   private identifyDocumentationChanges(files: string[]): string[] {
     const docPatterns = [/\.md$/i, /readme/i, /docs\//i, /\.rst$/i];
-    return files.filter(file => docPatterns.some(pattern => pattern.test(file)));
+    return files.filter((file) =>
+      docPatterns.some((pattern) => pattern.test(file)),
+    );
   }
 
   private identifyConfigurationChanges(files: string[]): string[] {
@@ -546,7 +644,9 @@ export class CommitMessageGenerator {
       /dockerfile/i,
       /makefile/i,
     ];
-    return files.filter(file => configPatterns.some(pattern => pattern.test(file)));
+    return files.filter((file) =>
+      configPatterns.some((pattern) => pattern.test(file)),
+    );
   }
 
   private isOnlyTests(analysis: CodeAnalysis): boolean {
@@ -562,46 +662,63 @@ export class CommitMessageGenerator {
   }
 
   private hasPerformanceChanges(analysis: CodeAnalysis): boolean {
-    const perfKeywords = ['perf', 'performance', 'optimize', 'faster', 'cache', 'lazy'];
-    return analysis.functionsModified.some(func =>
-      perfKeywords.some(keyword => func.toLowerCase().includes(keyword))
+    const perfKeywords = [
+      'perf',
+      'performance',
+      'optimize',
+      'faster',
+      'cache',
+      'lazy',
+    ];
+    return analysis.functionsModified.some((func) =>
+      perfKeywords.some((keyword) => func.toLowerCase().includes(keyword)),
     );
   }
 
   private isRefactoring(analysis: CodeAnalysis): boolean {
     // Simple heuristic: similar lines added/removed suggests refactoring
-    const ratio = Math.min(analysis.linesAdded, analysis.linesRemoved) /
-                  Math.max(analysis.linesAdded, analysis.linesRemoved, 1);
+    const ratio =
+      Math.min(analysis.linesAdded, analysis.linesRemoved) /
+      Math.max(analysis.linesAdded, analysis.linesRemoved, 1);
     return ratio > 0.7 && analysis.functionsModified.length > 0;
   }
 
   private isBugFix(analysis: CodeAnalysis): boolean {
     const fixKeywords = ['fix', 'bug', 'error', 'issue', 'resolve', 'patch'];
-    return analysis.functionsModified.some(func =>
-      fixKeywords.some(keyword => func.toLowerCase().includes(keyword))
+    return analysis.functionsModified.some((func) =>
+      fixKeywords.some((keyword) => func.toLowerCase().includes(keyword)),
     );
   }
 
   private isStyleChange(analysis: CodeAnalysis): boolean {
     // Check if only formatting/style files changed
-    const styleFiles = analysis.modifiedFiles.filter(file =>
-      file.includes('.prettier') || file.includes('.eslint') ||
-      file.includes('style') || file.includes('.css')
+    const styleFiles = analysis.modifiedFiles.filter(
+      (file) =>
+        file.includes('.prettier') ||
+        file.includes('.eslint') ||
+        file.includes('style') ||
+        file.includes('.css'),
     );
     return styleFiles.length === analysis.modifiedFiles.length;
   }
 
   private isCIChange(analysis: CodeAnalysis): boolean {
-    return analysis.modifiedFiles.some(file =>
-      file.includes('.github/workflows') || file.includes('.gitlab-ci') ||
-      file.includes('Jenkinsfile') || file.includes('.travis.yml')
+    return analysis.modifiedFiles.some(
+      (file) =>
+        file.includes('.github/workflows') ||
+        file.includes('.gitlab-ci') ||
+        file.includes('Jenkinsfile') ||
+        file.includes('.travis.yml'),
     );
   }
 
   private isBuildChange(analysis: CodeAnalysis): boolean {
-    return analysis.modifiedFiles.some(file =>
-      file.includes('webpack') || file.includes('rollup') ||
-      file.includes('build.') || file.includes('Dockerfile')
+    return analysis.modifiedFiles.some(
+      (file) =>
+        file.includes('webpack') ||
+        file.includes('rollup') ||
+        file.includes('build.') ||
+        file.includes('Dockerfile'),
     );
   }
 
@@ -635,7 +752,7 @@ export class CommitMessageGenerator {
   }
 
   private generateChoreDescription(analysis: CodeAnalysis): string {
-    if (analysis.modifiedFiles.some(f => f.includes('package.json'))) {
+    if (analysis.modifiedFiles.some((f) => f.includes('package.json'))) {
       return `update dependencies`;
     }
     return `update configuration`;
@@ -649,7 +766,7 @@ export class CommitMessageGenerator {
     return `update ${analysis.modifiedFiles.length} file${analysis.modifiedFiles.length > 1 ? 's' : ''}`;
   }
 
-  private getMostFrequent<T>(array: Array<T>): T | null {
+  private getMostFrequent<T>(array: T[]): T | null {
     if (array.length === 0) return null;
 
     const frequency: Record<string, number> = {};
@@ -659,10 +776,10 @@ export class CommitMessageGenerator {
     }
 
     const mostFrequent = Object.entries(frequency).reduce((a, b) =>
-      a[1] > b[1] ? a : b
+      a[1] > b[1] ? a : b,
     )[0];
 
-    return array.find(item => String(item) === mostFrequent) || null;
+    return array.find((item) => String(item) === mostFrequent) || null;
   }
 
   /**
@@ -709,7 +826,10 @@ export class CommitMessageGenerator {
       message += `\n\n${commitMessage.body}`;
     }
 
-    if (commitMessage.footers && Object.keys(commitMessage.footers).length > 0) {
+    if (
+      commitMessage.footers &&
+      Object.keys(commitMessage.footers).length > 0
+    ) {
       const footerText = Object.entries(commitMessage.footers)
         .map(([key, value]) => `${key}: ${value}`)
         .join('\n');

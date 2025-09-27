@@ -250,7 +250,9 @@ describe('Infinite Loop Protection System', () => {
       let callbackDepth = 0;
       const maxCallbackDepth = 50;
 
-      const createNestedCallback = (depth: number): any => () => {
+      const createNestedCallback =
+        (depth: number): any =>
+        () => {
           callbackDepth = Math.max(callbackDepth, depth);
           if (depth < 1000) {
             // Try to create deep callback chain

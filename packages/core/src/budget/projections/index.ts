@@ -103,7 +103,10 @@ export {
 } from './validation/index.js';
 
 // Re-export utilities
-import { getComponentLogger, type StructuredLogger } from '../../utils/logger.js';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '../../utils/logger.js';
 import { CostForecastingEngine } from './forecasting/cost-forecasting-engine.js';
 import { BudgetAlertSystem } from './alerts/budget-alert-system.js';
 import { CostAnalysisEngine } from './analysis/cost-analysis-engine.js';
@@ -214,26 +217,29 @@ export class CostProjectionSystem {
       );
 
       // Calculate required parameters for optimization
-      const trend = await import('./algorithms/mathematical-algorithms.js').then(
-        m => m.MathematicalAlgorithms.performTrendAnalysis(historicalData)
+      const trend = await import(
+        './algorithms/mathematical-algorithms.js'
+      ).then((m) =>
+        m.MathematicalAlgorithms.performTrendAnalysis(historicalData),
       );
-      const variance = await import('./algorithms/mathematical-algorithms.js').then(
-        m => m.MathematicalAlgorithms.detectVariances(historicalData)
-      );
+      const variance = await import(
+        './algorithms/mathematical-algorithms.js'
+      ).then((m) => m.MathematicalAlgorithms.detectVariances(historicalData));
       const burnRate = await CostForecastingEngine.calculateBurnRateAnalysis(
         historicalData,
         defaultBudget.total,
       );
 
       // Add optimization recommendations
-      const optimizations = await BudgetOptimizationEngine.generateOptimizationPlan(
-        historicalData,
-        defaultBudget,
-        projection,
-        burnRate,
-        trend,
-        variance,
-      );
+      const optimizations =
+        await BudgetOptimizationEngine.generateOptimizationPlan(
+          historicalData,
+          defaultBudget,
+          projection,
+          burnRate,
+          trend,
+          variance,
+        );
 
       // Enhance projection with optimization insights
       const enhancedProjection = {
@@ -285,11 +291,13 @@ export class CostProjectionSystem {
 
     try {
       // Convert current usage to cost data points for analysis
-      const currentCostData = [{
-        timestamp: new Date(),
-        cost: currentUsage.totalCost,
-        tokens: currentUsage.tokenUsage.totalTokens || 0,
-      }];
+      const currentCostData = [
+        {
+          timestamp: new Date(),
+          cost: currentUsage.totalCost,
+          tokens: currentUsage.tokenUsage.totalTokens || 0,
+        },
+      ];
 
       // Create default budget object
       const budgetData = {
@@ -379,7 +387,10 @@ export class CostProjectionSystem {
 
     try {
       // Calculate required parameters for optimization
-      const totalCost = historicalData.reduce((sum, point) => sum + point.cost, 0);
+      const totalCost = historicalData.reduce(
+        (sum, point) => sum + point.cost,
+        0,
+      );
       const defaultBudget = {
         total: totalCost * 2,
         used: totalCost,
@@ -387,32 +398,37 @@ export class CostProjectionSystem {
       };
 
       // Calculate additional required parameters
-      const trend = await import('./algorithms/mathematical-algorithms.js').then(
-        m => m.MathematicalAlgorithms.performTrendAnalysis(historicalData)
+      const trend = await import(
+        './algorithms/mathematical-algorithms.js'
+      ).then((m) =>
+        m.MathematicalAlgorithms.performTrendAnalysis(historicalData),
       );
-      const variance = await import('./algorithms/mathematical-algorithms.js').then(
-        m => m.MathematicalAlgorithms.detectVariances(historicalData)
-      );
+      const variance = await import(
+        './algorithms/mathematical-algorithms.js'
+      ).then((m) => m.MathematicalAlgorithms.detectVariances(historicalData));
       const burnRate = await CostForecastingEngine.calculateBurnRateAnalysis(
         historicalData,
         defaultBudget.total,
       );
 
       // Use current projection or generate one if not provided
-      const projection = currentProjection || await CostForecastingEngine.generateProjections(
-        historicalData,
-        30,
-        0.95,
-      );
+      const projection =
+        currentProjection ||
+        (await CostForecastingEngine.generateProjections(
+          historicalData,
+          30,
+          0.95,
+        ));
 
-      const optimizationPlan = await BudgetOptimizationEngine.generateOptimizationPlan(
-        historicalData,
-        defaultBudget,
-        projection,
-        burnRate,
-        trend,
-        variance,
-      );
+      const optimizationPlan =
+        await BudgetOptimizationEngine.generateOptimizationPlan(
+          historicalData,
+          defaultBudget,
+          projection,
+          burnRate,
+          trend,
+          variance,
+        );
 
       const duration = Date.now() - startTime;
       this.logger.info('Optimization recommendations generated', {

@@ -22,7 +22,6 @@ export let LogLevel;
   LogLevel['WARN'] = 'warn';
   /** Error conditions that require attention */
   LogLevel['ERROR'] = 'error';
-
 })(LogLevel || (LogLevel = {}));
 /**
  * Default configuration values for the logger.
@@ -36,7 +35,6 @@ const DEFAULT_CONFIG = {
   logFileName: 'gemini-cli',
   colorize: process.stdout.isTTY ?? true,
   debugMode: false,
-
 };
 /**
  * Winston-based structured logger implementation.
@@ -286,7 +284,6 @@ export class WinstonStructuredLogger {
   isLevelEnabled(level) {
     return this.winston.isLevelEnabled(level);
   }
-
 }
 /**
  * Global logger instance for application-wide use.
@@ -323,7 +320,6 @@ export function createLogger(config = {}) {
   };
   globalLogger = new WinstonStructuredLogger(envConfig);
   return globalLogger;
-
 }
 /**
  * Get the global logger instance.
@@ -343,7 +339,6 @@ export function getLogger() {
     globalLogger = createLogger();
   }
   return globalLogger;
-
 }
 /**
  * Create a logger with specific context for a component or module.
@@ -361,7 +356,6 @@ export function getLogger() {
  */
 export function getComponentLogger(component, additionalContext = {}) {
   return getLogger().child({ component, ...additionalContext });
-
 }
 /**
  * Performance timing utility for measuring operation duration.
@@ -405,7 +399,6 @@ export function createTimer(logger, operation, level = LogLevel.DEBUG) {
         break;
     }
   };
-
 }
 /**
  * Configuration helper for integrating with existing Config system.
@@ -425,7 +418,6 @@ export function createLoggerConfigFromAppConfig(debugMode, sessionId, logDir) {
     logDir: logDir || './.logs',
     defaultMeta: sessionId ? { sessionId } : undefined,
   };
-
 }
 // Global logger instance (for backwards compatibility)
 export const logger = () => getLogger();

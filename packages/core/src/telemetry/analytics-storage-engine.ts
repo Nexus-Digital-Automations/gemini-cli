@@ -20,7 +20,10 @@ import { pipeline } from 'node:stream';
 import * as zlib from 'node:zlib';
 import EventEmitter from 'node:events';
 
-import type { TokenUsageData, UsageStatistics } from './realtime-token-tracker.js';
+import type {
+  TokenUsageData,
+  UsageStatistics,
+} from './realtime-token-tracker.js';
 import { getComponentLogger, createTimer, LogLevel } from '../utils/logger.js';
 import type { Config } from '../config/config.js';
 

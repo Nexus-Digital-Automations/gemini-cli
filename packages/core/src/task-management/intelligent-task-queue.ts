@@ -160,7 +160,9 @@ export class IntelligentTaskQueue {
     const completedResult = this.completedTasks.get(taskId);
     if (completedResult) {
       return {
-        status: completedResult.success ? TaskStatus.COMPLETED : TaskStatus.FAILED,
+        status: completedResult.success
+          ? TaskStatus.COMPLETED
+          : TaskStatus.FAILED,
       };
     }
 
@@ -177,7 +179,8 @@ export class IntelligentTaskQueue {
     const queueContext = this.executionQueue.get(taskId);
     if (queueContext) {
       const blockedBy = this.getBlockingDependencies(taskId);
-      const status: TaskStatus = blockedBy.length > 0 ? TaskStatus.BLOCKED : TaskStatus.QUEUED;
+      const status: TaskStatus =
+        blockedBy.length > 0 ? TaskStatus.BLOCKED : TaskStatus.QUEUED;
 
       return {
         status,

@@ -13,11 +13,11 @@ import os from 'node:os';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import type { Config } from '../config/config.js';
- 
+
 import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
- 
+
 import { StandardFileSystemService } from '../services/fileSystemService.js';
- 
+
 import { createMockWorkspaceContext } from '../test-utils/mockWorkspaceContext.js';
 import type { ToolInvocation, ToolResult } from './tools.js';
 

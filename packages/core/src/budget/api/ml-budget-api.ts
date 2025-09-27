@@ -195,7 +195,7 @@ export class MLBudgetAPI {
       const confidence = await tracker.getPredictionConfidence();
 
       // Convert ForecastPoint to ExtendedForecastPoint
-      const extendedForecast: ExtendedForecastPoint[] = forecast.map(f => ({
+      const extendedForecast: ExtendedForecastPoint[] = forecast.map((f) => ({
         ...f,
         predictedValue: f.predictedCost, // Use predictedCost as predictedValue
       }));
@@ -203,7 +203,11 @@ export class MLBudgetAPI {
       // Convert MLRiskAssessment to ExtendedMLRiskAssessment
       const extendedRiskAssessment: ExtendedMLRiskAssessment = {
         ...riskAssessment,
-        riskLevel: riskAssessment.category.toLowerCase() as 'low' | 'medium' | 'high' | 'critical',
+        riskLevel: riskAssessment.category.toLowerCase() as
+          | 'low'
+          | 'medium'
+          | 'high'
+          | 'critical',
         budgetExceedProbability: 0.2, // Mock value
         criticalThresholds: [
           { threshold: 0.8, probability: 0.3, estimatedTime: 24 },

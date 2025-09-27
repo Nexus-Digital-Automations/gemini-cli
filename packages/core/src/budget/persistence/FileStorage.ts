@@ -160,7 +160,9 @@ export class FileStorage implements ObservableStorage {
         error: error as Error,
       });
 
-      this.logger.error('Failed to initialize file storage', { error: error as Error });
+      this.logger.error('Failed to initialize file storage', {
+        error: error as Error,
+      });
 
       return {
         success: false,
@@ -199,7 +201,9 @@ export class FileStorage implements ObservableStorage {
       // Update metrics
       this.metrics.uptime = Date.now() - this.startTime;
 
-      healthy = Boolean(details.baseDirectoryExists) && Boolean(details.baseDirectoryWritable);
+      healthy =
+        Boolean(details.baseDirectoryExists) &&
+        Boolean(details.baseDirectoryWritable);
     } catch (error) {
       healthy = false;
       details.error = (error as Error).message;
@@ -356,7 +360,9 @@ export class FileStorage implements ObservableStorage {
         error: error as Error,
       });
 
-      this.logger.error('Failed to write usage data', { error: error as Error });
+      this.logger.error('Failed to write usage data', {
+        error: error as Error,
+      });
 
       return {
         success: false,
@@ -520,7 +526,9 @@ export class FileStorage implements ObservableStorage {
 
       return { success: true };
     } catch (error) {
-      this.logger.error('Failed to clear budget data', { error: error as Error });
+      this.logger.error('Failed to clear budget data', {
+        error: error as Error,
+      });
 
       return {
         success: false,
@@ -642,7 +650,9 @@ export class FileStorage implements ObservableStorage {
 
       return { success: true };
     } catch (error) {
-      this.logger.error('Failed to restore from backup', { error: error as Error });
+      this.logger.error('Failed to restore from backup', {
+        error: error as Error,
+      });
 
       return {
         success: false,
@@ -923,7 +933,9 @@ export class FileStorage implements ObservableStorage {
         }
       }
     } catch (error) {
-      this.logger.warn('Failed to cleanup old backups', { error: error as Error });
+      this.logger.warn('Failed to cleanup old backups', {
+        error: error as Error,
+      });
     }
   }
 }

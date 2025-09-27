@@ -19,7 +19,7 @@ export enum VCSType {
   GIT = 'git',
   SVN = 'svn',
   MERCURIAL = 'mercurial',
-  PERFORCE = 'perforce'
+  PERFORCE = 'perforce',
 }
 
 /**
@@ -37,7 +37,7 @@ export enum CommitType {
   CI = 'ci',
   BUILD = 'build',
   REVERT = 'revert',
-  MERGE = 'merge'
+  MERGE = 'merge',
 }
 
 /**
@@ -50,7 +50,7 @@ export enum BranchType {
   HOTFIX = 'hotfix',
   RELEASE = 'release',
   BUGFIX = 'bugfix',
-  EXPERIMENTAL = 'experimental'
+  EXPERIMENTAL = 'experimental',
 }
 
 /**
@@ -65,7 +65,7 @@ export enum ConflictResolutionStrategy {
   AUTO_ONLY = 'auto_only',
   AUTO_WITH_FALLBACK = 'auto_with_fallback',
   INTERACTIVE = 'interactive',
-  MANUAL_REVIEW = 'manual_review'
+  MANUAL_REVIEW = 'manual_review',
 }
 
 /**
@@ -75,7 +75,7 @@ export enum ReleaseType {
   MAJOR = 'major',
   MINOR = 'minor',
   PATCH = 'patch',
-  PRERELEASE = 'prerelease'
+  PRERELEASE = 'prerelease',
 }
 
 /**
@@ -235,7 +235,7 @@ export enum ConflictCategory {
   CONFIGURATION = 'configuration',
   DOCUMENTATION = 'documentation',
   WHITESPACE = 'whitespace',
-  FORMATTING = 'formatting'
+  FORMATTING = 'formatting',
 }
 
 /**
@@ -612,7 +612,7 @@ export enum ChangelogFormat {
   MARKDOWN = 'markdown',
   JSON = 'json',
   HTML = 'html',
-  XML = 'xml'
+  XML = 'xml',
 }
 
 /**
@@ -897,7 +897,7 @@ export enum PRStatus {
   CHECKS_FAILED = 'checks_failed',
   MERGED = 'merged',
   CLOSED = 'closed',
-  CONFLICTED = 'conflicted'
+  CONFLICTED = 'conflicted',
 }
 
 /**
@@ -907,7 +907,7 @@ export enum ReviewStatus {
   PENDING = 'pending',
   APPROVED = 'approved',
   CHANGES_REQUESTED = 'changes_requested',
-  DISMISSED = 'dismissed'
+  DISMISSED = 'dismissed',
 }
 
 /**
@@ -918,7 +918,7 @@ export enum CheckStatus {
   RUNNING = 'running',
   SUCCESS = 'success',
   FAILURE = 'failure',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 /**
@@ -927,7 +927,7 @@ export enum CheckStatus {
 export enum MergeStrategy {
   MERGE_COMMIT = 'merge',
   SQUASH = 'squash',
-  REBASE = 'rebase'
+  REBASE = 'rebase',
 }
 
 /**
@@ -1147,7 +1147,7 @@ export enum ConflictType {
   IMPORTS = 'imports',
   FORMATTING = 'formatting',
   LOGIC = 'logic',
-  DATA_STRUCTURE = 'data_structure'
+  DATA_STRUCTURE = 'data_structure',
 }
 
 /**
@@ -1221,7 +1221,11 @@ export interface AutoResolutionRule {
   /** Confidence score */
   confidence: number;
   /** Resolver function */
-  resolver: (conflict: MergeConflict) => { content: string; confidence: number; reasoning: string };
+  resolver: (conflict: MergeConflict) => {
+    content: string;
+    confidence: number;
+    reasoning: string;
+  };
 }
 
 /**

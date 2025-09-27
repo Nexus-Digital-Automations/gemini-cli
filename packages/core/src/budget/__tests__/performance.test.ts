@@ -723,7 +723,8 @@ describe('Budget Analytics Performance and Load Tests', () => {
           operationName,
           operation,
         );
-        (baseline as unknown as Record<string, number>)[operationName] = duration;
+        (baseline as unknown as Record<string, number>)[operationName] =
+          duration;
       }
 
       // Log baseline for reference

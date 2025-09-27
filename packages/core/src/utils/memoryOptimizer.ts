@@ -258,14 +258,14 @@ export class ContextWindowManager {
    * Slide context window by removing oldest content when memory pressure is high
    */
   slideContextWindow<T extends { parts?: Array<{ text?: string }> }>(
-    history: Array<T>,
+    history: T[],
     maxTokens: number,
-  ): Array<T> {
+  ): T[] {
     if (history.length === 0) return history;
 
     const tokenCounter = new StreamTokenCounter(this.config);
     let currentTokens = 0;
-    const optimizedHistory: Array<T> = [];
+    const optimizedHistory: T[] = [];
 
     // Process history in reverse to keep most recent content
     for (let i = history.length - 1; i >= 0; i--) {
@@ -477,7 +477,7 @@ export class MemoryOptimizationUtils {
   /**
    * Memory-efficient array concatenation for large arrays
    */
-  static optimizeArrayConcat<T>(...arrays: Array<Array<T>>): Array<T> {
+  static optimizeArrayConcat<T>(...arrays: T[][]): T[] {
     const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0);
     const result = new Array<T>(totalLength);
 

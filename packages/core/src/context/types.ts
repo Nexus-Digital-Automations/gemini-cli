@@ -476,7 +476,13 @@ export interface UserInteraction {
   /** Interaction timestamp */
   timestamp: Date;
   /** Type of interaction */
-  type: 'command' | 'file_access' | 'edit' | 'search' | 'suggestion_accepted' | 'suggestion_rejected';
+  type:
+    | 'command'
+    | 'file_access'
+    | 'edit'
+    | 'search'
+    | 'suggestion_accepted'
+    | 'suggestion_rejected';
   /** Context or description of the interaction */
   context: string;
   /** Files involved in the interaction */

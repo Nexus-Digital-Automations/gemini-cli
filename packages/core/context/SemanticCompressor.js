@@ -23,7 +23,6 @@ export const DEFAULT_COMPRESSION_CONFIG = {
   preserveConcepts: true,
   strategy: CompressionStrategy.PROGRESSIVE_DETAIL,
   maxInformationLoss: 0.15,
-
 };
 /**
  * Semantic Context Compression Engine
@@ -254,7 +253,6 @@ export class SemanticCompressor {
   getConfig() {
     return { ...this.config };
   }
-
 }
 /**
  * Summarization strategy implementation
@@ -371,7 +369,6 @@ class SummarizationStrategy {
       strategy: CompressionStrategy.SUMMARIZATION,
     };
   }
-
 }
 /**
  * Keyword extraction strategy implementation
@@ -524,7 +521,6 @@ class KeywordExtractionStrategy {
   estimateTokenCount(text) {
     return Math.ceil(text.length / 4);
   }
-
 }
 /**
  * Semantic clustering strategy implementation
@@ -616,7 +612,6 @@ class SemanticClusteringStrategy {
   estimateTokenCount(text) {
     return Math.ceil(text.length / 4);
   }
-
 }
 /**
  * Progressive detail strategy implementation
@@ -721,12 +716,10 @@ class ProgressiveDetailStrategy {
   estimateTokenCount(text) {
     return Math.ceil(text.length / 4);
   }
-
 }
 /**
  * Create a semantic compressor instance with optional configuration
  */
 export function createSemanticCompressor(config) {
   return new SemanticCompressor(config);
-
 }

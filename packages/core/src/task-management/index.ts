@@ -124,17 +124,11 @@ export type {
   SystemHealthStatus,
 } from './ExecutionMonitoringSystem.js';
 
-export {
-  InfiniteHookIntegration,
-} from './InfiniteHookIntegration.js';
+export { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
 
-export type {
-  TaskManagerAPI,
-} from './InfiniteHookIntegration.js';
+export type { TaskManagerAPI } from './InfiniteHookIntegration.js';
 
-export type {
-  HookIntegrationConfig,
-} from './InfiniteHookIntegration.js';
+export type { HookIntegrationConfig } from './InfiniteHookIntegration.js';
 
 import type { Config } from '../config/config.js';
 import { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';

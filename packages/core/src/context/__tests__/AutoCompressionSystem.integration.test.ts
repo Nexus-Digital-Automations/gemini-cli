@@ -98,7 +98,6 @@ describe('AutoCompressionSystem Integration Tests', () => {
           },
         })),
         updateContextWindowTotals: vi.fn(),
-
       };
 
       compressionManager.registerContextManager(
@@ -195,7 +194,6 @@ describe('AutoCompressionSystem Integration Tests', () => {
           };
         }),
         updateContextWindowTotals: vi.fn(),
-
       };
 
       compressionManager.registerContextManager(
@@ -283,7 +281,6 @@ describe('AutoCompressionSystem Integration Tests', () => {
           },
         })),
         updateContextWindowTotals: vi.fn(),
-
       };
 
       compressionManager.registerContextManager(

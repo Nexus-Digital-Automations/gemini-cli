@@ -388,9 +388,17 @@ export class ExportImportController {
     exportData.currentUsage = {
       ...todayUsage,
       date: new Date().toISOString(),
-      tokenUsage: 0,
+      tokenUsage: {
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+        tokenCosts: {
+          input: 0,
+          output: 0
+        }
+      },
       lastResetTime: new Date().toISOString(),
-      warningsShown: 0
+      warningsShown: []
     };
 
     // Include settings if requested
@@ -469,23 +477,37 @@ export class ExportImportController {
     // Add current usage
     if (data.currentUsage) {
       const usage = data.currentUsage;
-      const usagePercentage =
-        usage.dailyLimit > 0 ? (usage.totalCost / usage.dailyLimit) * 100 : 0;
-      rows.push(
-        `${usage.date},${usage.requestCount},${usage.totalCost},${usage.dailyLimit || 0},${usagePercentage.toFixed(2)}`,
-      );
+      // Type guard for usage properties
+      const hasRequiredProps = typeof usage === 'object' && usage !== null &&
+        'date' in usage && 'requestCount' in usage && 'totalCost' in usage;
+
+      if (hasRequiredProps) {
+        const usageRecord = usage as Record<string, unknown>;
+        const dailyLimit = Number(usageRecord.dailyLimit) || 0;
+        const totalCost = Number(usageRecord.totalCost) || 0;
+        const usagePercentage = dailyLimit > 0 ? (totalCost / dailyLimit) * 100 : 0;
+        rows.push(
+          `${String(usageRecord.date)},${String(usageRecord.requestCount)},${totalCost},${dailyLimit},${usagePercentage.toFixed(2)}`,
+        );
+      }
     }
 
     // Add historical data
     if (data.history && Array.isArray(data.history)) {
       for (const record of data.history) {
-        const usagePercentage =
-          record.dailyLimit > 0
-            ? (record.totalCost / record.dailyLimit) * 100
-            : 0;
-        rows.push(
-          `${record.date},${record.requestCount},${record.totalCost},${record.dailyLimit || 0},${usagePercentage.toFixed(2)}`,
-        );
+        // Type guard for record properties
+        const hasRequiredProps = typeof record === 'object' && record !== null &&
+          'date' in record && 'requestCount' in record && 'totalCost' in record;
+
+        if (hasRequiredProps) {
+          const recordData = record as Record<string, unknown>;
+          const dailyLimit = Number(recordData.dailyLimit) || 0;
+          const totalCost = Number(recordData.totalCost) || 0;
+          const usagePercentage = dailyLimit > 0 ? (totalCost / dailyLimit) * 100 : 0;
+          rows.push(
+            `${String(recordData.date)},${String(recordData.requestCount)},${totalCost},${dailyLimit},${usagePercentage.toFixed(2)}`,
+          );
+        }
       }
     }
 

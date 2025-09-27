@@ -346,7 +346,11 @@ export class TokenTracker extends EventEmitter {
       sessionId,
       data: {
         totalTokens: response.totalTokens,
-        contents: Array.isArray(params.contents) ? params.contents.length : (params.contents ? 1 : 0),
+        contents: Array.isArray(params.contents)
+          ? params.contents.length
+          : params.contents
+            ? 1
+            : 0,
       },
     };
 

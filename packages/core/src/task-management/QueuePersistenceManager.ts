@@ -295,7 +295,9 @@ export class QueuePersistenceManager extends EventEmitter {
       // Validate snapshot integrity
       const validationResult = await this.validateSnapshot(snapshot);
       if (!validationResult.isValid) {
-        logger().error('Snapshot validation failed:', { errors: validationResult.errors });
+        logger().error('Snapshot validation failed:', {
+          errors: validationResult.errors,
+        });
         throw new Error(
           `Invalid snapshot: ${validationResult.errors.join(', ')}`,
         );
@@ -552,10 +554,9 @@ export class QueuePersistenceManager extends EventEmitter {
           if (validation.isValid) {
             return snapshot;
           } else {
-            logger().warn(
-              `Skipping invalid snapshot ${file}:`,
-              { errors: validation.errors },
-            );
+            logger().warn(`Skipping invalid snapshot ${file}:`, {
+              errors: validation.errors,
+            });
           }
         }
       } catch (error) {

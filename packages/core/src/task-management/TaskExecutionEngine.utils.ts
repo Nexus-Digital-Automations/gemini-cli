@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  Task,
-  TaskDependency,
-} from './TaskExecutionEngine.js';
+import type { Task, TaskDependency } from './TaskExecutionEngine.js';
 import { TaskType, TaskStatus } from './types.js';
 
 /**

@@ -346,10 +346,7 @@ export class TokenMonitorService extends EventEmitter {
   /**
    * Register a context manager for monitoring
    */
-  registerContextManager(
-    id: string,
-    manager: ContextWindowManager,
-  ): void {
+  registerContextManager(id: string, manager: ContextWindowManager): void {
     this.contextManagers.set(id, manager);
     logger.debug(`Registered context manager for monitoring: ${id}`);
 
