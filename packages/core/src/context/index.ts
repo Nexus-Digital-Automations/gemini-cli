@@ -95,7 +95,7 @@ export type {
   ErrorPattern,
   LearningStats,
 } from './SuggestionEngine.js';
-export type { StorageConfig } from './CrossSessionStorage.js';
+export type { StorageConfig, StorageStats } from './CrossSessionStorage.js';
 
 import { getComponentLogger } from '../utils/logger.js';
 import {
@@ -127,7 +127,16 @@ import type {
   PrioritizationConfig,
   CompressionConfig,
 } from './types.js';
-import type { StorageConfig } from './CrossSessionStorage.js';
+import type { StorageConfig, StorageStats } from './CrossSessionStorage.js';
+import type {
+  AllocationStats,
+  ContextWindowConfig,
+} from './ContextWindowManager.js';
+import type {
+  AnalysisStats,
+  CodeAnalysisConfig,
+} from './CodeContextAnalyzer.js';
+import type { LearningStats, SuggestionConfig } from './SuggestionEngine.js';
 
 const logger = getComponentLogger('context-system');
 
@@ -143,6 +152,12 @@ export interface ContextSystemConfig {
   compression?: Partial<CompressionConfig>;
   /** Configuration for cross-session storage */
   storage?: Partial<StorageConfig>; // StorageConfig from CrossSessionStorage
+  /** Configuration for context window management */
+  window?: Partial<ContextWindowConfig>;
+  /** Configuration for code analysis */
+  codeAnalysis?: Partial<CodeAnalysisConfig>;
+  /** Configuration for suggestion engine */
+  suggestions?: Partial<SuggestionConfig>;
   /** Enable automatic optimization */
   autoOptimize?: boolean;
   /** Optimization interval in milliseconds */
