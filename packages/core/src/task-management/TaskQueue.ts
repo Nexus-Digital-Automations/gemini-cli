@@ -30,6 +30,9 @@ export enum TaskPriority {
 export enum TaskStatus {
   PENDING = 'pending',
   QUEUED = 'queued',
+  ANALYZED = 'analyzed',
+  ASSIGNED = 'assigned',
+  IN_PROGRESS = 'in_progress',
   RUNNING = 'running',
   BLOCKED = 'blocked',
   COMPLETED = 'completed',
