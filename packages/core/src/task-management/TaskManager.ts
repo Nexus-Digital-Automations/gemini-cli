@@ -26,8 +26,7 @@ import {
 } from './EnhancedAutonomousTaskQueue.js';
 import { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { InfiniteHookIntegration } from './InfiniteHookIntegration.js';
-import type {
-  TaskStatus as QueueTaskStatus} from './TaskQueue.js';
+import type { TaskStatus as QueueTaskStatus } from './TaskQueue.js';
 import {
   TaskQueue,
   TaskPriority,
@@ -268,12 +267,11 @@ export class TaskManager {
 
     // Initialize persistence engine
     console.log('💾 Initializing CrossSessionPersistenceEngine...');
-    this.persistence = new CrossSessionPersistenceEngine({
+    const persistenceConfig = {
+      storageDir: '.persistence',
       enableCompression: true,
-      encryptionEnabled: true,
-      maxSessionHistory: 100,
-      autoCleanupIntervalMs: 24 * 60 * 60 * 1000, // 24 hours
-    });
+    };
+    this.persistence = new CrossSessionPersistenceEngine(persistenceConfig);
 
     console.log(
       '✅ TaskManager initialized successfully with autonomous capabilities',
@@ -288,7 +286,7 @@ export class TaskManager {
 
     try {
       // Initialize persistence first
-      await this.persistence.initialize();
+      await this.persistence.initialize(persistenceConfig);
       console.log('✅ Persistence engine initialized');
 
       // Initialize hook integration
@@ -364,8 +362,6 @@ export class TaskManager {
         executeFunction: async (task, executionContext) =>
           this.executeTaskWithQualityGates(task, executionContext),
         dependencies: options?.dependencies,
-        forceBreakdown:
-          options?.forceBreakdown || decision.decision === 'breakdown',
       });
     } else {
       console.log('📋 Using traditional task queue for standard processing...');
