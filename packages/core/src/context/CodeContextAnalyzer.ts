@@ -234,7 +234,7 @@ export class CodeContextAnalyzer {
           const childTree = await this.buildFileTree(entryPath, depth + 1, maxDepth);
           children.push(childTree);
         } catch (error) {
-          logger.debug(`Skipping inaccessible entry: ${entry}`, { error: (error as Error).message });
+          logger.debug(`Skipping inaccessible entry: ${entry}`, { error: error as Error });
         }
       }
 
@@ -255,7 +255,7 @@ export class CodeContextAnalyzer {
         relevance: Math.max(...children.map((child) => child.relevance || 0)),
       };
     } catch (error) {
-      logger.warn(`Failed to analyze path: ${dirPath}`, { error: (error as Error).message });
+      logger.warn(`Failed to analyze path: ${dirPath}`, { error: error as Error });
       throw error;
     }
   }
@@ -360,7 +360,7 @@ export class CodeContextAnalyzer {
       functions.push(...fileFunctions);
     } catch (error) {
       logger.debug(`Failed to analyze functions in ${node.path}`, {
-        error: (error as Error).message,
+        error: error as Error,
       });
     }
   }
@@ -390,7 +390,7 @@ export class CodeContextAnalyzer {
       return functions.slice(0, this.config.maxFunctionsPerFile);
     } catch (error) {
       logger.debug(`Failed to read file for function analysis: ${filePath}`, {
-        error: (error as Error).message,
+        error: error as Error,
       });
       return [];
     }
@@ -847,7 +847,7 @@ export class CodeContextAnalyzer {
       dependencies[node.path] = fileDependencies;
     } catch (error) {
       logger.debug(`Failed to analyze dependencies for ${node.path}`, {
-        error: (error as Error).message,
+        error: error as Error,
       });
       dependencies[node.path] = [];
     }
@@ -902,7 +902,7 @@ export class CodeContextAnalyzer {
       return Array.from(new Set(dependencies)); // Remove duplicates
     } catch (error) {
       logger.debug(`Failed to read file for dependency analysis: ${filePath}`, {
-        error: (error as Error).message,
+        error: error as Error,
       });
       return [];
     }
@@ -922,7 +922,7 @@ export class CodeContextAnalyzer {
 
       return changes.slice(0, 50); // Limit to recent 50 changes
     } catch (error) {
-      logger.debug('Failed to track recent changes', { error: (error as Error).message });
+      logger.debug('Failed to track recent changes', { error: error as Error });
       return [];
     }
   }
@@ -972,13 +972,13 @@ export class CodeContextAnalyzer {
           }
         } catch (error) {
           logger.debug(`Skipping inaccessible entry: ${entry}`, {
-            error: (error as Error).message,
+            error: error as Error,
           });
         }
       }
     } catch (error) {
       logger.debug(`Failed to read directory: ${dirPath}`, {
-        error: (error as Error).message,
+        error: error as Error,
       });
     }
   }
@@ -1145,13 +1145,13 @@ export class CodeContextAnalyzer {
           }
         } catch (error) {
           logger.debug(`Skipping inaccessible entry: ${entry}`, {
-            error: (error as Error).message,
+            error: error as Error,
           });
         }
       }
     } catch (error) {
       logger.debug(`Failed to read directory: ${dirPath}`, {
-        error: (error as Error).message,
+        error: error as Error,
       });
     }
   }

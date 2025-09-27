@@ -237,7 +237,7 @@ export class CompressionFallbackSystem {
       } catch (error) {
         logger.warn('Fallback strategy failed', {
           strategy,
-          error: error instanceof Error ? error.message : String(error),
+          error: error as Error,
           attempt: fallbackAttempts,
           sessionId
         });
@@ -269,7 +269,7 @@ export class CompressionFallbackSystem {
         };
       } catch (emergencyError) {
         logger.error('Emergency measures failed', {
-          error: emergencyError instanceof Error ? emergencyError.message : String(emergencyError),
+          error: emergencyError as Error,
           sessionId
         });
         fallbackErrors.push(emergencyError instanceof Error ? emergencyError.message : String(emergencyError));
@@ -283,7 +283,7 @@ export class CompressionFallbackSystem {
       logger.info('Fallback compression completed', {
         strategy: bestResult.fallbackStrategy,
         attempts: fallbackAttempts,
-        duration: duration.toFixed(2),
+        duration,
         success: true,
         sessionId
       });
@@ -291,7 +291,7 @@ export class CompressionFallbackSystem {
     } else {
       logger.error('All fallback strategies exhausted', {
         attempts: fallbackAttempts,
-        duration: duration.toFixed(2),
+        duration,
         sessionId
       });
 
@@ -496,6 +496,7 @@ export class CompressionFallbackSystem {
     }
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: compressedItems.map(i => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
@@ -536,6 +537,7 @@ export class CompressionFallbackSystem {
     }
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: compressedItems.map(i => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
@@ -613,6 +615,7 @@ export class CompressionFallbackSystem {
     }
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: compressedItems.map(i => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
@@ -674,6 +677,7 @@ export class CompressionFallbackSystem {
     }
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: compressedItems.map(i => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
@@ -715,6 +719,7 @@ export class CompressionFallbackSystem {
     }
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: selectedItems.map(i => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
@@ -752,6 +757,7 @@ export class CompressionFallbackSystem {
     selectedItems.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: selectedItems.map(i => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
@@ -782,6 +788,7 @@ export class CompressionFallbackSystem {
       }
 
       return {
+        success: true,
         original: items.map(i => i.content).join('\n'),
         compressed: compressedContent.join('\n'),
         originalTokens: totalOriginalTokens,
@@ -832,6 +839,7 @@ export class CompressionFallbackSystem {
     }
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: allCompressedContent.join('\n'),
       originalTokens: totalOriginalTokens,
@@ -876,6 +884,7 @@ export class CompressionFallbackSystem {
     }
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: compressedContent.join('\n'),
       originalTokens: totalOriginalTokens,
@@ -954,6 +963,7 @@ export class CompressionFallbackSystem {
     }
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: selectedItems.map(i => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
@@ -1016,6 +1026,7 @@ export class CompressionFallbackSystem {
     const finalTokens = selectedItems.reduce((sum, item) => sum + item.tokenCount, 0);
 
     return {
+      success: true,
       original: items.map(i => i.content).join('\n'),
       compressed: selectedItems.map(i => i.content).join('\n'),
       originalTokens: totalOriginalTokens,
@@ -1041,6 +1052,7 @@ export class CompressionFallbackSystem {
     const totalTokens = items.reduce((sum, item) => sum + item.tokenCount, 0);
 
     return {
+      success: false,
       original: items.map(i => i.content).join('\n'),
       compressed: items.map(i => i.content).join('\n'),
       originalTokens: totalTokens,

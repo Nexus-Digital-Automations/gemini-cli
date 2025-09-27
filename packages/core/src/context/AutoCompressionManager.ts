@@ -1018,8 +1018,8 @@ export class AutoCompressionManager extends EventEmitter {
               logger.error('Fallback system threw exception', {
                 error:
                   fallbackError instanceof Error
-                    ? fallbackError.message
-                    : String(fallbackError),
+                    ? fallbackError
+                    : new Error(String(fallbackError)),
                 sectionName,
                 managerId,
               });
@@ -1034,8 +1034,8 @@ export class AutoCompressionManager extends EventEmitter {
           logger.error('Section compression completely failed', {
             error:
               sectionError instanceof Error
-                ? sectionError.message
-                : String(sectionError),
+                ? sectionError
+                : new Error(String(sectionError)),
             sectionName,
             managerId,
           });
@@ -1091,8 +1091,8 @@ export class AutoCompressionManager extends EventEmitter {
       logger.info('Robust compression completed successfully', {
         originalTokens: totalOriginalTokens,
         compressedTokens: totalCompressedTokens,
-        compressionRatio: compressionRatio.toFixed(3),
-        duration: duration.toFixed(2),
+        compressionRatio,
+        duration,
         itemsCompressed,
         itemsRemoved,
         fallbacksApplied,
@@ -1108,9 +1108,9 @@ export class AutoCompressionManager extends EventEmitter {
       logger.error(
         'Robust compression failed completely, attempting emergency fallback',
         {
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
           totalTokens: snapshot.totalTokens,
-          duration: duration.toFixed(2),
+          duration,
           isEmergency,
         },
       );
@@ -1317,8 +1317,8 @@ export class AutoCompressionManager extends EventEmitter {
       logger.info('Compression completed successfully', {
         originalTokens: totalOriginalTokens,
         compressedTokens: totalCompressedTokens,
-        compressionRatio: compressionRatio.toFixed(3),
-        duration: duration.toFixed(2),
+        compressionRatio,
+        duration,
         itemsCompressed,
         itemsRemoved,
         isEmergency,
@@ -1347,7 +1347,7 @@ export class AutoCompressionManager extends EventEmitter {
       logger.error('Compression failed', {
         error,
         totalTokens: snapshot.totalTokens,
-        duration: duration.toFixed(2),
+        duration,
         isEmergency,
       });
 

@@ -15,9 +15,7 @@
 import { getComponentLogger } from '../utils/logger.js';
 import { CompressionStrategy } from './types.js';
 import { FallbackStrategy } from './CompressionFallbackSystem.js';
-import { performance } from 'node:perf_hooks';
 import { promises as fs } from 'node:fs';
-import { join } from 'node:path';
 
 const logger = getComponentLogger('compression-config-manager');
 
@@ -508,6 +506,10 @@ export const CONFIGURATION_PRESETS: Record<ConfigurationPreset, Partial<Compress
     }
   },
 
+  [ConfigurationPreset.BALANCED]: {
+    // Uses default configuration values
+  },
+
   [ConfigurationPreset.AGGRESSIVE]: {
     tokenLimits: {
       ...DEFAULT_COMPRESSION_CONFIG.tokenLimits,
@@ -633,7 +635,6 @@ export class CompressionConfigurationManager {
    * Update configuration with partial updates
    */
   updateConfig(updates: Partial<CompressionSystemConfig>): void {
-    const oldConfig = this.config;
     this.config = this.mergeConfigs(this.config, updates);
     this.config.metadata.modified = new Date();
 
@@ -695,7 +696,7 @@ export class CompressionConfigurationManager {
     } catch (error) {
       logger.error('Failed to load configuration from file', {
         filePath,
-        error: error instanceof Error ? error.message : String(error)
+        error: error as Error
       });
       throw error;
     }
@@ -723,7 +724,7 @@ export class CompressionConfigurationManager {
     } catch (error) {
       logger.error('Failed to save configuration to file', {
         filePath: targetPath,
-        error: error instanceof Error ? error.message : String(error)
+        error: error as Error
       });
       throw error;
     }
@@ -851,7 +852,7 @@ export class CompressionConfigurationManager {
       this.notifyWatchers();
     } catch (error) {
       logger.error('Failed to import configuration from JSON', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error as Error
       });
       throw error;
     }
@@ -884,17 +885,17 @@ export class CompressionConfigurationManager {
   ): CompressionSystemConfig {
     if (!override) return JSON.parse(JSON.stringify(base));
 
-    const result = JSON.parse(JSON.stringify(base));
+    const result = JSON.parse(JSON.stringify(base)) as CompressionSystemConfig;
 
     Object.keys(override).forEach(key => {
       const value = override[key as keyof CompressionSystemConfig];
       if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
-        result[key as keyof CompressionSystemConfig] = {
-          ...result[key as keyof CompressionSystemConfig],
-          ...value
-        } as any;
+        (result[key as keyof CompressionSystemConfig] as Record<string, unknown>) = {
+          ...(result[key as keyof CompressionSystemConfig] as Record<string, unknown>),
+          ...(value as Record<string, unknown>)
+        };
       } else {
-        (result[key as keyof CompressionSystemConfig] as any) = value;
+        (result[key as keyof CompressionSystemConfig] as unknown) = value;
       }
     });
 
@@ -911,7 +912,7 @@ export class CompressionConfigurationManager {
       } catch (error) {
         logger.error('Configuration watcher failed', {
           watcherId: id,
-          error: error instanceof Error ? error.message : String(error)
+          error: error as Error
         });
       }
     }

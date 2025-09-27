@@ -265,12 +265,13 @@ export class EnhancedCompressionAlgorithms {
 
       logger.error('Type-optimized compression failed', {
         itemId: item.id,
-        error: error instanceof Error ? error.message : String(error),
+        error: error as Error,
         processingTime: processingTime.toFixed(2),
       });
 
       // Return fallback result
       return {
+        success: false,
         original: item.content,
         compressed: item.content,
         originalTokens: item.tokenCount,
@@ -666,6 +667,7 @@ export class EnhancedCompressionAlgorithms {
     }
 
     return {
+      success: true,
       original: item.content,
       compressed,
       originalTokens: item.tokenCount,
@@ -701,6 +703,7 @@ export class EnhancedCompressionAlgorithms {
       }
 
       return {
+        success: true,
         original: item.content,
         compressed,
         originalTokens: item.tokenCount,
@@ -773,6 +776,7 @@ export class EnhancedCompressionAlgorithms {
     const errorConcepts = this.extractErrorConcepts(item.content);
 
     return {
+      success: true,
       original: item.content,
       compressed,
       originalTokens: item.tokenCount,
@@ -829,6 +833,7 @@ export class EnhancedCompressionAlgorithms {
     }
 
     return {
+      success: true,
       original: item.content,
       compressed: compressed.trim(),
       originalTokens: item.tokenCount,
@@ -891,6 +896,7 @@ export class EnhancedCompressionAlgorithms {
     }
 
     return {
+      success: true,
       original: item.content,
       compressed: compressed.trim(),
       originalTokens: item.tokenCount,
@@ -938,6 +944,7 @@ export class EnhancedCompressionAlgorithms {
     );
 
     return {
+      success: true,
       original: item.content,
       compressed,
       originalTokens: item.tokenCount,
@@ -1002,6 +1009,7 @@ export class EnhancedCompressionAlgorithms {
     }
 
     return {
+      success: true,
       original: item.content,
       compressed: compressed.trim(),
       originalTokens: item.tokenCount,
@@ -1042,6 +1050,7 @@ export class EnhancedCompressionAlgorithms {
     }
 
     return {
+      success: true,
       original: item.content,
       compressed,
       originalTokens: item.tokenCount,
