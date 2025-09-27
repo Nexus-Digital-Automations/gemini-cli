@@ -1049,3 +1049,162 @@ export interface PerformanceMetrics {
   /** Cache hit rate */
   cacheHitRate: number;
 }
+
+/**
+ * Language support types for debug code generation
+ */
+export type LanguageSupport =
+  | 'javascript'
+  | 'typescript'
+  | 'python'
+  | 'java'
+  | 'go'
+  | 'rust'
+  | 'cpp'
+  | 'c'
+  | 'csharp'
+  | 'php'
+  | 'ruby'
+  | 'shell'
+  | 'sql';
+
+/**
+ * Types of debug code that can be generated
+ */
+export type DebugCodeType =
+  | 'logging'
+  | 'testing'
+  | 'performance'
+  | 'error-handling'
+  | 'validation'
+  | 'instrumentation'
+  | 'monitoring';
+
+/**
+ * Debug code template specification
+ */
+export interface DebugCodeTemplate {
+  /** Unique template identifier */
+  id: string;
+  /** Template name */
+  name: string;
+  /** Template description */
+  description: string;
+  /** Code template with placeholders */
+  template: string;
+  /** Template complexity level */
+  complexity: 'simple' | 'moderate' | 'complex';
+  /** Required parameters */
+  requiredParameters: string[];
+  /** Optional parameters */
+  optionalParameters?: string[];
+  /** Usage examples */
+  examples?: string[];
+  /** Tags for categorization */
+  tags: string[];
+}
+
+/**
+ * Generated debug code snippet
+ */
+export interface DebugCodeSnippet {
+  /** Unique snippet identifier */
+  id: string;
+  /** Generated code */
+  code: string;
+  /** Programming language */
+  language: LanguageSupport;
+  /** Code type */
+  type?: DebugCodeType;
+  /** Description */
+  description?: string;
+  /** Usage instructions */
+  instructions?: string[];
+  /** Implementation effort estimate */
+  estimatedEffort?: string;
+  /** Generated timestamp */
+  timestamp?: Date;
+}
+
+/**
+ * Instrumentation code specification
+ */
+export interface InstrumentationCode {
+  /** Unique identifier */
+  id: string;
+  /** Target file or location */
+  targetLocation: string;
+  /** Programming language */
+  language: LanguageSupport;
+  /** Generated instrumentation code */
+  code?: string;
+  /** Instrumentation type */
+  type?: 'logging' | 'performance' | 'error-handling' | 'all';
+  /** Instructions for implementation */
+  instructions?: string[];
+  /** Estimated implementation time */
+  estimatedTime?: string;
+}
+
+/**
+ * Debug code generation options
+ */
+export interface DebugGenerationOptions {
+  /** Type of debug code to generate */
+  type: DebugCodeType;
+  /** Target programming language */
+  language: LanguageSupport;
+  /** Context information */
+  context?: {
+    /** File path */
+    filePath?: string;
+    /** Function name */
+    functionName?: string;
+    /** Variable names */
+    variables?: string[];
+    /** Error context */
+    errorContext?: string;
+    /** Additional metadata */
+    [key: string]: unknown;
+  };
+  /** Template preferences */
+  templatePreferences?: {
+    /** Complexity preference */
+    complexity?: 'simple' | 'moderate' | 'complex';
+    /** Include comments */
+    includeComments?: boolean;
+    /** Include error handling */
+    includeErrorHandling?: boolean;
+  };
+  /** Output preferences */
+  outputPreferences?: {
+    /** Code style */
+    codeStyle?: 'standard' | 'compact' | 'verbose';
+    /** Include usage instructions */
+    includeInstructions?: boolean;
+    /** Include examples */
+    includeExamples?: boolean;
+  };
+}
+
+/**
+ * Test case generation options
+ */
+export interface TestCaseGeneration {
+  /** Test type to generate */
+  testType: TestType;
+  /** Target function or method */
+  targetFunction?: string;
+  /** Input parameters */
+  parameters?: TestInput[];
+  /** Expected outcomes */
+  expectedResults?: TestOutput[];
+  /** Test framework preference */
+  framework?: string;
+  /** Include edge cases */
+  includeEdgeCases?: boolean;
+  /** Include error scenarios */
+  includeErrorScenarios?: boolean;
+  /** Programming language */
+  language?: LanguageSupport;
+}
