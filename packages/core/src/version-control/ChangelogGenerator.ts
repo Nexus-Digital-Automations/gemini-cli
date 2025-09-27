@@ -1064,7 +1064,7 @@ export class ChangelogGenerator {
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
       .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/gim, '<em>$1</em>')
-      .replace(/^\- (.*$)/gim, '<li>$1</li>')
+      .replace(/^- (.*$)/gim, '<li>$1</li>')
       .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
       .replace(/\n/gim, '<br>');
   }

@@ -587,6 +587,9 @@ export class PullRequestAutomator {
       case PRStatus.MERGED:
         this.updateWorkflowStage(workflow, 'merge', 'completed');
         break;
+      default:
+        // No workflow stage update needed for other PR statuses
+        break;
     }
 
     // Execute automation rules

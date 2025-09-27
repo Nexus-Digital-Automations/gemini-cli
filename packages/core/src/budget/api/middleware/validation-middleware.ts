@@ -45,7 +45,7 @@ interface ValidationError {
   location: ValidationLocation;
   field?: string;
   message: string;
-  value?: any;
+  value?: unknown;
   expected?: string;
 }
 
@@ -57,7 +57,7 @@ interface ValidatedRequest extends Request {
     [key in ValidationLocation]?: ValidationResult;
   };
   sanitized?: {
-    [key in ValidationLocation]?: any;
+    [key in ValidationLocation]?: unknown;
   };
 }
 
@@ -376,7 +376,7 @@ export function validateRequestSize(maxSize: number = 1024 * 1024) {
  * Custom field validation middleware
  */
 export function validateCustomFields(
-  fieldValidators: Record<string, (value: any) => boolean>,
+  fieldValidators: Record<string, (value: unknown) => boolean>,
 ) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const startTime = Date.now();
@@ -542,7 +542,7 @@ export function validateSecurity(
 function extractValidationData(
   req: Request,
   location: ValidationLocation,
-): any {
+): unknown {
   switch (location) {
     case 'body':
       return req.body;
@@ -563,7 +563,7 @@ function extractValidationData(
 function setValidationData(
   req: Request,
   location: ValidationLocation,
-  data: any,
+  data: unknown,
 ): void {
   switch (location) {
     case 'body':
@@ -587,7 +587,7 @@ function setValidationData(
 /**
  * Get nested property from object
  */
-function getNestedProperty(obj: any, path: string): any {
+function getNestedProperty(obj: unknown, path: string): unknown {
   return path.split('.').reduce((current, key) => current?.[key], obj);
 }
 
@@ -614,8 +614,8 @@ function containsSQLInjection(input: string): boolean {
   const sqlPatterns = [
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
     /('|(\\'))|(;|\||`)/gi,
-    /((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))/gi,
-    /((\%27)|(\'))union/gi,
+    /((%27)|(''))((%6F)|o|(%4F))((%72)|r|(%52))/gi,
+    /((%27)|(''))union/gi,
   ];
 
   return sqlPatterns.some((pattern) => pattern.test(input));

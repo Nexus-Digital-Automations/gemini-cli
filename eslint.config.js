@@ -38,8 +38,6 @@ export default tseslint.config(
       'package/bundle/**',
       '.integration-tests/**',
       'dist/**',
-      'src/**', // Temporarily ignore src directory to resolve timeout issues
-      'tests/**', // Temporarily ignore tests directory to resolve timeout issues
     ],
   },
   eslint.configs.recommended,
