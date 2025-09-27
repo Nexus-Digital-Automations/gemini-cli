@@ -20,10 +20,7 @@ import type {
   PrioritizationResult,
   PrioritizationStats,
 } from './types.js';
-import {
-  ContextType,
-  ContextPriority,
-} from './types.js';
+import { ContextType, ContextPriority } from './types.js';
 
 const logger = getComponentLogger('context-prioritizer');
 
@@ -97,10 +94,14 @@ export class ContextPrioritizer {
       );
 
       // Categorize items based on scores and priorities
-      const result = this.categorizeItems(sortedItems);
+      const categorizedResult = this.categorizeItems(sortedItems);
 
-      // Calculate statistics
-      result.stats = this.calculateStats(items, result);
+      // Calculate statistics and create final result
+      const stats = this.calculateStats(items, categorizedResult);
+      const result = {
+        ...categorizedResult,
+        stats,
+      };
 
       const duration = performance.now() - startTime;
       logger.info(`Prioritization completed in ${duration.toFixed(2)}ms`, {

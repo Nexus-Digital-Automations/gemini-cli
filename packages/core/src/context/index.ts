@@ -95,9 +95,7 @@ export type {
   ErrorPattern,
   LearningStats,
 } from './SuggestionEngine.js';
-export type {
-  StorageConfig,
-} from './CrossSessionStorage.js';
+export type { StorageConfig } from './CrossSessionStorage.js';
 
 import { getComponentLogger } from '../utils/logger.js';
 import {
@@ -275,7 +273,12 @@ export class ContextSystem {
    */
   async addContext(
     item: ContextItem,
-    section: keyof ContextSections = 'conversation',
+    section:
+      | 'system'
+      | 'conversation'
+      | 'code'
+      | 'project'
+      | 'memory' = 'conversation',
   ): Promise<boolean> {
     this.ensureInitialized();
     logger.debug(`Adding context item to ${section}`, {

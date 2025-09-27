@@ -1,0 +1,56 @@
+{
+  "project": "gemini-cli",
+  "features": [],
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-09-27T04:12:07.921Z",
+    "updated": "2025-09-27T04:12:07.921Z",
+    "total_features": 0,
+    "approval_history": [],
+    "initialization_stats": {
+      "total_initializations": 0,
+      "total_reinitializations": 1,
+      "current_day": "2025-09-27",
+      "time_buckets": {
+        "10:00-14:59": {
+          "init": 0,
+          "reinit": 0
+        },
+        "15:00-19:59": {
+          "init": 0,
+          "reinit": 0
+        },
+        "20:00-00:59": {
+          "init": 0,
+          "reinit": 1
+        },
+        "01:00-05:59": {
+          "init": 0,
+          "reinit": 0
+        },
+        "06:00-10:59": {
+          "init": 0,
+          "reinit": 0
+        }
+      },
+      "daily_history": [],
+      "last_reset": "2025-09-27T04:12:07.923Z",
+      "last_updated": "2025-09-27T04:12:07.923Z"
+    }
+  },
+  "workflow_config": {
+    "require_approval": true,
+    "auto_reject_timeout_hours": 168,
+    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
+    "required_fields": ["title", "description", "business_value", "category"]
+  },
+  "agents": {
+    "claude-code-agent": {
+      "lastHeartbeat": "2025-09-27T04:12:07.922Z",
+      "status": "active",
+      "reinitialized": "2025-09-27T04:12:07.922Z",
+      "sessionId": "2896055090aec0ee",
+      "previousSessions": []
+    }
+  }
+}
