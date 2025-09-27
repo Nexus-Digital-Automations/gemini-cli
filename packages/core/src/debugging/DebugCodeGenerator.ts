@@ -172,6 +172,7 @@ console.time('⏱️ ${'{timerLabel}'}');
 ${'{code}'}
 console.timeEnd('⏱️ ${'{timerLabel}'}');`,
         parameters: ['timerLabel', 'code'],
+        requiredParameters: ['timerLabel', 'code'],
         category: 'performance',
         complexity: 'simple',
         useCases: ['Performance measurement', 'Optimization'],
@@ -195,6 +196,7 @@ console.log('📊 Memory delta:', {
   external: endMemory.external - startMemory.external,
 });`,
         parameters: ['operation', 'code'],
+        requiredParameters: ['operation', 'code'],
         category: 'performance',
         complexity: 'moderate',
         useCases: ['Memory profiling', 'Memory leak detection'],
@@ -220,6 +222,13 @@ describe('${'{testSuite}'}', () => {
   });
 });`,
         parameters: [
+          'testSuite',
+          'testDescription',
+          'arrangeCode',
+          'actCode',
+          'assertion',
+        ],
+        requiredParameters: [
           'testSuite',
           'testDescription',
           'arrangeCode',
@@ -259,12 +268,20 @@ if (!validate${'{TypeName}'}(${'{variable}'})) {
           'expectedType',
           'variable',
         ],
+        requiredParameters: [
+          'TypeName',
+          'validationCondition',
+          'expectedType',
+          'variable',
+        ],
         category: 'validation',
         complexity: 'moderate',
         useCases: ['Runtime validation', 'Type checking'],
         tags: ['validation', 'type-safety'],
       },
     ],
+    instrumentation: [],
+    monitoring: [],
   },
 
   typescript: {
@@ -284,6 +301,7 @@ function debugLog<T>(label: string, value: T, context?: Record<string, unknown>)
 
 const result = debugLog('${'{label}'}', ${'{variable}'}, ${'{context}'});`,
         parameters: ['label', 'variable', 'context'],
+        requiredParameters: ['label', 'variable', 'context'],
         category: 'logging',
         complexity: 'moderate',
         useCases: ['Type-safe logging', 'Debug instrumentation'],
@@ -310,6 +328,12 @@ function ${'{functionName}'}(): Result<${'{ReturnType}'}, ${'{ErrorType}'}> {
   }
 }`,
         parameters: ['functionName', 'ReturnType', 'ErrorType', 'operation'],
+        requiredParameters: [
+          'functionName',
+          'ReturnType',
+          'ErrorType',
+          'operation',
+        ],
         category: 'error-handling',
         complexity: 'advanced',
         useCases: ['Functional error handling', 'Type-safe errors'],
@@ -343,6 +367,12 @@ class ${'{ClassName}'} {
   }
 }`,
         parameters: ['ClassName', 'methodName', 'parameters', 'methodBody'],
+        requiredParameters: [
+          'ClassName',
+          'methodName',
+          'parameters',
+          'methodBody',
+        ],
         category: 'performance',
         complexity: 'advanced',
         useCases: ['Method performance', 'Decorator pattern'],
@@ -367,6 +397,7 @@ const create${'{InterfaceName}'}Mock = (): MockOf<${'{InterfaceName}'}>  => ({
 
 const mock${'{InterfaceName}'} = create${'{InterfaceName}'}Mock();`,
         parameters: ['InterfaceName', 'mockImplementation'],
+        requiredParameters: ['InterfaceName', 'mockImplementation'],
         category: 'testing',
         complexity: 'advanced',
         useCases: ['Type-safe mocking', 'Interface testing'],
@@ -398,12 +429,20 @@ if (is${'{TypeName}'}(${'{variable}'})) {
           'variable',
           'typedOperations',
         ],
+        requiredParameters: [
+          'TypeName',
+          'typeCheckConditions',
+          'variable',
+          'typedOperations',
+        ],
         category: 'validation',
         complexity: 'moderate',
         useCases: ['Type narrowing', 'Runtime type safety'],
         tags: ['type-guard', 'narrowing'],
       },
     ],
+    instrumentation: [],
+    monitoring: [],
   },
 
   python: {
@@ -425,6 +464,7 @@ def debug_log(message: str, data: object = None, level: int = logging.DEBUG):
 
 debug_log("${'{message}'}", ${'{data}'})`,
         parameters: ['message', 'data'],
+        requiredParameters: ['message', 'data'],
         category: 'logging',
         complexity: 'moderate',
         useCases: ['Structured logging', 'Debug information'],
@@ -447,6 +487,12 @@ except Exception as e:
     logger.debug("Stack trace:", exc_info=True)
     raise`,
         parameters: ['code', 'ExceptionType', 'location', 'errorHandler'],
+        requiredParameters: [
+          'code',
+          'ExceptionType',
+          'location',
+          'errorHandler',
+        ],
         category: 'error-handling',
         complexity: 'moderate',
         useCases: ['Exception handling', 'Error logging'],
@@ -474,6 +520,7 @@ def timer(operation_name: str):
 with timer("${'{operation}'}"):
     ${'{code}'}`,
         parameters: ['operation', 'code'],
+        requiredParameters: ['operation', 'code'],
         category: 'performance',
         complexity: 'moderate',
         useCases: ['Performance measurement', 'Timing'],
@@ -509,6 +556,14 @@ def ${'{fixture_name}'}():
           'fixture_name',
           'fixture_value',
         ],
+        requiredParameters: [
+          'test_name',
+          'arrange_code',
+          'act_code',
+          'assertion',
+          'fixture_name',
+          'fixture_value',
+        ],
         category: 'testing',
         complexity: 'moderate',
         useCases: ['Unit testing', 'Test fixtures'],
@@ -534,12 +589,15 @@ def validate_${'{type_name}'}(value, expected_type) -> bool:
 if not validate_${'{type_name}'}(${'{variable}'}, ${'{expected_type}'}):
     raise TypeError(f"Invalid type for ${'{variable}'}")`,
         parameters: ['type_name', 'variable', 'expected_type'],
+        requiredParameters: ['type_name', 'variable', 'expected_type'],
         category: 'validation',
         complexity: 'simple',
         useCases: ['Runtime validation', 'Type checking'],
         tags: ['isinstance', 'validation'],
       },
     ],
+    instrumentation: [],
+    monitoring: [],
   },
 };
 
