@@ -675,7 +675,9 @@ export class TaskQueue extends EventEmitter {
 
         logger.warn(`Task failed, will retry: ${task.title}`, {
           taskId: task.id,
-          error: executionRecord.error,
+          error: executionRecord.error
+            ? new Error(executionRecord.error)
+            : undefined,
           attempt: task.currentRetries,
           maxRetries: task.maxRetries,
         });
@@ -694,7 +696,9 @@ export class TaskQueue extends EventEmitter {
 
         logger.error(`Task failed permanently: ${task.title}`, {
           taskId: task.id,
-          error: executionRecord.error,
+          error: executionRecord.error
+            ? new Error(executionRecord.error)
+            : undefined,
           totalAttempts: task.currentRetries,
         });
 
@@ -807,7 +811,7 @@ export class TaskQueue extends EventEmitter {
       } catch (error) {
         logger.warn(`Error evaluating pre-condition: ${condition}`, {
           taskId: task.id,
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         });
         return false;
       }

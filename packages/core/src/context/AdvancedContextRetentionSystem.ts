@@ -19,7 +19,8 @@ import type {
   ContextSuggestion,
   ContextAnalysis,
   SessionContext,
-} from './types.js';
+ ContextType} from './types.js';
+import { ContextPriority } from './types.js';
 
 import {
   ContextPrioritizer,
@@ -54,7 +55,7 @@ import type {
 import type { StorageConfig } from './CrossSessionStorage.js';
 import type { ContextWindowConfig } from './ContextWindowManager.js';
 import type { CodeAnalysisConfig } from './CodeContextAnalyzer.js';
-import type { SuggestionEngineConfig } from './SuggestionEngine.js';
+import type { SuggestionConfig } from './SuggestionEngine.js';
 
 const logger = getComponentLogger('advanced-context-retention-system');
 
@@ -75,7 +76,7 @@ export interface AdvancedContextRetentionConfig {
   /** Code analysis configuration */
   codeAnalysis: Partial<CodeAnalysisConfig>;
   /** Suggestion engine configuration */
-  suggestions: Partial<SuggestionEngineConfig>;
+  suggestions: Partial<SuggestionConfig>;
   /** Enable automatic optimization */
   enableAutoOptimization: boolean;
   /** Auto-optimization interval in minutes */
@@ -252,7 +253,7 @@ export class AdvancedContextRetentionSystem {
    * Add context to the system
    */
   async addContext(
-    type: string,
+    type: ContextType,
     content: string,
     metadata: Record<string, unknown> = {},
   ): Promise<string> {
@@ -267,7 +268,7 @@ export class AdvancedContextRetentionSystem {
       timestamp: new Date(),
       lastAccessed: new Date(),
       type,
-      priority: 'medium',
+      priority: ContextPriority.MEDIUM,
       relevanceScore: 0.5,
       tokenCount: this.estimateTokenCount(content),
       dependencies: [],
@@ -780,7 +781,7 @@ export class AdvancedContextRetentionSystem {
    * Map context type to window section
    */
   private mapTypeToSection(
-    type: string,
+    type: ContextType,
   ): keyof import('./types.js').ContextSections {
     const mapping: Record<string, keyof import('./types.js').ContextSections> =
       {

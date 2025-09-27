@@ -6,12 +6,8 @@
 
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
-import type {
-  Task,
-  TaskPriority,
-  PriorityFactors,
-} from './TaskQueue.js';
-import { TaskCategory } from './TaskQueue.js';
+import type { Task, TaskPriority, PriorityFactors } from './TaskQueue.js';
+import { TaskCategory, TaskStatus } from './TaskQueue.js';
 
 /**
  * Advanced priority calculation algorithms
@@ -751,7 +747,9 @@ export class TaskPriorityManager extends EventEmitter {
     const conflicts: string[] = [];
     let totalContention = 0;
 
-    const runningTasks = allTasks.filter((t) => t.status === TaskStatus.RUNNING);
+    const runningTasks = allTasks.filter(
+      (t) => t.status === TaskStatus.RUNNING,
+    );
 
     for (const resource of task.requiredResources) {
       let resourceContention = 0;
