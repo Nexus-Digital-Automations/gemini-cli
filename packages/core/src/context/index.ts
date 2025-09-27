@@ -177,8 +177,10 @@ export const DEFAULT_CONTEXT_SYSTEM_CONFIG: Partial<ContextSystemConfig> = {
  */
 interface StorageStats {
   totalSessions: number;
-  diskUsage: number;
-  cacheHitRate: number;
+  totalProjects: number;
+  totalSizeBytes: number;
+  oldestSession: Date | null;
+  newestSession: Date | null;
 }
 
 /**
@@ -537,19 +539,19 @@ export class ContextSystem {
   /**
    * Get comprehensive system statistics
    */
-  getSystemStats(): {
+  async getSystemStats(): Promise<{
     window: AllocationStats; // AllocationStats
     learning: LearningStats; // LearningStats
     analysis: AnalysisStats; // AnalysisStats
     storage: StorageStats; // StorageStats
-  } {
+  }> {
     this.ensureInitialized();
 
     return {
       window: this.windowManager.getAllocationStats(),
       learning: this.suggestionEngine.getLearningStats(),
       analysis: this.codeAnalyzer.getAnalysisStats(),
-      storage: this.storage.getStorageStats(),
+      storage: await this.storage.getStorageStats(),
     };
   }
 
