@@ -594,7 +594,7 @@ export class AdvancedContextRetentionSystem {
       ? this.windowManager.getAllocationStats()
       : null;
     const interactionStats = this.isInitialized
-      ? { totalInteractions: 0, averageResponseTime: 0 }
+      ? { totalInteractions: 0, averageResponseTime: 0, successRate: 0.9 }
       : null;
 
     return {
