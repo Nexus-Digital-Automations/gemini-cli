@@ -451,6 +451,7 @@ class SummarizationStrategy implements CompressionStrategyImpl {
     compressedTokens: number,
   ): CompressionResult {
     return {
+      success: true,
       original,
       compressed,
       originalTokens,
@@ -491,6 +492,7 @@ class KeywordExtractionStrategy implements CompressionStrategyImpl {
     const compressedTokens = this.estimateTokenCount(compressed);
 
     return {
+      success: true,
       original,
       compressed,
       originalTokens,
@@ -678,6 +680,7 @@ class SemanticClusteringStrategy implements CompressionStrategyImpl {
     const compressedTokens = this.estimateTokenCount(compressed);
 
     return {
+      success: true,
       original,
       compressed,
       originalTokens,
@@ -793,6 +796,7 @@ class ProgressiveDetailStrategy implements CompressionStrategyImpl {
     const compressedTokens = this.estimateTokenCount(compressed);
 
     return {
+      success: true,
       original,
       compressed,
       originalTokens,

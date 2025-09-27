@@ -9,12 +9,12 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 69,
+      "total_reinitializations": 79,
       "current_day": "2025-09-26",
       "time_buckets": {
         "10:00-14:59": {
           "init": 0,
-          "reinit": 3
+          "reinit": 13
         },
         "15:00-19:59": {
           "init": 0,
@@ -63,7 +63,7 @@
         }
       ],
       "last_reset": "2025-09-26T10:18:51.572Z",
-      "last_updated": "2025-09-26T17:46:06.554Z"
+      "last_updated": "2025-09-26T18:54:09.584Z"
     }
   },
   "workflow_config": {
@@ -84,10 +84,10 @@
   },
   "agents": {
     "test-agent": {
-      "lastHeartbeat": "2025-09-25T19:50:40.959Z",
+      "lastHeartbeat": "2025-09-26T18:53:58.545Z",
       "status": "active",
-      "reinitialized": "2025-09-25T19:50:40.959Z",
-      "sessionId": "59e126ff47a0c3ff",
+      "reinitialized": "2025-09-26T18:53:58.545Z",
+      "sessionId": "d76c4bddb702b2fc",
       "previousSessions": [
         "8fa9d77a8dbf5e6c",
         "45d75c0ceb400ea6",
@@ -151,7 +151,9 @@
         "86ef56743cd51e6f",
         "45e15e82b615138a",
         "a67f8c32bcdacc78",
-        "a6e8abc3265a6de6"
+        "a6e8abc3265a6de6",
+        "59e126ff47a0c3ff",
+        "2b02a2ef9d946f86"
       ]
     },
     "AGENT_VERSION_CONTROL": {
@@ -187,6 +189,27 @@
       "status": "active",
       "reinitialized": "2025-09-26T17:46:06.553Z",
       "sessionId": "ba45ab6da8c3bd8c",
+      "previousSessions": []
+    },
+    "TASK_EXECUTION_ENGINE": {
+      "lastHeartbeat": "2025-09-26T18:54:09.572Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T18:54:09.572Z",
+      "sessionId": "41d7fabe07dbf72e",
+      "previousSessions": [
+        "8b212107ddcb814b",
+        "370dbb80df889760",
+        "034764a443ac8784",
+        "7aad3d1134717866",
+        "98c639d9916c70ad",
+        "4474e572e53a36d5"
+      ]
+    },
+    "custom-agent": {
+      "lastHeartbeat": "2025-09-26T18:53:54.489Z",
+      "status": "active",
+      "reinitialized": "2025-09-26T18:53:54.489Z",
+      "sessionId": "99b4dda32388e16f",
       "previousSessions": []
     }
   }

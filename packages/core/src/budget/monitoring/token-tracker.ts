@@ -24,11 +24,11 @@ import type {
   TokenUsageData,
   ModelUsageData,
   BudgetEvent,
-  BudgetEventType,
   EventSeverity,
   CostCalculationParams,
   BudgetCalculationContext,
 } from '../types.js';
+import { BudgetEventType } from '../types.js';
 
 /**
  * Token usage tracking event interface
@@ -200,7 +200,7 @@ export class TokenTracker extends EventEmitter {
     };
 
     this.emit('request_start', event);
-    this.emitBudgetEvent('usage_updated', {
+    this.emitBudgetEvent(BudgetEventType.USAGE_UPDATED, {
       requestId,
       status: 'started',
       activeRequests: this.activeRequests.size,
@@ -274,8 +274,8 @@ export class TokenTracker extends EventEmitter {
             requestId,
             error:
               costError instanceof Error
-                ? costError.message
-                : String(costError),
+                ? costError
+                : new Error(String(costError)),
           });
         }
       }
@@ -306,7 +306,7 @@ export class TokenTracker extends EventEmitter {
     };
 
     this.emit('request_complete', event);
-    this.emitBudgetEvent('usage_updated', {
+    this.emitBudgetEvent(BudgetEventType.USAGE_UPDATED, {
       requestId,
       status: 'completed',
       tokenUsage: {
@@ -346,7 +346,7 @@ export class TokenTracker extends EventEmitter {
       sessionId,
       data: {
         totalTokens: response.totalTokens,
-        contents: params.contents?.length ?? 0,
+        contents: Array.isArray(params.contents) ? params.contents.length : (params.contents ? 1 : 0),
       },
     };
 
@@ -471,7 +471,7 @@ export class TokenTracker extends EventEmitter {
         model: params.model,
         inputTokens: params.inputTokens,
         outputTokens: params.outputTokens,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       throw error;
     }

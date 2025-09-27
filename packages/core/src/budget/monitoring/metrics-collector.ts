@@ -373,7 +373,7 @@ export class MetricsCollector extends EventEmitter {
       this.emit('snapshot', { type: 'snapshot', timestamp, data: snapshot });
     } catch (error) {
       this.logger.error('Failed to collect metrics snapshot', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
     }
   }

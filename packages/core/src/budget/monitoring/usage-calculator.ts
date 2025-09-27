@@ -243,7 +243,7 @@ export class UsageCalculator {
         model: params.model,
         inputTokens: params.inputTokens,
         outputTokens: params.outputTokens,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       throw new Error(
         `Cost calculation failed: ${error instanceof Error ? error.message : String(error)}`,

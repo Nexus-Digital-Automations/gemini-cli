@@ -18,9 +18,9 @@ import type {
   BudgetSettings,
   BudgetValidationResult,
   BudgetEvent,
-  BudgetEventType,
   EventSeverity,
 } from '../types.js';
+import { BudgetEventType } from '../types.js';
 
 /**
  * Quota limit configuration
@@ -336,7 +336,7 @@ export class QuotaManager extends EventEmitter {
         requestType,
         value,
         context,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
 
       // Fail open in case of errors
@@ -375,7 +375,7 @@ export class QuotaManager extends EventEmitter {
     }
 
     // Emit usage event
-    this.emitBudgetEvent('usage_updated', {
+    this.emitBudgetEvent(BudgetEventType.USAGE_UPDATED, {
       requestType,
       value,
       context,
@@ -406,7 +406,7 @@ export class QuotaManager extends EventEmitter {
       windowMs: limit.windowMs,
     });
 
-    this.emitBudgetEvent('settings_changed', {
+    this.emitBudgetEvent(BudgetEventType.SETTINGS_CHANGED, {
       action: 'quota_limit_added',
       limitId: limit.id,
       limit,
@@ -424,7 +424,7 @@ export class QuotaManager extends EventEmitter {
 
       this.logger.info('Quota limit removed', { limitId });
 
-      this.emitBudgetEvent('settings_changed', {
+      this.emitBudgetEvent(BudgetEventType.SETTINGS_CHANGED, {
         action: 'quota_limit_removed',
         limitId,
       });
@@ -464,7 +464,7 @@ export class QuotaManager extends EventEmitter {
 
     this.logger.info('Quota usage reset', { limitId });
 
-    this.emitBudgetEvent('budget_reset', {
+    this.emitBudgetEvent(BudgetEventType.BUDGET_RESET, {
       limitId,
       resetTime: new Date().toISOString(),
     });
@@ -669,17 +669,17 @@ export class QuotaManager extends EventEmitter {
         this.setThrottling(true);
         break;
       case 'warn':
-        this.logger.warn('Quota limit exceeded', violation);
+        this.logger.warn('Quota limit exceeded', { violation });
         break;
       case 'log':
-        this.logger.info('Quota limit exceeded', violation);
+        this.logger.info('Quota limit exceeded', { violation });
         break;
       default:
         // Handle unexpected values
         break;
     }
 
-    this.emitBudgetEvent('limit_exceeded', {
+    this.emitBudgetEvent(BudgetEventType.LIMIT_EXCEEDED, {
       violation,
       limitId,
       usage: usage.currentUsage,

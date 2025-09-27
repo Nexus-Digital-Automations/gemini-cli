@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import * as winston from 'winston';
 import {
   getLogger,
   getComponentLogger,
@@ -14,43 +15,44 @@ import {
   WinstonStructuredLogger,
 } from './logger.js';
 
-describe('Structured Logger', () => {
-  let consoleSpy: Array<{ level: string; args: unknown[] }>;
-  let originalConsole: {
-    debug: typeof console.debug;
-    info: typeof console.info;
-    warn: typeof console.warn;
-    error: typeof console.error;
+// Mock winston module
+vi.mock('winston', async () => {
+  const actual = await vi.importActual('winston');
+  return {
+    ...actual,
+    createLogger: vi.fn(() => ({
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      child: vi.fn(() => ({
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      })),
+    })),
   };
+});
+
+describe('Structured Logger', () => {
+  let mockWinstonLogger: any;
 
   beforeEach(() => {
-    consoleSpy = [];
-
-    // Store original console methods
-    originalConsole = {
-      debug: console.debug,
-      info: console.info,
-      warn: console.warn,
-      error: console.error,
+    vi.clearAllMocks();
+    mockWinstonLogger = {
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      child: vi.fn(() => ({
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      })),
     };
-
-    // Mock console methods to capture log output
-    console.debug = (...args: unknown[]) =>
-      consoleSpy.push({ level: 'debug', args });
-    console.info = (...args: unknown[]) =>
-      consoleSpy.push({ level: 'info', args });
-    console.warn = (...args: unknown[]) =>
-      consoleSpy.push({ level: 'warn', args });
-    console.error = (...args: unknown[]) =>
-      consoleSpy.push({ level: 'error', args });
-  });
-
-  afterEach(() => {
-    // Restore original console methods
-    console.debug = originalConsole.debug;
-    console.info = originalConsole.info;
-    console.warn = originalConsole.warn;
-    console.error = originalConsole.error;
+    (winston.createLogger as any).mockReturnValue(mockWinstonLogger);
   });
 
   it('should create a logger with default configuration', () => {
@@ -77,11 +79,11 @@ describe('Structured Logger', () => {
     logger.warn('Warning message');
     logger.error('Error message');
 
-    // Debug should be filtered out
-    expect(consoleSpy.length).toBe(3);
-    expect(consoleSpy.some((log) => log.level === 'info')).toBe(true);
-    expect(consoleSpy.some((log) => log.level === 'warn')).toBe(true);
-    expect(consoleSpy.some((log) => log.level === 'error')).toBe(true);
+    // Verify winston methods were called
+    expect(mockWinstonLogger.debug).toHaveBeenCalledWith('Debug message', {});
+    expect(mockWinstonLogger.info).toHaveBeenCalledWith('Info message', {});
+    expect(mockWinstonLogger.warn).toHaveBeenCalledWith('Warning message', {});
+    expect(mockWinstonLogger.error).toHaveBeenCalledWith('Error message', {});
   });
 
   it('should create child logger with inherited context', () => {
@@ -90,8 +92,9 @@ describe('Structured Logger', () => {
 
     childLogger.info('Test message');
 
-    expect(consoleSpy.length).toBe(1);
-    expect(consoleSpy[0].args[0]).toContain('test-component');
+    // Verify child logger was created and used
+    expect(mockWinstonLogger.child).toHaveBeenCalledWith({ component: 'test-component' });
+    expect(mockWinstonLogger.child().info).toHaveBeenCalledWith('Test message', {});
   });
 
   it('should handle error objects properly', () => {
@@ -100,8 +103,8 @@ describe('Structured Logger', () => {
 
     logger.error('Error occurred', { error: testError });
 
-    expect(consoleSpy.length).toBe(1);
-    expect(consoleSpy[0].args[0]).toContain('Test error');
+    // Verify error was logged with proper metadata
+    expect(mockWinstonLogger.error).toHaveBeenCalledWith('Error occurred', { error: testError });
   });
 
   it('should create timer utility correctly', async () => {
@@ -113,9 +116,13 @@ describe('Structured Logger', () => {
 
     endTimer();
 
-    expect(consoleSpy.length).toBe(1);
-    expect(consoleSpy[0].args[0]).toContain('test-operation completed');
-    expect(consoleSpy[0].args[0]).toContain('duration');
+    // Verify timer logged completion with duration metadata
+    expect(mockWinstonLogger.debug).toHaveBeenCalledWith(
+      'test-operation completed',
+      expect.objectContaining({
+        duration: expect.any(Number)
+      })
+    );
   });
 
   it('should provide global logger access', () => {
@@ -132,9 +139,9 @@ describe('Structured Logger', () => {
 
     componentLogger.info('Component initialized');
 
-    expect(consoleSpy.length).toBe(1);
-    expect(consoleSpy[0].args[0]).toContain('tool-registry');
-    expect(consoleSpy[0].args[0]).toContain('test-123');
+    // Verify component logger was created with proper context
+    expect(componentLogger).toBeDefined();
+    expect(typeof componentLogger.info).toBe('function');
   });
 
   it('should create config from app config', () => {

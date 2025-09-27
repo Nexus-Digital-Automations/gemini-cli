@@ -160,7 +160,7 @@ export class FileStorage implements ObservableStorage {
         error: error as Error,
       });
 
-      this.logger.error('Failed to initialize file storage', error as Error);
+      this.logger.error('Failed to initialize file storage', { error: error as Error });
 
       return {
         success: false,
@@ -294,7 +294,7 @@ export class FileStorage implements ObservableStorage {
         error: error as Error,
       });
 
-      this.logger.error('Failed to read usage data', error as Error);
+      this.logger.error('Failed to read usage data', { error: error as Error });
 
       return {
         success: false,
@@ -356,7 +356,7 @@ export class FileStorage implements ObservableStorage {
         error: error as Error,
       });
 
-      this.logger.error('Failed to write usage data', error as Error);
+      this.logger.error('Failed to write usage data', { error: error as Error });
 
       return {
         success: false,
@@ -520,7 +520,7 @@ export class FileStorage implements ObservableStorage {
 
       return { success: true };
     } catch (error) {
-      this.logger.error('Failed to clear budget data', error as Error);
+      this.logger.error('Failed to clear budget data', { error: error as Error });
 
       return {
         success: false,
@@ -585,7 +585,7 @@ export class FileStorage implements ObservableStorage {
         data: backupId,
       };
     } catch (error) {
-      this.logger.error('Failed to create backup', error as Error);
+      this.logger.error('Failed to create backup', { error: error as Error });
 
       return {
         success: false,
@@ -642,7 +642,7 @@ export class FileStorage implements ObservableStorage {
 
       return { success: true };
     } catch (error) {
-      this.logger.error('Failed to restore from backup', error as Error);
+      this.logger.error('Failed to restore from backup', { error: error as Error });
 
       return {
         success: false,
@@ -729,7 +729,7 @@ export class FileStorage implements ObservableStorage {
         try {
           listener(event);
         } catch (error) {
-          this.logger.warn('Event listener error', error as Error);
+          this.logger.warn('Event listener error', { error: error as Error });
         }
       }
     }
@@ -741,7 +741,7 @@ export class FileStorage implements ObservableStorage {
         try {
           listener(event);
         } catch (error) {
-          this.logger.warn('Event listener error', error as Error);
+          this.logger.warn('Event listener error', { error: error as Error });
         }
       }
     }
@@ -923,7 +923,7 @@ export class FileStorage implements ObservableStorage {
         }
       }
     } catch (error) {
-      this.logger.warn('Failed to cleanup old backups', error as Error);
+      this.logger.warn('Failed to cleanup old backups', { error: error as Error });
     }
   }
 }

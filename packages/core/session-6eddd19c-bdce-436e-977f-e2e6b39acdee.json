@@ -1,0 +1,18 @@
+{
+  "sessionId": "6eddd19c-bdce-436e-977f-e2e6b39acdee",
+  "startTime": "2025-09-26T18:53:44.388Z",
+  "endTime": "2025-09-26T18:53:44.542Z",
+  "lastActivity": "2025-09-26T18:53:44.388Z",
+  "state": "terminated",
+  "processInfo": {
+    "pid": 83989,
+    "platform": "darwin",
+    "nodeVersion": "v22.20.0"
+  },
+  "statistics": {
+    "tasksProcessed": 0,
+    "transactionsCommitted": 0,
+    "errorsEncountered": 1,
+    "totalOperations": 0
+  }
+}

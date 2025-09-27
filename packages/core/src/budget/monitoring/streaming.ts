@@ -808,7 +808,7 @@ export class RealTimeStreamingService extends EventEmitter {
 
     Promise.allSettled(promises).catch((error) => {
       this.logger.error('Failed to flush update buffer', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
         bufferSize: updates.length,
       });
     });
