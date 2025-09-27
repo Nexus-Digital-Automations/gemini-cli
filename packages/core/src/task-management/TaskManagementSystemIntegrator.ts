@@ -115,7 +115,7 @@ export interface SystemHealth {
 export interface SystemOperationResult {
   success: boolean;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
   timestamp: Date;
 }
 
@@ -151,17 +151,22 @@ export class TaskManagementSystemIntegrator {
       // Initialize persistence engine first (if enabled)
       if (this.config.persistence?.enabled !== false) {
         console.log('💾 Initializing persistence engine...');
-        this.persistence = new CrossSessionPersistenceEngine(
-          this.config.persistence?.storageLocation || '.task-management-data',
-          {
-            compressionEnabled:
-              this.config.persistence?.compressionEnabled ?? true,
-            encryptionEnabled:
-              this.config.persistence?.encryptionEnabled ?? false,
-            retentionDays: this.config.persistence?.retentionDays ?? 30,
-          },
-        );
-        await this.persistence.initialize();
+        this.persistence = new CrossSessionPersistenceEngine({
+          storageDir:
+            this.config.persistence?.storageLocation || '.task-management-data',
+          enableCompression:
+            this.config.persistence?.compressionEnabled ?? true,
+          enableMetrics: true,
+          maxBackupVersions: 5,
+        });
+        await this.persistence.initialize({
+          storageDir:
+            this.config.persistence?.storageLocation || '.task-management-data',
+          enableCompression:
+            this.config.persistence?.compressionEnabled ?? true,
+          enableMetrics: true,
+          maxBackupVersions: 5,
+        });
         this.shutdownHandlers.push(() => this.persistence!.shutdown());
       }
 
@@ -175,12 +180,7 @@ export class TaskManagementSystemIntegrator {
       // Initialize dependency resolver (if enabled)
       if (this.config.dependencies?.enableAnalysis !== false) {
         console.log('🔗 Initializing dependency resolver...');
-        this.dependencyResolver = new DependencyResolver({
-          maxResolutionDepth:
-            this.config.dependencies?.maxResolutionDepth ?? 10,
-          allowCircularDependencies:
-            this.config.dependencies?.allowCircularDependencies ?? false,
-        });
+        this.dependencyResolver = new DependencyResolver();
       }
 
       // Initialize task execution engine
@@ -335,7 +335,7 @@ export class TaskManagementSystemIntegrator {
       dependenciesHealth,
     ].filter((status) => status === 'healthy').length;
 
-    const totalComponents = 6;
+    const _totalComponents = 6;
     let overall: 'healthy' | 'warning' | 'critical';
 
     if (healthyComponents >= 4) {
@@ -379,7 +379,7 @@ export class TaskManagementSystemIntegrator {
   async queueTask(
     title: string,
     description: string,
-    options: any = {},
+    options: Record<string, unknown> & { useAutonomousQueue?: boolean } = {},
   ): Promise<SystemOperationResult> {
     if (!this.isInitialized) {
       throw new Error('System not initialized. Call initialize() first.');
