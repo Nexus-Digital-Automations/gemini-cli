@@ -21,6 +21,7 @@ export {
   WorkspaceComplexityAnalyzer,
   ToolComplexityAnalyzer,
   DependencyComplexityAnalyzer,
+  ComplexityAnalyzers,
 } from './complexity-analyzers.js';
 
 // TaskManager integration
