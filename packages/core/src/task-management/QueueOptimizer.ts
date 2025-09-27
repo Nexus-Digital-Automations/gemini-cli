@@ -8,10 +8,10 @@ import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
 import type {
   Task,
-  TaskPriority,
   TaskCategory,
   QueueMetrics,
 } from './TaskQueue.js';
+import { TaskPriority } from './types.js';
 import { TaskStatus } from './TaskQueue.js';
 import type {
   DependencyAnalysis,

@@ -15,26 +15,18 @@
 import { getComponentLogger } from '../utils/logger.js';
 import type {
   FixSuggestion,
-  FixStrategy,
-  FixTemplate,
-  FixValidation,
   ErrorAnalysis,
   ErrorAnalysisContext,
   LanguageSupport,
-  AutomatedFix,
-  FixComplexity,
+  FixTemplate,
+  FixValidation,
   FixResult,
-  CodeTransformation,
-  FixPriority,
-  FixConfidence,
-  FixCategory,
   CommandSuggestion,
+  CodeTransformation,
   ConfigurationFix,
   DependencyFix,
-  CodeSnippetFix,
-  QuickFix,
-  LearningFix,
 } from './types.js';
+import { FixCategory, FixPriority } from './types.js';
 
 import {
   ErrorAnalysisEngine,
@@ -627,6 +619,7 @@ export class FixSuggestionEngine {
       if (options.validateBeforeApply && !suggestion.validation?.isValid) {
         return {
           success: false,
+          message: 'Fix validation failed',
           error: 'Fix validation failed',
           appliedChanges: [],
           backupPath: undefined,
@@ -666,7 +659,7 @@ export class FixSuggestionEngine {
         case 'configuration':
           if (suggestion.configurationChange) {
             await this.applyConfigurationChange(
-              suggestion.configurationChange,
+              suggestion.configurationChange as any,
               options.dryRun,
             );
             appliedChanges.push('Applied configuration change');
@@ -676,7 +669,7 @@ export class FixSuggestionEngine {
         case 'dependency':
           if (suggestion.dependencyChange) {
             await this.applyDependencyChange(
-              suggestion.dependencyChange,
+              suggestion.dependencyChange as any,
               options.dryRun,
             );
             appliedChanges.push('Applied dependency change');
@@ -689,6 +682,7 @@ export class FixSuggestionEngine {
           });
           return {
             success: false,
+            message: `Unknown fix category: ${suggestion.category}`,
             error: `Unknown fix category: ${suggestion.category}`,
             appliedChanges: [],
             backupPath: undefined,
@@ -706,6 +700,7 @@ export class FixSuggestionEngine {
 
       return {
         success: true,
+        message: `Fix applied successfully with ${appliedChanges.length} changes`,
         appliedChanges,
         backupPath,
         duration,
@@ -714,6 +709,7 @@ export class FixSuggestionEngine {
       logger.error('Failed to apply fix', { error, fixId: suggestion.id });
       return {
         success: false,
+        message: error instanceof Error ? error.message : 'Unknown error',
         error: error instanceof Error ? error.message : 'Unknown error',
         appliedChanges: [],
         backupPath: undefined,
@@ -814,7 +810,7 @@ export class FixSuggestionEngine {
     const suggestions: FixSuggestion[] = [];
 
     for (const pattern of errorAnalysis.patterns) {
-      const templates = this.fixTemplates.get(pattern.patternId) || [];
+      const templates = this.fixTemplates.get(pattern.id) || [];
 
       for (const template of templates) {
         if (!this.isTemplateApplicable(template, errorAnalysis.context)) {
@@ -822,10 +818,10 @@ export class FixSuggestionEngine {
         }
 
         const suggestion: FixSuggestion = {
-          id: `pattern-fix-${pattern.patternId}-${template.id}`,
+          id: `pattern-fix-${pattern.id}-${template.id}`,
           title: template.title,
           description: template.description,
-          category: 'code-change',
+          category: FixCategory.CODE_CHANGE,
           priority: this.determinePriority(template, errorAnalysis),
           confidence: template.confidence,
           complexity: template.complexity,
@@ -834,18 +830,14 @@ export class FixSuggestionEngine {
           source: 'pattern-analysis',
           codeTransformation: template.codeTemplate
             ? {
-                type: 'template-based',
-                template: template.codeTemplate,
-                targetFile: errorAnalysis.context.filePath,
-                parameters: this.extractTemplateParameters(
-                  pattern,
-                  errorAnalysis,
-                ),
+                type: 'replace' as const,
+                target: errorAnalysis.context.filePath || '',
+                replacement: template.codeTemplate,
               }
             : undefined,
           validation: undefined, // Will be populated if validation is enabled
           metadata: {
-            patternId: pattern.patternId,
+            patternId: pattern.id,
             templateId: template.id,
             language: errorAnalysis.context.language,
           },
@@ -877,17 +869,17 @@ export class FixSuggestionEngine {
         id: 'quick-fix-semicolon',
         title: 'Add missing semicolon',
         description: 'Add semicolon at the end of the statement',
-        category: 'code-change',
-        priority: 'high',
+        category: FixCategory.CODE_CHANGE,
+        priority: FixPriority.HIGH,
         confidence: 0.95,
         complexity: 'simple',
         estimatedTime: '< 1 minute',
         tags: ['quick-fix', 'syntax'],
         source: 'quick-fix-generator',
         codeTransformation: {
-          type: 'simple-addition',
-          addition: ';',
-          position: 'end-of-line',
+          type: 'insert',
+          target: 'end-of-line',
+          replacement: ';',
         },
       });
     }
@@ -1188,7 +1180,7 @@ export class FixSuggestionEngine {
    * Extract parameters for template substitution
    */
   private extractTemplateParameters(
-    pattern: Record<string, unknown>,
+    pattern: ErrorPattern,
     errorAnalysis: ErrorAnalysis,
   ): Record<string, string> {
     const params: Record<string, string> = {};
@@ -1244,7 +1236,7 @@ export class FixSuggestionEngine {
    */
   private async rankSuggestions(
     suggestions: FixSuggestion[],
-    errorAnalysis: ErrorAnalysis,
+    _errorAnalysis: ErrorAnalysis,
   ): Promise<FixSuggestion[]> {
     return suggestions.sort((a, b) => {
       // Primary sort: priority (high > medium > low)

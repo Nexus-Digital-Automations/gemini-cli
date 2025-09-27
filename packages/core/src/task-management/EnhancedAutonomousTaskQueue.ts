@@ -19,6 +19,9 @@ import {
   type TaskExecutionResult,
   type QueueMetrics,
 } from './TaskQueue.js';
+
+// Re-export types for other files to import
+export type { QueueMetrics };
 import { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
 import { QueueOptimizer, OptimizationStrategy } from './QueueOptimizer.js';
 import {

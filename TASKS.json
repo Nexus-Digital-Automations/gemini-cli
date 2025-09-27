@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 17,
+      "total_reinitializations": 24,
       "current_day": "2025-09-27",
       "time_buckets": {
         "11:00-15:59": {
@@ -26,16 +26,16 @@
         },
         "02:00-06:59": {
           "init": 0,
-          "reinit": 6
+          "reinit": 11
         },
         "07:00-11:59": {
           "init": 0,
-          "reinit": 0
+          "reinit": 2
         }
       },
       "daily_history": [],
       "last_reset": "2025-09-27T05:00:57.747Z",
-      "last_updated": "2025-09-27T11:29:51.728Z"
+      "last_updated": "2025-09-27T12:09:34.216Z"
     }
   },
   "workflow_config": {
@@ -55,23 +55,41 @@
     ]
   },
   "agents": {
-    "AGENT_001": {
-      "lastHeartbeat": "2025-09-27T11:15:26.589Z",
+    "agent_build_fix": {
+      "lastHeartbeat": "2025-09-27T11:35:10.661Z",
       "status": "active",
-      "reinitialized": "2025-09-27T11:15:26.589Z",
-      "sessionId": "ebdb61e73e622255",
+      "reinitialized": "2025-09-27T11:35:10.661Z",
+      "sessionId": "0fcdee5a7f8ad18d",
       "previousSessions": [
-        "ce355b575dc4be5a"
+        "806b9ef1d7519da5",
+        "1fe3b6a4d3877467"
       ]
     },
-    "agent_build_fix": {
-      "lastHeartbeat": "2025-09-27T11:29:51.727Z",
+    "agent_typescript_fixes": {
+      "lastHeartbeat": "2025-09-27T11:55:17.997Z",
       "status": "active",
-      "reinitialized": "2025-09-27T11:29:51.727Z",
-      "sessionId": "1fe3b6a4d3877467",
+      "reinitialized": "2025-09-27T11:55:17.997Z",
+      "sessionId": "a6d95b339c0f3026",
       "previousSessions": [
-        "806b9ef1d7519da5"
+        "0e7f64b3234ccc9f",
+        "c71fcce2ffa14a2b"
       ]
+    },
+    "claude-code-agent": {
+      "lastHeartbeat": "2025-09-27T12:02:09.411Z",
+      "status": "active",
+      "reinitialized": "2025-09-27T12:02:09.411Z",
+      "sessionId": "2e9345fadd6a8b66",
+      "previousSessions": [
+        "56964d50a1287478"
+      ]
+    },
+    "claude_code_agent_001": {
+      "lastHeartbeat": "2025-09-27T12:09:34.214Z",
+      "status": "active",
+      "reinitialized": "2025-09-27T12:09:34.214Z",
+      "sessionId": "02d4488fa07934c6",
+      "previousSessions": []
     }
   },
   "tasks": [],

@@ -13,18 +13,13 @@
  */
 
 import { getComponentLogger } from '../utils/logger.js';
-import { ErrorSeverity } from './types.js';
+import { ErrorSeverity, ErrorType, SupportedLanguage, FixPriority, FixCategory, ImpactScope } from './types.js';
 import type {
   ErrorPattern,
-  ErrorPatternMatch,
   ErrorAnalysisContext,
-  ErrorCategory,
   LanguageSupport,
   PatternMatchResult,
-  ErrorSignature,
-  ErrorContext,
-  PatternMatchConfig,
-  ErrorFrequencyStats,
+  PatternStats,
   PatternLearningData,
   CommonErrorPattern,
 } from './types.js';
@@ -83,179 +78,344 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
   // JavaScript/TypeScript patterns
   {
     id: 'js-undefined-property',
+    name: 'JavaScript Undefined Property Access',
     pattern: /Cannot read propert(y|ies) of undefined/i,
     category: 'runtime',
-    language: 'javascript',
+    language: SupportedLanguage.JAVASCRIPT,
+    errorType: ErrorType.RUNTIME,
     description: 'Accessing property on undefined value',
     commonCauses: [
       'Uninitialized variable',
       'Missing null/undefined check',
       'Async operation not awaited',
     ],
+    suggestedFixes: [
+      {
+        id: 'fix-undefined-check',
+        description: 'Add null/undefined check',
+        explanation: 'Check if variable is defined before accessing properties',
+        codeChanges: [],
+        confidence: 0.9,
+        impact: {
+          scope: ImpactScope.FILE,
+          breakingChanges: false,
+          affectedFiles: [],
+          testsRequiringUpdates: [],
+          dependencyImpact: [],
+          performanceImpact: {
+            cpuImpact: 0,
+            memoryImpact: 0,
+            networkImpact: 0,
+            overallScore: 0,
+            description: 'Minimal performance impact'
+          }
+        },
+        prerequisites: ['Identify undefined variable'],
+        risks: ['May change program flow'],
+        estimatedTime: '5 minutes',
+        priority: FixPriority.HIGH,
+        category: FixCategory.QUICK_FIX
+      },
+    ],
     severity: ErrorSeverity.HIGH,
     confidence: 0.95,
+    frequency: 0.85,
+    lastSeen: new Date(),
+    tags: ['javascript', 'runtime', 'undefined', 'property'],
+    effectiveness: 0.9,
   },
   {
     id: 'ts-type-mismatch',
+    name: 'TypeScript Type Assignment Mismatch',
     pattern: /Type '.+' is not assignable to type '.+'/i,
     category: 'compile',
-    language: 'typescript',
+    language: SupportedLanguage.TYPESCRIPT,
+    errorType: ErrorType.TYPE_ERROR,
     description: 'Type assignment mismatch',
     commonCauses: [
       'Incorrect type annotation',
       'Missing type guards',
       'Union type not handled properly',
     ],
+    suggestedFixes: [
+      {
+        id: 'fix-type-annotation',
+        description: 'Fix type annotation',
+        explanation: 'Update type annotations to match expected types',
+        codeChanges: [],
+        confidence: 0.8,
+        impact: {
+          scope: ImpactScope.FILE,
+          breakingChanges: false,
+          affectedFiles: [],
+          testsRequiringUpdates: [],
+          dependencyImpact: [],
+          performanceImpact: {
+            cpuImpact: 0,
+            memoryImpact: 0,
+            networkImpact: 0,
+            overallScore: 0,
+            description: 'No performance impact'
+          }
+        },
+        prerequisites: ['TypeScript compiler available'],
+        risks: ['May require updating dependent code'],
+        estimatedTime: '10 minutes',
+        priority: FixPriority.HIGH,
+        category: FixCategory.QUICK_FIX
+      },
+    ],
     severity: ErrorSeverity.HIGH,
     confidence: 0.9,
+    frequency: 0.75,
+    lastSeen: new Date(),
+    tags: ['typescript', 'type', 'compile', 'assignment'],
+    effectiveness: 0.85,
   },
   {
     id: 'js-syntax-error',
+    name: 'JavaScript Syntax Error',
     pattern: /Unexpected token|Unexpected end of input/i,
     category: 'syntax',
-    language: 'javascript',
+    language: SupportedLanguage.JAVASCRIPT,
+    errorType: ErrorType.SYNTAX,
     description: 'JavaScript syntax error',
     commonCauses: [
       'Missing brackets or parentheses',
       'Incorrect operator usage',
       'Invalid object/array literal',
     ],
+    suggestedFixes: [
+      {
+        id: 'fix-syntax',
+        description: 'Fix syntax error',
+        explanation: 'Check for missing brackets, parentheses, or invalid syntax',
+        codeChanges: [],
+        confidence: 0.9,
+        impact: {
+          scope: ImpactScope.FILE,
+          breakingChanges: false,
+          affectedFiles: [],
+          testsRequiringUpdates: [],
+          dependencyImpact: [],
+          performanceImpact: {
+            cpuImpact: 0,
+            memoryImpact: 0,
+            networkImpact: 0,
+            overallScore: 0,
+            description: 'No performance impact'
+          }
+        },
+        prerequisites: ['Locate syntax error'],
+        risks: ['Code will not compile until fixed'],
+        estimatedTime: '2 minutes',
+        priority: FixPriority.IMMEDIATE,
+        category: FixCategory.QUICK_FIX
+      },
+    ],
     severity: ErrorSeverity.HIGH,
     confidence: 0.85,
+    frequency: 0.6,
+    lastSeen: new Date(),
+    tags: ['javascript', 'syntax', 'parsing'],
+    effectiveness: 0.95,
   },
 
   // Python patterns
   {
     id: 'python-import-error',
+    name: 'Python Module Import Error',
     pattern: /ModuleNotFoundError: No module named '.+'/i,
     category: 'import',
     language: 'python',
+    errorType: ErrorType.DEPENDENCY,
     description: 'Python module import error',
     commonCauses: [
       'Missing package installation',
       'Incorrect module path',
       'Virtual environment not activated',
     ],
+    suggestedFixes: [],
     severity: ErrorSeverity.HIGH,
     confidence: 0.95,
+    frequency: 0.7,
+    lastSeen: new Date(),
+    tags: ['python', 'import', 'module'],
+    effectiveness: 0.9,
   },
   {
     id: 'python-indentation-error',
+    name: 'Python Indentation Error',
     pattern: /IndentationError|unindent does not match/i,
     category: 'syntax',
     language: 'python',
+    errorType: ErrorType.SYNTAX,
     description: 'Python indentation error',
     commonCauses: [
       'Mixed tabs and spaces',
       'Incorrect indentation level',
       'Missing colon after control structure',
     ],
+    suggestedFixes: [],
     severity: ErrorSeverity.HIGH,
     confidence: 0.9,
+    frequency: 0.6,
+    lastSeen: new Date(),
+    tags: ['python', 'syntax', 'indentation'],
+    effectiveness: 0.95,
   },
   {
     id: 'python-attribute-error',
+    name: 'Python Attribute Error',
     pattern: /AttributeError: '.+' object has no attribute '.+'/i,
     category: 'runtime',
     language: 'python',
+    errorType: ErrorType.RUNTIME,
     description: 'Accessing non-existent attribute',
     commonCauses: [
       'Typo in attribute name',
       'Object not fully initialized',
       'Missing method or property',
     ],
+    suggestedFixes: [],
     severity: ErrorSeverity.HIGH,
     confidence: 0.85,
+    frequency: 0.8,
+    lastSeen: new Date(),
+    tags: ['python', 'runtime', 'attribute'],
+    effectiveness: 0.85,
   },
 
   // Java patterns
   {
     id: 'java-null-pointer',
+    name: 'Java Null Pointer Exception',
     pattern: /NullPointerException/i,
     category: 'runtime',
     language: 'java',
+    errorType: ErrorType.RUNTIME,
     description: 'Java null pointer exception',
     commonCauses: [
       'Uninitialized object reference',
       'Method called on null object',
       'Array not properly initialized',
     ],
+    suggestedFixes: [],
     severity: ErrorSeverity.HIGH,
     confidence: 0.95,
+    frequency: 0.9,
+    lastSeen: new Date(),
+    tags: ['java', 'runtime', 'null'],
+    effectiveness: 0.9,
   },
   {
     id: 'java-class-not-found',
+    name: 'Java Class Not Found Error',
     pattern: /ClassNotFoundException|NoClassDefFoundError/i,
     category: 'compile',
     language: 'java',
+    errorType: ErrorType.BUILD,
     description: 'Java class loading error',
     commonCauses: [
       'Missing dependency in classpath',
       'Incorrect package declaration',
       'Build configuration issue',
     ],
+    suggestedFixes: [],
     severity: ErrorSeverity.HIGH,
     confidence: 0.9,
+    frequency: 0.7,
+    lastSeen: new Date(),
+    tags: ['java', 'build', 'classpath'],
+    effectiveness: 0.85,
   },
 
   // Go patterns
   {
     id: 'go-undefined-variable',
+    name: 'Go Undefined Variable',
     pattern: /undefined: .+/i,
     category: 'compile',
     language: 'go',
+    errorType: ErrorType.BUILD,
     description: 'Go undefined variable or function',
     commonCauses: [
       'Missing import statement',
       'Typo in variable name',
       'Variable declared in different scope',
     ],
+    suggestedFixes: [],
     severity: ErrorSeverity.HIGH,
     confidence: 0.9,
+    frequency: 0.8,
+    lastSeen: new Date(),
+    tags: ['go', 'build', 'undefined'],
+    effectiveness: 0.9,
   },
   {
     id: 'go-interface-mismatch',
+    name: 'Go Interface Implementation Mismatch',
     pattern: /cannot use .+ as .+ in .+: missing method/i,
     category: 'compile',
     language: 'go',
+    errorType: ErrorType.TYPE_ERROR,
     description: 'Go interface implementation mismatch',
     commonCauses: [
       'Missing method implementation',
       'Incorrect method signature',
       'Receiver type mismatch',
     ],
+    suggestedFixes: [],
     severity: ErrorSeverity.HIGH,
     confidence: 0.85,
+    frequency: 0.6,
+    lastSeen: new Date(),
+    tags: ['go', 'interface', 'type'],
+    effectiveness: 0.8,
   },
 
   // Generic patterns
   {
     id: 'stack-overflow',
+    name: 'Stack Overflow Error',
     pattern: /StackOverflowError|RecursionError|stack overflow/i,
     category: 'runtime',
     language: 'generic',
+    errorType: ErrorType.RUNTIME,
     description: 'Stack overflow from excessive recursion',
     commonCauses: [
       'Infinite recursion',
       'Missing base case in recursive function',
       'Deep call chain',
     ],
+    suggestedFixes: [],
     severity: ErrorSeverity.CRITICAL,
     confidence: 0.95,
+    frequency: 0.3,
+    lastSeen: new Date(),
+    tags: ['generic', 'runtime', 'stack'],
+    effectiveness: 0.95,
   },
   {
     id: 'out-of-memory',
+    name: 'Out of Memory Error',
     pattern: /OutOfMemoryError|MemoryError|out of memory/i,
     category: 'runtime',
     language: 'generic',
+    errorType: ErrorType.MEMORY,
     description: 'Memory exhaustion error',
     commonCauses: [
       'Memory leak',
       'Large data structures',
       'Insufficient heap size',
     ],
+    suggestedFixes: [],
     severity: ErrorSeverity.CRITICAL,
     confidence: 0.9,
+    frequency: 0.2,
+    lastSeen: new Date(),
+    tags: ['generic', 'memory', 'runtime'],
+    effectiveness: 0.9,
   },
 ];
 
@@ -296,7 +456,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
 export class ErrorPatternRecognition {
   private config: ErrorPatternRecognitionConfig;
   private patterns: Map<string, ErrorPattern> = new Map();
-  private patternStats: Map<string, ErrorFrequencyStats> = new Map();
+  private patternStats: Map<string, PatternStats> = new Map();
   private learningData: PatternLearningData[] = [];
   private patternCache: Map<
     string,
@@ -479,7 +639,7 @@ export class ErrorPatternRecognition {
   /**
    * Get pattern statistics and effectiveness metrics
    */
-  getPatternStats(): Map<string, ErrorFrequencyStats> {
+  getPatternStats(): Map<string, PatternStats> {
     return new Map(this.patternStats);
   }
 
@@ -595,27 +755,19 @@ export class ErrorPatternRecognition {
     for (const builtinPattern of BUILTIN_ERROR_PATTERNS) {
       const pattern: ErrorPattern = {
         id: builtinPattern.id,
-        name: builtinPattern.description,
+        name: builtinPattern.name,
         description: builtinPattern.description,
-        category: builtinPattern.category,
-        language: builtinPattern.language,
-        matchers: [
-          {
-            type: 'regex',
-            pattern: builtinPattern.pattern.source,
-            flags: this.extractRegexFlags(builtinPattern.pattern),
-            weight: 1.0,
-          },
-        ],
-        metadata: {
-          commonCauses: builtinPattern.commonCauses,
-          severity: builtinPattern.severity,
-          confidence: builtinPattern.confidence,
-          builtin: true,
-        },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        version: 1,
+        pattern: builtinPattern.pattern,
+        language: builtinPattern.language as SupportedLanguage,
+        errorType: builtinPattern.errorType,
+        commonCauses: builtinPattern.commonCauses,
+        suggestedFixes: builtinPattern.suggestedFixes,
+        confidence: builtinPattern.confidence,
+        frequency: builtinPattern.frequency,
+        lastSeen: builtinPattern.lastSeen,
+        tags: builtinPattern.tags,
+        category: builtinPattern.category as any,
+        severity: builtinPattern.severity,
         isActive: true,
       };
 
@@ -697,35 +849,30 @@ export class ErrorPatternRecognition {
       // Filter by language if specified
       if (
         context.language &&
-        pattern.language !== 'generic' &&
+        pattern.language !== SupportedLanguage.GENERIC &&
         pattern.language !== context.language
       ) {
         continue;
       }
 
-      // Test each matcher in the pattern
-      for (const matcher of pattern.matchers) {
-        const matchResult = await this.testMatcher(errorText, matcher, context);
+      // Test the pattern directly
+      const matchResult = await this.testPattern(errorText, pattern, context);
 
-        if (matchResult.isMatch) {
-          const patternMatch: PatternMatchResult = {
-            patternId: pattern.id,
-            pattern,
-            confidence: matchResult.confidence * (matcher.weight || 1.0),
-            matchDetails: {
-              matchedText: matchResult.matchedText,
-              captureGroups: matchResult.captureGroups,
-              position: matchResult.position,
-              context: matchResult.context,
-            },
-            suggestions: this.generateSuggestions(pattern, matchResult),
-            severity: (pattern.metadata?.severity as ErrorSeverity) || 'medium',
-            category: pattern.category,
-          };
+      if (matchResult.isMatch) {
+        const patternMatch: PatternMatchResult = {
+          patternId: pattern.id,
+          pattern,
+          confidence: matchResult.confidence,
+          matches: matchResult.matchedText ? [matchResult.matchedText] : [],
+          location: matchResult.position ? {
+            start: matchResult.position.start,
+            end: matchResult.position.end,
+          } : undefined,
+          context: matchResult.context,
+          isMatch: true,
+        };
 
-          matches.push(patternMatch);
-          break; // Only need one successful matcher per pattern
-        }
+        matches.push(patternMatch);
       }
     }
 
@@ -733,12 +880,80 @@ export class ErrorPatternRecognition {
   }
 
   /**
-   * Test a single matcher against error text
+   * Test a pattern against error text
+   */
+  private async testPattern(
+    errorText: string,
+    pattern: ErrorPattern,
+    _context: ErrorAnalysisContext,
+  ): Promise<{
+    isMatch: boolean;
+    confidence: number;
+    matchedText?: string;
+    captureGroups?: string[];
+    position?: { start: number; end: number };
+    context?: Record<string, unknown>;
+  }> {
+    try {
+      if (pattern.pattern instanceof RegExp) {
+        const regex = pattern.pattern;
+        const match = regex.exec(errorText);
+
+        if (match) {
+          return {
+            isMatch: true,
+            confidence: this.calculateRegexConfidence(match, errorText),
+            matchedText: match[0],
+            captureGroups: match.slice(1),
+            position: {
+              start: match.index!,
+              end: match.index! + match[0].length,
+            },
+            context: { patternType: 'regex' },
+          };
+        }
+      } else if (typeof pattern.pattern === 'string') {
+        const searchText = pattern.pattern.toLowerCase();
+        const errorLower = errorText.toLowerCase();
+        const index = errorLower.indexOf(searchText);
+
+        if (index !== -1) {
+          return {
+            isMatch: true,
+            confidence: 0.8,
+            matchedText: errorText.substring(
+              index,
+              index + pattern.pattern.length,
+            ),
+            position: { start: index, end: index + pattern.pattern.length },
+            context: { patternType: 'string' },
+          };
+        }
+      }
+
+      return {
+        isMatch: false,
+        confidence: 0,
+      };
+    } catch (error) {
+      logger.error('Error testing pattern', {
+        error,
+        patternId: pattern.id,
+      });
+      return {
+        isMatch: false,
+        confidence: 0,
+      };
+    }
+  }
+
+  /**
+   * Test a single matcher against error text (legacy method)
    */
   private async testMatcher(
     errorText: string,
-    matcher: ErrorPattern['matchers'][0],
-    context: ErrorAnalysisContext,
+    matcher: Record<string, unknown>,
+    _context: ErrorAnalysisContext,
   ): Promise<{
     isMatch: boolean;
     confidence: number;
@@ -750,7 +965,9 @@ export class ErrorPatternRecognition {
     try {
       switch (matcher.type) {
         case 'regex': {
-          const regex = new RegExp(matcher.pattern, matcher.flags || 'gi');
+          const pattern = matcher.pattern as string;
+          const flags = (matcher.flags as string) || 'gi';
+          const regex = new RegExp(pattern, flags);
           const match = regex.exec(errorText);
 
           if (match) {
@@ -770,7 +987,8 @@ export class ErrorPatternRecognition {
         }
 
         case 'contains': {
-          const searchText = matcher.pattern.toLowerCase();
+          const pattern = matcher.pattern as string;
+          const searchText = pattern.toLowerCase();
           const errorLower = errorText.toLowerCase();
           const index = errorLower.indexOf(searchText);
 
@@ -780,24 +998,25 @@ export class ErrorPatternRecognition {
               confidence: 0.8,
               matchedText: errorText.substring(
                 index,
-                index + matcher.pattern.length,
+                index + pattern.length,
               ),
-              position: { start: index, end: index + matcher.pattern.length },
+              position: { start: index, end: index + pattern.length },
             };
           }
           break;
         }
 
         case 'startsWith': {
+          const pattern = matcher.pattern as string;
           const errorLower = errorText.toLowerCase().trim();
-          const patternLower = matcher.pattern.toLowerCase();
+          const patternLower = pattern.toLowerCase();
 
           if (errorLower.startsWith(patternLower)) {
             return {
               isMatch: true,
               confidence: 0.9,
-              matchedText: errorText.substring(0, matcher.pattern.length),
-              position: { start: 0, end: matcher.pattern.length },
+              matchedText: errorText.substring(0, pattern.length),
+              position: { start: 0, end: pattern.length },
             };
           }
           break;
@@ -897,17 +1116,17 @@ export class ErrorPatternRecognition {
    */
   private generateSuggestions(
     pattern: ErrorPattern,
-    matchResult: Record<string, unknown>,
+    _matchResult: Record<string, unknown>,
   ): string[] {
     const suggestions: string[] = [];
 
     // Add common causes as suggestions
     if (
-      pattern.metadata?.commonCauses &&
-      Array.isArray(pattern.metadata.commonCauses)
+      pattern.commonCauses &&
+      Array.isArray(pattern.commonCauses)
     ) {
       suggestions.push(
-        ...pattern.metadata.commonCauses.map((cause) => `Check for: ${cause}`),
+        ...pattern.commonCauses.map((cause) => `Check for: ${cause}`),
       );
     }
 
@@ -966,24 +1185,16 @@ export class ErrorPatternRecognition {
         id: patternId,
         name: `Learned: ${actualCause}`,
         description: `Learned pattern from user feedback: ${actualCause}`,
-        category: 'runtime', // Default category
-        language: 'generic',
-        matchers: [
-          {
-            type: 'regex',
-            pattern: generalizedPattern,
-            flags: 'i',
-            weight: 0.8, // Lower weight for learned patterns initially
-          },
-        ],
-        metadata: {
-          learned: true,
-          actualCause,
-          learnedFrom: errorText,
-        },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        version: 1,
+        pattern: new RegExp(generalizedPattern, 'i'),
+        language: SupportedLanguage.GENERIC,
+        errorType: ErrorType.RUNTIME,
+        commonCauses: [actualCause],
+        suggestedFixes: [],
+        confidence: 0.8,
+        frequency: 0.1,
+        lastSeen: new Date(),
+        tags: ['learned', 'user-feedback'],
+        category: 'runtime',
         isActive: true,
       };
 
@@ -1044,22 +1255,29 @@ export class ErrorPatternRecognition {
       throw new Error('Pattern must have id and name');
     }
 
-    if (!pattern.matchers || pattern.matchers.length === 0) {
-      throw new Error('Pattern must have at least one matcher');
+    if (!pattern.pattern) {
+      throw new Error('Pattern must have a pattern');
     }
 
-    for (const matcher of pattern.matchers) {
-      if (!matcher.type || !matcher.pattern) {
-        throw new Error('Matcher must have type and pattern');
+    // Validate regex patterns
+    if (pattern.pattern instanceof RegExp) {
+      try {
+        // Test that the regex is valid by creating a new instance
+        new RegExp(pattern.pattern);
+      } catch (error) {
+        throw new Error(`Invalid regex pattern: ${error}`);
       }
+    } else if (typeof pattern.pattern === 'string') {
+      if (pattern.pattern.length === 0) {
+        throw new Error('String pattern cannot be empty');
+      }
+    } else {
+      throw new Error('Pattern must be RegExp or string');
+    }
 
-      if (matcher.type === 'regex') {
-        try {
-          new RegExp(matcher.pattern, matcher.flags);
-        } catch (error) {
-          throw new Error(`Invalid regex pattern: ${error}`);
-        }
-      }
+    // Validate required properties
+    if (!pattern.language || !pattern.errorType) {
+      throw new Error('Pattern must have language and errorType');
     }
   }
 

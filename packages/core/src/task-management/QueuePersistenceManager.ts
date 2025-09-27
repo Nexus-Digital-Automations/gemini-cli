@@ -17,6 +17,7 @@ import type {
   QueueMetrics,
   TaskExecutionRecord,
 } from './TaskQueue.js';
+import { TaskStatus } from './types.js';
 
 /**
  * Queue persistence configuration
@@ -198,13 +199,13 @@ export class QueuePersistenceManager extends EventEmitter {
         metadata: {
           totalTasks: tasks.size,
           runningTasks: Array.from(tasks.values()).filter(
-            (t) => t.status === 'RUNNING',
+            (t) => t.status === TaskStatus.RUNNING,
           ).length,
           completedTasks: Array.from(tasks.values()).filter(
-            (t) => t.status === 'COMPLETED',
+            (t) => t.status === TaskStatus.COMPLETED,
           ).length,
           failedTasks: Array.from(tasks.values()).filter(
-            (t) => t.status === 'FAILED',
+            (t) => t.status === TaskStatus.FAILED,
           ).length,
           queueHealth: this.assessQueueHealth(tasks, metrics),
           saveReason,
@@ -294,7 +295,7 @@ export class QueuePersistenceManager extends EventEmitter {
       // Validate snapshot integrity
       const validationResult = await this.validateSnapshot(snapshot);
       if (!validationResult.isValid) {
-        logger().error('Snapshot validation failed:', validationResult.errors);
+        logger().error('Snapshot validation failed:', { errors: validationResult.errors });
         throw new Error(
           `Invalid snapshot: ${validationResult.errors.join(', ')}`,
         );
@@ -553,7 +554,7 @@ export class QueuePersistenceManager extends EventEmitter {
           } else {
             logger().warn(
               `Skipping invalid snapshot ${file}:`,
-              validation.errors,
+              { errors: validation.errors },
             );
           }
         }
@@ -733,7 +734,7 @@ export class QueuePersistenceManager extends EventEmitter {
         try {
           const snapshot = await this.loadSpecificSnapshot(snapshotInfo.id);
           const runningTasks = snapshot.tasks.filter(
-            (t) => t.status === 'RUNNING',
+            (t) => t.status === TaskStatus.RUNNING,
           );
 
           for (const task of runningTasks) {

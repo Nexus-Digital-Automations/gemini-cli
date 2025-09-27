@@ -17,7 +17,7 @@ import type {
   TaskDependency,
 } from './TaskQueue.js';
 import type { TaskId } from './types.js';
-import { _TaskResult } from './types.js';
+import type { TaskResult } from './types.js';
 import type { LifecycleContext, LifecycleEvent } from './TaskLifecycle.js';
 
 /**

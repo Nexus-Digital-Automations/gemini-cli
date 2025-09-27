@@ -12,6 +12,9 @@ import { logger as getLogger } from '../utils/logger.js';
 import type { TaskMetadata } from './types.js';
 import { TaskPriority, TaskStatus, TaskCategory } from './types.js';
 
+// Re-export enums for other files to import
+export { TaskPriority, TaskStatus, TaskCategory };
+
 const logger = getLogger();
 
 /**
@@ -180,10 +183,13 @@ export interface QueueMetrics {
   runningTasks: number;
   completedTasks: number;
   failedTasks: number;
+  activeTasks: number;
+  tasksProcessed: number;
   averageWaitTime: number;
   averageExecutionTime: number;
   throughputPerHour: number;
   successRate: number;
+  totalProcessingTime?: number;
   priorityDistribution: Record<TaskPriority, number>;
   categoryDistribution: Record<TaskCategory, number>;
 }
@@ -225,6 +231,8 @@ export class TaskQueue extends EventEmitter {
     runningTasks: 0,
     completedTasks: 0,
     failedTasks: 0,
+    activeTasks: 0,
+    tasksProcessed: 0,
     averageWaitTime: 0,
     averageExecutionTime: 0,
     throughputPerHour: 0,

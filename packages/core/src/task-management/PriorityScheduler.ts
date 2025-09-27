@@ -7,16 +7,14 @@
 import { EventEmitter } from 'node:events';
 import { logger } from '../utils/logger.js';
 import type { Task, TaskCategory } from './TaskQueue.js';
-import {
-  TaskPriority,
-  TaskStatus as _TaskStatus,
-  PriorityFactors as _PriorityFactors,
-  SchedulingFactors as _SchedulingFactors,
-  ExecutionSequence as _ExecutionSequence,
-  DependencyGraph as _DependencyGraph,
-  ResourceAllocation as _ResourceAllocation,
-  ExecutionPlan as _ExecutionPlan,
-} from './TaskQueue.js';
+import { TaskPriority } from './types.js';
+import type {
+  SchedulingFactors,
+  ExecutionSequence,
+  DependencyGraph,
+  ResourceAllocation,
+  ExecutionPlan,
+} from './types.js';
 import type { TaskId } from './types.js';
 
 /**

@@ -70,6 +70,7 @@ export enum SupportedLanguage {
   RUBY = 'ruby',
   SHELL = 'shell',
   SQL = 'sql',
+  GENERIC = 'generic',
   UNKNOWN = 'unknown',
 }
 
@@ -161,6 +162,16 @@ export interface FixSuggestion {
   priority: FixPriority;
   /** Category of fix */
   category: FixCategory;
+  /** Fix validation criteria */
+  validation?: FixValidation;
+  /** Code transformation instructions */
+  codeTransformation?: CodeTransformation;
+  /** Command to execute for fix */
+  command?: CommandSuggestion;
+  /** Configuration changes */
+  configurationChange?: unknown;
+  /** Dependency changes */
+  dependencyChange?: unknown;
 }
 
 /**
@@ -186,6 +197,8 @@ export enum FixCategory {
   PERFORMANCE = 'performance',
   SECURITY = 'security',
   TESTING = 'testing',
+  CODE_CHANGE = 'code-change',
+  COMMAND = 'command',
 }
 
 /**
@@ -298,6 +311,8 @@ export interface ErrorPattern {
   category?: ErrorCategory;
   /** Error severity */
   severity?: ErrorSeverity;
+  /** Whether the pattern is active */
+  isActive?: boolean;
 }
 
 /**
@@ -1622,6 +1637,168 @@ export interface CommonErrorPattern extends ErrorPattern {
 }
 
 /**
+ * Pattern statistics for tracking effectiveness and usage
+ */
+export interface PatternStats {
+  /** Pattern identifier */
+  patternId: string;
+  /** Number of times pattern has matched */
+  matchCount: number;
+  /** Number of successful matches */
+  successfulMatches: number;
+  /** Number of false positive matches */
+  falsePositives: number;
+  /** Last time pattern was matched */
+  lastMatched: Date;
+  /** Average confidence score */
+  averageConfidence: number;
+  /** Overall effectiveness score (0-1) */
+  effectiveness: number;
+}
+
+/**
  * Error frequency statistics (alias for ErrorFrequencyData)
  */
 export type ErrorFrequencyStats = ErrorFrequencyData;
+
+/**
+ * Fix template for automated error resolution
+ */
+export interface FixTemplate {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  complexity: string;
+  confidence?: number;
+  codeTemplate?: string;
+  commandTemplate?: string;
+  fileTemplate?: string | { path: string; content: string };
+  applicableLanguages?: string[];
+  placeholders?: Record<string, string>;
+  validation?: FixValidation;
+  dependencies?: string[];
+  estimatedTime?: string;
+  requirements?: string[];
+  tags?: string[];
+}
+
+/**
+ * Fix validation criteria
+ */
+export interface FixValidation {
+  required: boolean;
+  testCommand?: string;
+  expectedOutput?: string;
+  conditions?: string[];
+  isValid?: boolean;
+}
+
+/**
+ * Command suggestion for fixes
+ */
+export interface CommandSuggestion {
+  command: string;
+  description: string;
+  args?: string[];
+  workingDirectory?: string;
+  platforms?: string[];
+}
+
+/**
+ * Fix result after applying fix
+ */
+export interface FixResult {
+  success: boolean;
+  message: string;
+  details?: Record<string, unknown>;
+  errors?: string[];
+  error?: string;
+  appliedChanges?: unknown[];
+  backupPath?: string;
+  duration?: number;
+}
+
+/**
+ * Automated fix configuration
+ */
+export interface AutomatedFix {
+  id: string;
+  enabled: boolean;
+  confidence: number;
+  validation: FixValidation;
+}
+
+/**
+ * Fix complexity levels
+ */
+export type FixComplexity = 'simple' | 'moderate' | 'complex' | 'expert';
+
+/**
+ * Code transformation instructions
+ */
+export interface CodeTransformation {
+  type: 'replace' | 'insert' | 'delete' | 'move';
+  target: string;
+  replacement?: string;
+  position?: number;
+}
+
+/**
+ * Fix confidence level
+ */
+export type FixConfidence = 'low' | 'medium' | 'high' | 'very-high';
+
+/**
+ * Configuration fix
+ */
+export interface ConfigurationFix {
+  file: string;
+  changes: Record<string, unknown>;
+}
+
+/**
+ * Dependency fix
+ */
+export interface DependencyFix {
+  package: string;
+  action: 'install' | 'update' | 'remove';
+  version?: string;
+}
+
+/**
+ * Code snippet fix
+ */
+export interface CodeSnippetFix {
+  language: string;
+  code: string;
+  description: string;
+}
+
+/**
+ * Quick fix action
+ */
+export interface QuickFix {
+  id: string;
+  title: string;
+  action: () => Promise<void>;
+}
+
+/**
+ * Learning fix that improves over time
+ */
+export interface LearningFix {
+  pattern: string;
+  effectiveness: number;
+  lastUsed: Date;
+}
+
+/**
+ * Fix strategy for different error types
+ */
+export interface FixStrategy {
+  errorType: ErrorType;
+  priority: number;
+  templates: FixTemplate[];
+  automated: boolean;
+}

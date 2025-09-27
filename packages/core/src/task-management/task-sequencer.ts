@@ -12,7 +12,7 @@ import type {
   ResourceAllocation,
   TaskQueueConfig,
 } from './types.js';
-import { TaskPriority, TaskStatus, ResourceConstraint } from './types.js';
+import { TaskPriority } from './types.js';
 import type { DependencyGraphManager } from './dependency-graph.js';
 import { getComponentLogger } from '../utils/logger.js';
 
@@ -33,6 +33,25 @@ export class TaskSequencer {
     this.dependencyGraph = dependencyGraph;
     this.resourcePools = new Map(config.resourcePools);
     this.config = config;
+  }
+
+  /**
+   * Convert TaskPriority enum to priority order string
+   */
+  private getPriorityString(priority: TaskPriority): 'critical' | 'high' | 'medium' | 'low' {
+    switch (priority) {
+      case TaskPriority.CRITICAL:
+        return 'critical';
+      case TaskPriority.HIGH:
+        return 'high';
+      case TaskPriority.NORMAL:
+      case TaskPriority.MEDIUM:
+        return 'medium';
+      case TaskPriority.LOW:
+      case TaskPriority.BACKGROUND:
+      default:
+        return 'low';
+    }
   }
 
   /**
@@ -78,8 +97,8 @@ export class TaskSequencer {
 
     // Sort by priority, then by creation time
     taskArray.sort((a, b) => {
-      const aPriorityIndex = priorityOrder.indexOf(a.priority);
-      const bPriorityIndex = priorityOrder.indexOf(b.priority);
+      const aPriorityIndex = priorityOrder.indexOf(this.getPriorityString(a.priority));
+      const bPriorityIndex = priorityOrder.indexOf(this.getPriorityString(b.priority));
 
       if (aPriorityIndex !== bPriorityIndex) {
         return aPriorityIndex - bPriorityIndex;
@@ -188,8 +207,8 @@ export class TaskSequencer {
 
       // If efficiency is similar, use priority
       const priorityOrder = ['critical', 'high', 'medium', 'low'] as const;
-      const aPriorityIndex = priorityOrder.indexOf(a.priority);
-      const bPriorityIndex = priorityOrder.indexOf(b.priority);
+      const aPriorityIndex = priorityOrder.indexOf(this.getPriorityString(a.priority));
+      const bPriorityIndex = priorityOrder.indexOf(this.getPriorityString(b.priority));
 
       return aPriorityIndex - bPriorityIndex;
     });
@@ -518,8 +537,8 @@ export class TaskSequencer {
     return tasks.sort((a, b) => {
       // Sort by priority first
       const priorityOrder = ['critical', 'high', 'medium', 'low'] as const;
-      const aPriorityIndex = priorityOrder.indexOf(a.priority);
-      const bPriorityIndex = priorityOrder.indexOf(b.priority);
+      const aPriorityIndex = priorityOrder.indexOf(this.getPriorityString(a.priority));
+      const bPriorityIndex = priorityOrder.indexOf(this.getPriorityString(b.priority));
 
       if (aPriorityIndex !== bPriorityIndex) {
         return aPriorityIndex - bPriorityIndex;

@@ -7,12 +7,12 @@
 import type {
   TaskId,
   Task,
-  TaskStatus,
   TaskResult,
   ExecutionPlan,
   TaskQueueConfig,
   ResourceAllocation,
 } from './types.js';
+import { TaskStatus } from './types.js';
 import { DependencyManager } from './dependency-manager.js';
 import { getComponentLogger } from '../utils/logger.js';
 import type {
@@ -114,7 +114,7 @@ export class IntelligentTaskQueue {
 
     const context: TaskExecutionContext = {
       taskId: task.id,
-      task: { ...task, status: 'pending' },
+      task: { ...task, status: TaskStatus.PENDING },
       startTime: new Date(),
       dependencies: dependencies.map((dep) => dep.dependsOnTaskId),
       dependents,
@@ -160,7 +160,7 @@ export class IntelligentTaskQueue {
     const completedResult = this.completedTasks.get(taskId);
     if (completedResult) {
       return {
-        status: completedResult.success ? 'completed' : 'failed',
+        status: completedResult.success ? TaskStatus.COMPLETED : TaskStatus.FAILED,
       };
     }
 
@@ -168,7 +168,7 @@ export class IntelligentTaskQueue {
     const activeContext = this.activeExecutions.get(taskId);
     if (activeContext) {
       return {
-        status: 'in_progress',
+        status: TaskStatus.IN_PROGRESS,
         dependencies: activeContext.dependencies,
       };
     }
@@ -177,7 +177,7 @@ export class IntelligentTaskQueue {
     const queueContext = this.executionQueue.get(taskId);
     if (queueContext) {
       const blockedBy = this.getBlockingDependencies(taskId);
-      const status: TaskStatus = blockedBy.length > 0 ? 'blocked' : 'ready';
+      const status: TaskStatus = blockedBy.length > 0 ? TaskStatus.BLOCKED : TaskStatus.QUEUED;
 
       return {
         status,
@@ -187,7 +187,7 @@ export class IntelligentTaskQueue {
       };
     }
 
-    return { status: 'pending' };
+    return { status: TaskStatus.PENDING };
   }
 
   /**

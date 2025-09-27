@@ -173,16 +173,16 @@ export class TaskExecutionEngine {
       metrics: data.metrics
         ? {
             ...(data.metrics as Record<string, unknown>),
-            startTime: new Date((data.metrics as any).startTime),
-            endTime: (data.metrics as any).endTime
-              ? new Date((data.metrics as any).endTime)
+            startTime: new Date((data.metrics as Record<string, unknown>).startTime as string | number | Date),
+            endTime: (data.metrics as Record<string, unknown>).endTime
+              ? new Date((data.metrics as Record<string, unknown>).endTime as string | number | Date)
               : undefined,
-            durationMs: (data.metrics as any).durationMs || 0,
-            tokenUsage: (data.metrics as any).tokenUsage || 0,
-            toolCallsCount: (data.metrics as any).toolCallsCount || 0,
-            subAgentCount: (data.metrics as any).subAgentCount || 0,
-            errorCount: (data.metrics as any).errorCount || 0,
-            retryCount: (data.metrics as any).retryCount || 0,
+            durationMs: Number((data.metrics as Record<string, unknown>).durationMs) || 0,
+            tokenUsage: Number((data.metrics as Record<string, unknown>).tokenUsage) || 0,
+            toolCallsCount: Number((data.metrics as Record<string, unknown>).toolCallsCount) || 0,
+            subAgentCount: Number((data.metrics as Record<string, unknown>).subAgentCount) || 0,
+            errorCount: Number((data.metrics as Record<string, unknown>).errorCount) || 0,
+            retryCount: Number((data.metrics as Record<string, unknown>).retryCount) || 0,
           }
         : undefined,
     };

@@ -142,6 +142,31 @@ export interface TaskMetadata {
   tags?: string[];
   /** Custom metadata */
   custom?: Record<string, unknown>;
+  /** ML predictions for task execution */
+  mlPredictions?: {
+    complexity: number;
+    duration: number;
+    resources: number;
+    failureRisk: number;
+    predictionTimestamp: Date;
+    modelVersion: string;
+  };
+  /** Deferred execution settings */
+  deferred?: {
+    deferredUntil: Date;
+    reason: string;
+    originalPriority: string;
+  };
+  /** Whether this task can be parallelized */
+  parallelizable?: boolean;
+  /** Parallel execution group identifier */
+  parallelGroup?: string;
+  /** Resource rebalancing settings */
+  resourceRebalance?: {
+    enabled: boolean;
+    threshold: number;
+    target: string;
+  };
 }
 
 /**
@@ -208,6 +233,8 @@ export interface Task {
   createdAt?: Date;
   /** Task last update timestamp */
   updatedAt?: Date;
+  /** Function to execute the task */
+  executeFunction?: (task: Task, context: Record<string, unknown>) => Promise<{ success: boolean; result?: unknown; duration: number; error?: Error; metadata?: Record<string, unknown>; artifacts?: string[]; nextTasks?: Array<Partial<Task>> }>;
 }
 
 /**

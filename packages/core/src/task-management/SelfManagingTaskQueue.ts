@@ -411,7 +411,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     } catch (error) {
       logger.error('Failed to add task with advanced intelligence', {
         title: taskDefinition.title,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
 
       throw error;
@@ -464,6 +464,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
           },
         },
         priorityFactors: {
+          age: 0, // New task starts with age 0
+          userImportance: 0.5, // Default user importance
+          dependencyWeight: 0, // Default dependency weight
           ...(taskDefinition.priorityFactors || {}),
           systemCriticality: 1.0 - failurePrediction.probability * 0.5,
           resourceAvailability: this.calculateResourceAvailability(
@@ -477,7 +480,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         'ML prediction enhancement failed, using original task definition',
         {
           title: taskDefinition.title,
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         },
       );
 
@@ -546,12 +549,17 @@ export class SelfManagingTaskQueue extends EventEmitter {
       Pick<Task, 'title' | 'description' | 'executeFunction'> = {
       ...taskDefinition,
       id: taskId,
+      title: taskDefinition.title || 'Deferred Task',
+      description: taskDefinition.description || 'Task queued for later execution',
+      executeFunction: taskDefinition.executeFunction || (async () => ({ success: true, result: undefined, duration: 0 })),
       priority: TaskPriority.BACKGROUND, // Lower priority for deferred tasks
       metadata: {
         ...taskDefinition.metadata,
-        deferred: true,
-        deferralReason: reason,
-        deferredAt: new Date(),
+        deferred: {
+          deferredUntil: new Date(Date.now() + 60000), // Default to 1 minute from now
+          reason: reason,
+          originalPriority: String(taskDefinition.priority || TaskPriority.MEDIUM),
+        },
       },
     };
 
@@ -688,7 +696,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
       logger.info('ML models initialized for predictions');
     } catch (error) {
       logger.warn('Failed to initialize ML models', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
 
       this.config.enableMLBasedPredictions = false;
@@ -743,7 +751,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
           await this.performIntelligentOptimization();
         } catch (error) {
           logger.warn('Continuous optimization failed', {
-            error: error instanceof Error ? error.message : String(error),
+            error: error instanceof Error ? error : new Error(String(error)),
           });
         }
       }, this.config.optimizationIntervalMs);
@@ -756,7 +764,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
           await this.persistQueueState();
         } catch (error) {
           logger.warn('State persistence failed', {
-            error: error instanceof Error ? error.message : String(error),
+            error: error instanceof Error ? error : new Error(String(error)),
           });
         }
       }, this.config.persistenceIntervalMs);
@@ -769,7 +777,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
           await this.performAdaptiveLoadBalancing();
         } catch (error) {
           logger.warn('Adaptive load balancing failed', {
-            error: error instanceof Error ? error.message : String(error),
+            error: error instanceof Error ? error : new Error(String(error)),
           });
         }
       }, 45000); // Every 45 seconds
@@ -781,7 +789,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         await this.performHealthCheck();
       } catch (error) {
         logger.warn('Health check failed', {
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }, 30000); // Every 30 seconds
@@ -882,7 +890,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         logger.info('Final state persisted successfully');
       } catch (error) {
         logger.warn('Failed to persist final state', {
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }
