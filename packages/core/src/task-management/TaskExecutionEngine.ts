@@ -16,13 +16,17 @@ import type {
   Task as BaseTask,
 } from './types.js';
 import { TaskComplexity } from './types.js';
+import { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 import {
   SubAgentScope,
   ContextState,
   SubagentTerminateMode,
 } from '../core/subagent.js';
 import { CoreToolScheduler as _CoreToolScheduler } from '../core/coreToolScheduler.js';
-import { Turn as _Turn, type ToolCallRequestInfo as _ToolCallRequestInfo } from '../core/turn.js';
+import {
+  Turn as _Turn,
+  type ToolCallRequestInfo as _ToolCallRequestInfo,
+} from '../core/turn.js';
 import { GeminiChat as _GeminiChat } from '../core/geminiChat.js';
 import { getEnvironmentContext as _getEnvironmentContext } from '../utils/environmentContext.js';
 import * as _fs from 'node:fs/promises';
@@ -340,7 +344,10 @@ export class TaskBreakdownAnalyzer {
     const dependencies = this.parseDependencies(
       outputs.dependencies_json || '[]',
     );
-    const estimatedDurationMinutes = parseInt(outputs.total_duration || '60', 10);
+    const estimatedDurationMinutes = parseInt(
+      outputs.total_duration || '60',
+      10,
+    );
     const requiredCapabilities = JSON.parse(
       outputs.required_capabilities || '[]',
     );
@@ -465,7 +472,9 @@ Focus on creating a practical, executable breakdown that enables efficient auton
   private parseSubtasks(subtasksJson: string): Task[] {
     try {
       const subtaskData = JSON.parse(subtasksJson);
-      return subtaskData.map((data: Record<string, unknown>) => this.createTaskFromData(data));
+      return subtaskData.map((data: Record<string, unknown>) =>
+        this.createTaskFromData(data),
+      );
     } catch (error) {
       console.error('Error parsing subtasks JSON:', error);
       return [];
@@ -685,7 +694,10 @@ export class TaskExecutionEngine {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      this.handleTaskError(task, `Breakdown analysis failed: ${errorMessage}`);
+      await this.handleTaskFailure(
+        task,
+        `Breakdown analysis failed: ${errorMessage}`,
+      );
     }
   }
 
@@ -697,13 +709,20 @@ export class TaskExecutionEngine {
     if (!task) return;
 
     // Check if all dependencies are satisfied
-    if (!this.areDependenciesSatisfied(taskId)) {
+    if (
+      !TaskExecutionUtils.areDependenciesSatisfied(
+        taskId,
+        this.taskQueue,
+        this.completedTasks,
+        this.taskDependencies,
+      )
+    ) {
       // Task will be rescheduled when dependencies complete
       return;
     }
 
     // Check resource availability
-    if (this.runningTasks.size >= this.getMaxConcurrentTasks()) {
+    if (this.runningTasks.size >= TaskExecutionUtils.getMaxConcurrentTasks()) {
       // Will be rescheduled when resources become available
       return;
     }
@@ -735,14 +754,14 @@ export class TaskExecutionEngine {
 
       // Create execution context
       const context = new ContextState();
-      this.populateExecutionContext(task, context);
+      TaskExecutionUtils.populateExecutionContext(task, context);
 
       // Create SubAgent for task execution
       const executionAgent = await SubAgentScope.create(
         `task-executor-${task.type}`,
         this.config,
         {
-          systemPrompt: this.generateExecutionPrompt(task),
+          systemPrompt: TaskExecutionUtils.generateExecutionPrompt(task),
         },
         {
           model: this.config.getModel(),
@@ -755,14 +774,14 @@ export class TaskExecutionEngine {
         },
         {
           toolConfig: {
-            tools: this.getToolsForTask(task),
+            tools: TaskExecutionUtils.getToolsForTask(task),
           },
           outputConfig: {
             outputs: task.expectedOutputs,
           },
           onMessage: (message) => {
             // Update progress based on message analysis
-            this.updateTaskProgress(task, message);
+            TaskExecutionUtils.updateTaskProgress(task, message);
           },
         },
       );
@@ -772,7 +791,12 @@ export class TaskExecutionEngine {
         toolRegistry: this.toolRegistry,
         config: this.config,
         parentContext: context,
-        dependencies: this.getDependencyTasks(taskId),
+        dependencies: TaskExecutionUtils.getDependencyTasks(
+          taskId,
+          this.taskQueue,
+          this.completedTasks,
+          this.taskDependencies,
+        ),
         availableAgents: [], // TODO: Implement agent discovery
       };
 
@@ -802,7 +826,12 @@ export class TaskExecutionEngine {
         this.onTaskComplete?.(task);
 
         // Schedule dependent tasks
-        await this.scheduleDependentTasks(taskId);
+        await TaskExecutionUtils.scheduleDependentTasks(
+          taskId,
+          this.taskQueue,
+          this.taskDependencies,
+          (taskId: string) => this.scheduleTaskExecution(taskId),
+        );
       } else {
         // Task failed or timed out
         const errorMessage = `Task terminated with reason: ${result.terminate_reason}`;
@@ -836,14 +865,20 @@ export class TaskExecutionEngine {
       this.updateTaskStatus(task, TaskStatus.QUEUED);
       setTimeout(() => {
         this.scheduleTaskExecution(task.id);
-      }, this.getRetryDelayMs(task.retryCount));
+      }, TaskExecutionUtils.getRetryDelayMs(task.retryCount));
     } else {
       // Max retries exceeded, mark as failed
       this.updateTaskStatus(task, TaskStatus.FAILED);
       this.onTaskFailed?.(task, errorMessage);
 
       // Handle dependent tasks (cancel or reschedule)
-      await this.handleDependentTasksOnFailure(task.id);
+      await TaskExecutionUtils.handleDependentTasksOnFailure(
+        task.id,
+        this.taskQueue,
+        this.taskDependencies,
+        (task, status) => this.updateTaskStatus(task, status),
+        (task, error) => this.handleTaskFailure(task, error),
+      );
     }
   }
 
