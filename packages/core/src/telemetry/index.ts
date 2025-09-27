@@ -42,8 +42,10 @@ export {
   logChatCompression,
   logToolOutputTruncated,
   logExtensionEnable,
+  logExtensionDisable,
   logExtensionInstallEvent,
   logExtensionUninstall,
+  logModelSlashCommand,
 } from './loggers.js';
 export type { SlashCommandEvent, ChatCompressionEvent } from './types.js';
 export {
@@ -59,6 +61,9 @@ export {
   ConversationFinishedEvent,
   KittySequenceOverflowEvent,
   ToolOutputTruncatedEvent,
+  ExtensionEnableEvent,
+  ExtensionDisableEvent,
+  ModelSlashCommandEvent,
 } from './types.js';
 export { makeSlashCommandEvent, makeChatCompressionEvent } from './types.js';
 export type { TelemetryEvent } from './types.js';

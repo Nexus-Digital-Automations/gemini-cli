@@ -931,8 +931,8 @@ export class ConflictResolver extends EventEmitter {
     type: ConflictType,
     participants: ConflictParticipant[],
   ): string[] {
-    const tags = [type];
-    tags.push(...participants.map((p) => p.type));
+    const tags = [type as string];
+    tags.push(...participants.map((p) => p.type as string));
     return [...new Set(tags)]; // Remove duplicates
   }
 

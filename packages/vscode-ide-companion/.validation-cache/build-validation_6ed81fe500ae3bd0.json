@@ -1,0 +1,10 @@
+{
+  "criterion": "build-validation",
+  "cacheKey": "6ed81fe500ae3bd0",
+  "result": {
+    "success": true,
+    "details": "Building passed with command: npm run build"
+  },
+  "timestamp": 1758977157199,
+  "originalDuration": 1926
+}

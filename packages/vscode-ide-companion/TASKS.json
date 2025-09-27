@@ -1,0 +1,56 @@
+{
+  "project": "vscode-ide-companion",
+  "features": [],
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-09-27T12:44:36.000Z",
+    "updated": "2025-09-27T12:44:36.000Z",
+    "total_features": 0,
+    "approval_history": [],
+    "initialization_stats": {
+      "total_initializations": 0,
+      "total_reinitializations": 1,
+      "current_day": "2025-09-27",
+      "time_buckets": {
+        "11:00-15:59": {
+          "init": 0,
+          "reinit": 0
+        },
+        "16:00-20:59": {
+          "init": 0,
+          "reinit": 0
+        },
+        "21:00-01:59": {
+          "init": 0,
+          "reinit": 0
+        },
+        "02:00-06:59": {
+          "init": 0,
+          "reinit": 0
+        },
+        "07:00-11:59": {
+          "init": 0,
+          "reinit": 1
+        }
+      },
+      "daily_history": [],
+      "last_reset": "2025-09-27T12:44:36.007Z",
+      "last_updated": "2025-09-27T12:44:36.007Z"
+    }
+  },
+  "workflow_config": {
+    "require_approval": true,
+    "auto_reject_timeout_hours": 168,
+    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
+    "required_fields": ["title", "description", "business_value", "category"]
+  },
+  "agents": {
+    "AGENT_BUILD_FIX": {
+      "lastHeartbeat": "2025-09-27T12:44:36.001Z",
+      "status": "active",
+      "reinitialized": "2025-09-27T12:44:36.001Z",
+      "sessionId": "d193d4808629575a",
+      "previousSessions": []
+    }
+  }
+}

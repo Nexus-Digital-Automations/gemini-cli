@@ -1,0 +1,10 @@
+{
+  "criterion": "start-validation",
+  "cacheKey": "0c06da99b4bdb2bc",
+  "result": {
+    "success": true,
+    "details": "Starting command executed successfully: pnpm start"
+  },
+  "timestamp": 1758993865349,
+  "originalDuration": 14761
+}

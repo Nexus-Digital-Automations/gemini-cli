@@ -127,8 +127,6 @@ describe('<ModelDialog />', () => {
 
   it('initializes with "auto" model if getModel returns undefined', () => {
     const mockGetModel = vi.fn(() => undefined);
-    // @ts-expect-error This test validates component robustness when getModel
-    // returns an unexpected undefined value.
     renderComponent({}, { getModel: mockGetModel });
 
     expect(mockGetModel).toHaveBeenCalled();

@@ -428,7 +428,7 @@ export class IntelligentTaskQueue {
     // Move from queue to active executions
     this.executionQueue.delete(context.taskId);
     context.startTime = new Date();
-    context.task.status = 'in_progress';
+    context.task.status = TaskStatus.IN_PROGRESS;
     this.activeExecutions.set(context.taskId, context);
 
     // Convert task to tool call format for core scheduler
@@ -593,7 +593,7 @@ export class IntelligentTaskQueue {
     if (shouldRetry) {
       // Schedule retry
       context.retryCount++;
-      context.task.status = 'pending';
+      context.task.status = TaskStatus.PENDING;
       this.activeExecutions.delete(context.taskId);
       this.executionQueue.set(context.taskId, context);
 

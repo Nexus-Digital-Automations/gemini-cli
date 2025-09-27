@@ -30,7 +30,7 @@ import {
   TaskQueue,
   type TaskExecutionResult,
 } from './TaskQueue.js';
-import { TaskStatus as QueueTaskStatus, TaskPriority } from './types.js';
+import { TaskPriority } from './types.js';
 import { PriorityScheduler, SchedulingAlgorithm } from './PriorityScheduler.js';
 import { CrossSessionPersistenceEngine } from './CrossSessionPersistenceEngine.js';
 import type {
@@ -38,7 +38,7 @@ import type {
   TaskId,
   TaskResult,
   TaskExecutionContext,
-} from './types.js';
+ TaskStatus as QueueTaskStatus} from './types.js';
 import { TaskStatus } from './types.js';
 
 /**

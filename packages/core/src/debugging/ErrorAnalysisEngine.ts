@@ -367,7 +367,7 @@ export class ErrorAnalysisEngine {
         timestamp: new Date(),
         context,
         signature,
-        patterns: patterns,
+        patterns,
         metadata: {
           analysisVersion: '1.0.0',
           insights: await this.generateInsights(

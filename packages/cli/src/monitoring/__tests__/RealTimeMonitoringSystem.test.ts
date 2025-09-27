@@ -77,7 +77,6 @@ describe('RealTimeMonitoringSystem', () => {
       failedTasks: 10,
       averageTaskDuration: 2000,
       throughput: 50,
-      throughputPerHour: 50,
       systemUptime: new Date(Date.now() - 3600000), // 1 hour ago
       systemEfficiency: 85,
     });
@@ -601,7 +600,6 @@ describe('RealTimeMonitoringSystem', () => {
         failedTasks: 0,
         averageTaskDuration: 0,
         throughput: 0,
-        throughputPerHour: 0,
         systemUptime: new Date(Date.now() - 3600000), // 1 hour ago
         systemEfficiency: 100,
       });

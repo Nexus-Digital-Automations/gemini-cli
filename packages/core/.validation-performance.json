@@ -1,0 +1,158 @@
+{
+  "metrics": [
+    {
+      "criterion": "focused-codebase",
+      "startTime": "2025-09-27T16:29:42.247Z",
+      "endTime": "2025-09-27T16:29:42.258Z",
+      "durationMs": 11,
+      "memoryUsageBefore": {
+        "rss": 102678528,
+        "heapTotal": 20578304,
+        "heapUsed": 14666712,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 103464960,
+        "heapTotal": 21102592,
+        "heapUsed": 15065000,
+        "external": 2443153,
+        "arrayBuffers": 337880
+      },
+      "success": true,
+      "error": null
+    },
+    {
+      "criterion": "security-validation",
+      "startTime": "2025-09-27T16:29:50.653Z",
+      "endTime": "2025-09-27T16:29:59.171Z",
+      "durationMs": 8518,
+      "memoryUsageBefore": {
+        "rss": 105267200,
+        "heapTotal": 20840448,
+        "heapUsed": 14455584,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 106921984,
+        "heapTotal": 17432576,
+        "heapUsed": 13972336,
+        "external": 2436209,
+        "arrayBuffers": 330936
+      },
+      "success": true,
+      "error": null
+    },
+    {
+      "criterion": "focused-codebase",
+      "startTime": "2025-09-27T16:33:21.092Z",
+      "endTime": "2025-09-27T16:33:21.101Z",
+      "durationMs": 9,
+      "memoryUsageBefore": {
+        "rss": 98156544,
+        "heapTotal": 21102592,
+        "heapUsed": 14664616,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 98861056,
+        "heapTotal": 21364736,
+        "heapUsed": 14973832,
+        "external": 2439127,
+        "arrayBuffers": 333854
+      },
+      "success": true,
+      "error": null
+    },
+    {
+      "criterion": "security-validation",
+      "startTime": "2025-09-27T16:33:28.807Z",
+      "endTime": "2025-09-27T16:33:28.820Z",
+      "durationMs": 13,
+      "memoryUsageBefore": {
+        "rss": 98254848,
+        "heapTotal": 20840448,
+        "heapUsed": 14666808,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 98942976,
+        "heapTotal": 21102592,
+        "heapUsed": 14988264,
+        "external": 2439593,
+        "arrayBuffers": 334320
+      },
+      "success": true,
+      "error": null
+    },
+    {
+      "criterion": "focused-codebase",
+      "startTime": "2025-09-27T16:39:27.023Z",
+      "endTime": "2025-09-27T16:39:27.035Z",
+      "durationMs": 12,
+      "memoryUsageBefore": {
+        "rss": 102711296,
+        "heapTotal": 20840448,
+        "heapUsed": 14455552,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 103366656,
+        "heapTotal": 21102592,
+        "heapUsed": 14764120,
+        "external": 2439124,
+        "arrayBuffers": 333851
+      },
+      "success": true,
+      "error": null
+    },
+    {
+      "criterion": "security-validation",
+      "startTime": "2025-09-27T16:39:32.083Z",
+      "endTime": "2025-09-27T16:39:32.097Z",
+      "durationMs": 14,
+      "memoryUsageBefore": {
+        "rss": 99647488,
+        "heapTotal": 20840448,
+        "heapUsed": 14411312,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 100384768,
+        "heapTotal": 21102592,
+        "heapUsed": 14732792,
+        "external": 2439590,
+        "arrayBuffers": 334317
+      },
+      "success": true,
+      "error": null
+    }
+  ],
+  "statistics": {
+    "lastUpdated": "2025-09-27T16:39:32.097Z",
+    "totalMeasurements": 6,
+    "averageDurationMs": 1429.5,
+    "successRate": 100,
+    "bycriterion": {
+      "focused-codebase": {
+        "count": 3,
+        "totalDuration": 32,
+        "successCount": 3,
+        "avgDuration": 10.666666666666666,
+        "successRate": 100
+      },
+      "security-validation": {
+        "count": 3,
+        "totalDuration": 8545,
+        "successCount": 3,
+        "avgDuration": 2848.3333333333335,
+        "successRate": 100
+      }
+    }
+  }
+}

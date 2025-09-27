@@ -1,0 +1,25 @@
+{
+  "authKey": "0eb88b6f1d75cd896191fc1d4b29a8dd",
+  "agentId": "AGENT_BUILD_FIX",
+  "startTime": "2025-09-27T12:45:16.863Z",
+  "expiresAt": "2025-09-27T13:15:16.863Z",
+  "currentStep": 5,
+  "completedSteps": [
+    "focused-codebase",
+    "security-validation",
+    "linter-validation",
+    "type-validation",
+    "build-validation"
+  ],
+  "requiredSteps": [
+    "focused-codebase",
+    "security-validation",
+    "linter-validation",
+    "type-validation",
+    "build-validation",
+    "start-validation",
+    "test-validation"
+  ],
+  "status": "in_progress",
+  "lastValidation": "2025-09-27T12:45:57.199Z"
+}

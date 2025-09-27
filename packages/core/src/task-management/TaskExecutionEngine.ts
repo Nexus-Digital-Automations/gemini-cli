@@ -20,9 +20,24 @@ import {
   TaskType,
   TaskCategory,
 } from './types.js';
+
+// Re-export enums and types for external access
+export {
+  TaskComplexity,
+  TaskStatus,
+  TaskPriority,
+  TaskType,
+  TaskCategory,
+} from './types.js';
 import { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 import {
   SubAgentScope,
+  ContextState,
+  SubagentTerminateMode,
+} from '../core/subagent.js';
+
+// Re-export SubAgent types for external access
+export {
   ContextState,
   SubagentTerminateMode,
 } from '../core/subagent.js';

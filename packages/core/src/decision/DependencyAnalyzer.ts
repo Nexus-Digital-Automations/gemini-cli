@@ -798,17 +798,17 @@ export class DependencyAnalyzer {
    * Initialize default dependency patterns
    */
   private initializePatterns(): void {
-    // Implementation -> Testing pattern
-    this.dependencyPatterns.set('impl-test', {
-      id: 'impl-test',
-      description: 'Implementation tasks should complete before testing',
-      categories: ['implementation', 'testing'],
+    // Feature -> Testing pattern
+    this.dependencyPatterns.set('feature-test', {
+      id: 'feature-test',
+      description: 'Feature tasks should complete before testing',
+      categories: [TaskCategory.FEATURE, TaskCategory.TEST],
       confidence: 0.9,
       occurrences: 0,
       matcher: (task1: Task, task2: Task) => {
         if (
-          task1.category === 'implementation' &&
-          task2.category === 'testing'
+          task1.category === TaskCategory.FEATURE &&
+          task2.category === TaskCategory.TEST
         ) {
           const semanticSim = this.calculateSemanticSimilarity(task1, task2);
           return semanticSim > 0.3 ? 0.8 + semanticSim * 0.2 : 0;
@@ -817,17 +817,17 @@ export class DependencyAnalyzer {
       },
     });
 
-    // Analysis -> Implementation pattern
-    this.dependencyPatterns.set('analysis-impl', {
-      id: 'analysis-impl',
-      description: 'Analysis tasks should complete before implementation',
-      categories: ['analysis', 'implementation'],
+    // Bug fix -> Feature pattern
+    this.dependencyPatterns.set('bugfix-feature', {
+      id: 'bugfix-feature',
+      description: 'Bug fixes should be prioritized before new features',
+      categories: [TaskCategory.BUG_FIX, TaskCategory.FEATURE],
       confidence: 0.85,
       occurrences: 0,
       matcher: (task1: Task, task2: Task) => {
         if (
-          task1.category === 'analysis' &&
-          task2.category === 'implementation'
+          task1.category === TaskCategory.BUG_FIX &&
+          task2.category === TaskCategory.FEATURE
         ) {
           return 0.8;
         }
@@ -836,16 +836,16 @@ export class DependencyAnalyzer {
     });
 
     // Documentation pattern
-    this.dependencyPatterns.set('impl-docs', {
-      id: 'impl-docs',
-      description: 'Documentation can run parallel or after implementation',
-      categories: ['implementation', 'documentation'],
+    this.dependencyPatterns.set('feature-docs', {
+      id: 'feature-docs',
+      description: 'Documentation can run parallel or after feature implementation',
+      categories: [TaskCategory.FEATURE, TaskCategory.DOCUMENTATION],
       confidence: 0.7,
       occurrences: 0,
       matcher: (task1: Task, task2: Task) => {
         if (
-          task1.category === 'implementation' &&
-          task2.category === 'documentation'
+          task1.category === TaskCategory.FEATURE &&
+          task2.category === TaskCategory.DOCUMENTATION
         ) {
           return 0.6; // Soft dependency
         }
@@ -889,13 +889,13 @@ export class DependencyAnalyzer {
     cat1: TaskCategory,
     cat2: TaskCategory,
   ): boolean {
-    const related = {
-      implementation: ['testing', 'documentation'],
-      analysis: ['implementation', 'documentation'],
-      testing: ['implementation'],
-      documentation: ['implementation', 'testing'],
-      refactoring: ['testing'],
-      deployment: ['implementation', 'testing'],
+    const related: Record<string, TaskCategory[]> = {
+      [TaskCategory.FEATURE]: [TaskCategory.TEST, TaskCategory.DOCUMENTATION],
+      [TaskCategory.BUG_FIX]: [TaskCategory.TEST, TaskCategory.DOCUMENTATION],
+      [TaskCategory.TEST]: [TaskCategory.FEATURE, TaskCategory.BUG_FIX],
+      [TaskCategory.DOCUMENTATION]: [TaskCategory.FEATURE, TaskCategory.BUG_FIX, TaskCategory.TEST],
+      [TaskCategory.REFACTOR]: [TaskCategory.TEST],
+      [TaskCategory.INFRASTRUCTURE]: [TaskCategory.FEATURE, TaskCategory.TEST],
     };
     return (
       related[cat1]?.includes(cat2) || related[cat2]?.includes(cat1) || false

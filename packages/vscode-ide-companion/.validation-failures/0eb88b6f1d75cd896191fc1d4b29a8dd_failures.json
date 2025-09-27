@@ -1,0 +1,13 @@
+{
+  "authKey": "0eb88b6f1d75cd896191fc1d4b29a8dd",
+  "failedCriteria": [
+    {
+      "criterion": "start-validation",
+      "error": "Starting failed - no working commands found",
+      "timestamp": "2025-09-27T12:46:03.001Z",
+      "retryCount": 1
+    }
+  ],
+  "lastUpdate": "2025-09-27T12:46:03.001Z",
+  "totalFailures": 1
+}

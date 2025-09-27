@@ -893,15 +893,15 @@ export class FixSuggestionEngine {
         id: 'quick-fix-import',
         title: 'Add missing import',
         description: 'Import the required module or function',
-        category: 'code-change',
-        priority: 'high',
+        category: FixCategory.CODE_CHANGE,
+        priority: FixPriority.HIGH,
         confidence: 0.8,
         complexity: 'simple',
         estimatedTime: '1-2 minutes',
         tags: ['quick-fix', 'imports'],
         source: 'quick-fix-generator',
         codeTransformation: {
-          type: 'import-addition',
+          type: 'insert',
           moduleHint: this.extractModuleHint(errorAnalysis),
         },
       });
@@ -927,8 +927,8 @@ export class FixSuggestionEngine {
         id: 'auto-fix-linting',
         title: 'Auto-fix linting issues',
         description: 'Automatically fix code style and formatting issues',
-        category: 'command',
-        priority: 'medium',
+        category: FixCategory.COMMAND,
+        priority: FixPriority.MEDIUM,
         confidence: 0.9,
         complexity: 'simple',
         estimatedTime: '< 1 minute',
@@ -937,8 +937,7 @@ export class FixSuggestionEngine {
         command: {
           command: this.getLintFixCommand(errorAnalysis.context.language),
           description: 'Run linter with auto-fix flag',
-          workingDirectory: errorAnalysis.context.projectContext?.rootPath,
-          timeout: 30000,
+          workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath,
         },
       });
     }
@@ -1018,8 +1017,7 @@ export class FixSuggestionEngine {
           command: {
             command: cmd.command,
             description: cmd.description,
-            workingDirectory: errorAnalysis.context.projectContext?.rootPath,
-            timeout: 60000,
+            workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath,
           },
         });
       }
@@ -1049,8 +1047,7 @@ export class FixSuggestionEngine {
           command: {
             command: cmd.command,
             description: cmd.description,
-            workingDirectory: errorAnalysis.context.projectContext?.rootPath,
-            timeout: 120000,
+            workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath,
           },
         });
       }

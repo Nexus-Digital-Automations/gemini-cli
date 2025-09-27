@@ -1,0 +1,157 @@
+{
+  "metrics": [
+    {
+      "criterion": "focused-codebase",
+      "startTime": "2025-09-27T12:45:25.372Z",
+      "endTime": "2025-09-27T12:45:25.384Z",
+      "durationMs": 12,
+      "memoryUsageBefore": {
+        "rss": 98336768,
+        "heapTotal": 20578304,
+        "heapUsed": 14456920,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 99155968,
+        "heapTotal": 21102592,
+        "heapUsed": 14852680,
+        "external": 2442176,
+        "arrayBuffers": 336903
+      },
+      "success": true,
+      "error": null
+    },
+    {
+      "criterion": "security-validation",
+      "startTime": "2025-09-27T12:45:31.533Z",
+      "endTime": "2025-09-27T12:45:35.943Z",
+      "durationMs": 4410,
+      "memoryUsageBefore": {
+        "rss": 97255424,
+        "heapTotal": 20578304,
+        "heapUsed": 14458144,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 98582528,
+        "heapTotal": 21102592,
+        "heapUsed": 15127392,
+        "external": 2444977,
+        "arrayBuffers": 339704
+      },
+      "success": true,
+      "error": null
+    },
+    {
+      "criterion": "linter-validation",
+      "startTime": "2025-09-27T12:45:42.663Z",
+      "endTime": "2025-09-27T12:45:43.199Z",
+      "durationMs": 536,
+      "memoryUsageBefore": {
+        "rss": 102711296,
+        "heapTotal": 20840448,
+        "heapUsed": 14456424,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 103546880,
+        "heapTotal": 21102592,
+        "heapUsed": 14938832,
+        "external": 2441386,
+        "arrayBuffers": 336113
+      },
+      "success": true,
+      "error": null
+    },
+    {
+      "criterion": "type-validation",
+      "startTime": "2025-09-27T12:45:48.546Z",
+      "endTime": "2025-09-27T12:45:49.587Z",
+      "durationMs": 1041,
+      "memoryUsageBefore": {
+        "rss": 100990976,
+        "heapTotal": 21102592,
+        "heapUsed": 14667128,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 102531072,
+        "heapTotal": 21364736,
+        "heapUsed": 15222808,
+        "external": 2439827,
+        "arrayBuffers": 334554
+      },
+      "success": true,
+      "error": null
+    },
+    {
+      "criterion": "build-validation",
+      "startTime": "2025-09-27T12:45:55.273Z",
+      "endTime": "2025-09-27T12:45:57.199Z",
+      "durationMs": 1926,
+      "memoryUsageBefore": {
+        "rss": 99434496,
+        "heapTotal": 20840448,
+        "heapUsed": 14454352,
+        "external": 2425841,
+        "arrayBuffers": 321744
+      },
+      "memoryUsageAfter": {
+        "rss": 100499456,
+        "heapTotal": 21102592,
+        "heapUsed": 14945976,
+        "external": 2440834,
+        "arrayBuffers": 335561
+      },
+      "success": true,
+      "error": null
+    }
+  ],
+  "statistics": {
+    "lastUpdated": "2025-09-27T12:45:57.200Z",
+    "totalMeasurements": 5,
+    "averageDurationMs": 1585,
+    "successRate": 100,
+    "bycriterion": {
+      "focused-codebase": {
+        "count": 1,
+        "totalDuration": 12,
+        "successCount": 1,
+        "avgDuration": 12,
+        "successRate": 100
+      },
+      "security-validation": {
+        "count": 1,
+        "totalDuration": 4410,
+        "successCount": 1,
+        "avgDuration": 4410,
+        "successRate": 100
+      },
+      "linter-validation": {
+        "count": 1,
+        "totalDuration": 536,
+        "successCount": 1,
+        "avgDuration": 536,
+        "successRate": 100
+      },
+      "type-validation": {
+        "count": 1,
+        "totalDuration": 1041,
+        "successCount": 1,
+        "avgDuration": 1041,
+        "successRate": 100
+      },
+      "build-validation": {
+        "count": 1,
+        "totalDuration": 1926,
+        "successCount": 1,
+        "avgDuration": 1926,
+        "successRate": 100
+      }
+    }
+  }
+}

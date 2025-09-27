@@ -657,10 +657,10 @@ export class QueuePersistenceManager extends EventEmitter {
   ): 'healthy' | 'degraded' | 'critical' {
     const totalTasks = tasks.size;
     const failedTasks = Array.from(tasks.values()).filter(
-      (t) => t.status === 'FAILED',
+      (t) => t.status === TaskStatus.FAILED,
     ).length;
     const runningTasks = Array.from(tasks.values()).filter(
-      (t) => t.status === 'RUNNING',
+      (t) => t.status === TaskStatus.RUNNING,
     ).length;
 
     if (totalTasks === 0) {

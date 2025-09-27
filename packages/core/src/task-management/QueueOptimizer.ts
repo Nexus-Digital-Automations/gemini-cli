@@ -1443,9 +1443,9 @@ export class QueueOptimizer extends EventEmitter {
       const task = tasks.get(move.taskId);
       if (task && task.metadata) {
         task.metadata.resourceRebalance = {
-          from: move.fromResource,
-          to: move.toResource,
-          timestamp: new Date(),
+          enabled: true,
+          threshold: 0.8,
+          target: move.toResource,
         };
       }
     }

@@ -609,14 +609,14 @@ export class InfiniteHookIntegration {
       const stats = this.taskEngine.getExecutionStats();
 
       // Check if all critical conditions are met
-      const allTasksComplete = stats.inProgress === 0 && stats.total > 0;
-      const highSuccessRate = stats.successRate >= 80;
+      const allTasksComplete = stats.inProgress === 0 && (stats.total as number) > 0;
+      const highSuccessRate = (stats.successRate as number) >= 80;
       const noFailures = stats.failed === 0;
 
       if (allTasksComplete && highSuccessRate && noFailures) {
         console.log('All tasks completed successfully. Authorizing stop...');
 
-        const stopReason = `TaskExecutionEngine completed all tasks successfully: ${stats.completed} completed, ${stats.successRate.toFixed(1)}% success rate`;
+        const stopReason = `TaskExecutionEngine completed all tasks successfully: ${stats.completed} completed, ${(stats.successRate as number).toFixed(1)}% success rate`;
 
         const result = await this.executeTaskManagerCommand(
           'authorize-stop',

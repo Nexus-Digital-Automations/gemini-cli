@@ -792,7 +792,7 @@ export function disableExtension(
   );
   const scopePath = scope === SettingScope.Workspace ? cwd : os.homedir();
   manager.disable(name, true, scopePath);
-  logExtensionDisable(config, new ExtensionDisableEvent(name, scope));
+  logExtensionEnable(config, new ExtensionEnableEvent(name, scope));
 }
 
 export function enableExtension(

@@ -557,7 +557,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         ...taskDefinition.metadata,
         deferred: {
           deferredUntil: new Date(Date.now() + 60000), // Default to 1 minute from now
-          reason: reason,
+          reason,
           originalPriority: String(taskDefinition.priority || TaskPriority.MEDIUM),
         },
       },

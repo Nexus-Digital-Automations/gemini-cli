@@ -1,0 +1,10 @@
+{
+  "criterion": "type-validation",
+  "cacheKey": "6baa4c4be0bc182b",
+  "result": {
+    "success": true,
+    "details": "Type checking passed with command: tsc --noEmit"
+  },
+  "timestamp": 1758977149587,
+  "originalDuration": 1040
+}

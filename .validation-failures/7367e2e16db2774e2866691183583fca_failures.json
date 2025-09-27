@@ -1,0 +1,13 @@
+{
+  "authKey": "7367e2e16db2774e2866691183583fca",
+  "failedCriteria": [
+    {
+      "criterion": "type-validation",
+      "error": "Type checking failed - no working commands found",
+      "timestamp": "2025-09-27T17:22:37.183Z",
+      "retryCount": 1
+    }
+  ],
+  "lastUpdate": "2025-09-27T17:22:37.185Z",
+  "totalFailures": 1
+}

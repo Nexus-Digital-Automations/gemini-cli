@@ -32,6 +32,7 @@ export {
   DependencyType,
   AgentCapability,
   SubagentTerminateMode,
+  ContextState,
 } from './TaskExecutionEngine.js';
 
 export type {
@@ -41,10 +42,7 @@ export type {
   TaskBreakdown,
   TaskMetrics,
   TaskExecutionContext,
-
-  // Core classes
   TaskBreakdownAnalyzer,
-  ContextState,
 } from './TaskExecutionEngine.js';
 
 export { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
@@ -73,16 +71,18 @@ export {
 export {
   TaskManagementConfigManager,
   ConfigUtils,
-  type TaskManagementConfiguration,
-  type TaskEngineConfig,
-  type AutonomousQueueConfig,
-  type MonitoringConfig,
-  type PersistenceConfig,
-  type HookIntegrationConfig,
-  type DependencyConfig,
-  type SecurityConfig,
-  type DevelopmentConfig,
-  type ConfigValidationResult,
+} from './TaskManagementConfig.js';
+
+export type {
+  TaskManagementConfiguration,
+  TaskEngineConfig,
+  AutonomousQueueConfig,
+  MonitoringConfig,
+  PersistenceConfig,
+  DependencyConfig,
+  SecurityConfig,
+  DevelopmentConfig,
+  ConfigValidationResult,
 } from './TaskManagementConfig.js';
 
 export {
@@ -127,6 +127,9 @@ export type {
 export {
   InfiniteHookIntegration,
   TaskManagerAPI,
+} from './InfiniteHookIntegration.js';
+
+export type {
   HookIntegrationConfig,
 } from './InfiniteHookIntegration.js';
 
@@ -524,6 +527,7 @@ export async function createTaskManagementSystem(
   config: Config,
   options?: Record<string, unknown>,
 ) {
+  const { createTaskManager } = await import('./TaskManager.js');
   return createTaskManager({
     config,
     enableAutonomousBreakdown: true,

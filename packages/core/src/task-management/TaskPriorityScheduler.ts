@@ -10,7 +10,8 @@ import { logger as getLogger } from '../utils/logger.js';
 
 const logger = getLogger();
 import type { Task, TaskExecutionResult, PriorityFactors} from './TaskQueue.js';
-import { TaskPriority, TaskStatus, TaskCategory } from './types.js';
+import type { TaskCategory } from './types.js';
+import { TaskPriority, TaskStatus } from './types.js';
 
 /**
  * @fileoverview Advanced Task Priority Scheduler with Dynamic Adjustment
