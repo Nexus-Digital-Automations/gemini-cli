@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 8,
+      "total_reinitializations": 9,
       "current_day": "2025-09-27",
       "time_buckets": {
         "11:00-15:59": {
@@ -22,7 +22,7 @@
         },
         "21:00-01:59": {
           "init": 0,
-          "reinit": 1
+          "reinit": 2
         },
         "02:00-06:59": {
           "init": 0,
@@ -35,36 +35,43 @@
       },
       "daily_history": [],
       "last_reset": "2025-09-27T05:00:57.747Z",
-      "last_updated": "2025-09-27T05:00:57.747Z"
+      "last_updated": "2025-09-27T05:19:42.848Z"
     }
   },
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
-    "required_fields": ["title", "description", "business_value", "category"]
+    "allowed_statuses": [
+      "suggested",
+      "approved",
+      "rejected",
+      "implemented"
+    ],
+    "required_fields": [
+      "title",
+      "description",
+      "business_value",
+      "category"
+    ]
   },
   "agents": {
-    "gemini-cli-build-fix-agent": {
-      "lastHeartbeat": "2025-09-27T04:37:54.632Z",
-      "status": "active",
-      "reinitialized": "2025-09-27T04:37:54.632Z",
-      "sessionId": "e12677265c79e2dc",
-      "previousSessions": ["a39dc0b8449c7788", "540cf8a6ad4b9a6a"]
-    },
     "claude-agent-build-fix": {
       "lastHeartbeat": "2025-09-27T04:52:17.424Z",
       "status": "active",
       "reinitialized": "2025-09-27T04:52:17.424Z",
       "sessionId": "01763c35cb11b858",
-      "previousSessions": ["3c230495ef44e371"]
+      "previousSessions": [
+        "3c230495ef44e371"
+      ]
     },
     "claude-agent-001": {
-      "lastHeartbeat": "2025-09-27T05:00:57.746Z",
+      "lastHeartbeat": "2025-09-27T05:19:42.845Z",
       "status": "active",
-      "reinitialized": "2025-09-27T05:00:57.746Z",
-      "sessionId": "d70ac25cc442011b",
-      "previousSessions": []
+      "reinitialized": "2025-09-27T05:19:42.845Z",
+      "sessionId": "650d0431fb5c5c20",
+      "previousSessions": [
+        "d70ac25cc442011b"
+      ]
     }
   },
   "tasks": [],

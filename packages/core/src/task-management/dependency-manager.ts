@@ -14,7 +14,7 @@ import type {
   ExecutionPlan,
   TaskQueueConfig,
 } from './types.js';
-import { ResourceAllocation } from './types.js';
+import { ResourceAllocation as _ResourceAllocation } from './types.js';
 import { DependencyGraphManager } from './dependency-graph.js';
 import { TaskSequencer } from './task-sequencer.js';
 import { getComponentLogger } from '../utils/logger.js';
@@ -353,7 +353,7 @@ export class DependencyManager {
       } catch (error) {
         logger.warn('Failed to apply resolution strategy', {
           strategy: strategy.strategy,
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }

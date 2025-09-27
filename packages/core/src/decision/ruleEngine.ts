@@ -347,7 +347,7 @@ export class RuleEngine {
       lastUsed: Date;
     }
   > {
-    const stats: Record<string, any> = {};
+    const stats: Record<string, unknown> = {};
 
     for (const [ruleId, ruleStat] of this.ruleStats) {
       stats[ruleId] = {
@@ -505,7 +505,7 @@ export class RuleEngine {
       logger.warn('Failed to evaluate condition', {
         field: condition.field,
         operator: condition.operator,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       return false;
     }
@@ -519,7 +519,7 @@ export class RuleEngine {
     context: Record<string, unknown>,
   ): unknown {
     const pathParts = fieldPath.split('.');
-    let value: any = context;
+    let value: unknown = context;
 
     for (const part of pathParts) {
       if (value && typeof value === 'object' && part in value) {

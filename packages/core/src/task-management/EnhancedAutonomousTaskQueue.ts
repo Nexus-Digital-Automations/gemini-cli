@@ -271,7 +271,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     } catch (error) {
       logger.error('Failed to add task with autonomous analysis', {
         title: taskDefinition.title,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
         analysisTime: Date.now() - startTime,
       });
 
@@ -419,7 +419,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     } catch (error) {
       logger.warn('Autonomous breakdown analysis failed', {
         taskId: task.id,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
 
       return null;
@@ -556,7 +556,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     } catch (error) {
       logger.error('Failed to add breakdown subtasks', {
         originalTaskId: originalTask.id,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
 
       throw error;
@@ -817,7 +817,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         await this.performAutonomousOptimization();
       } catch (error) {
         logger.warn('Autonomous optimization cycle failed', {
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }, 60000); // Every minute
@@ -828,7 +828,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         await this.performAdaptiveParameterTuning();
       } catch (error) {
         logger.warn('Adaptive parameter tuning failed', {
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }, 300000); // Every 5 minutes
@@ -912,7 +912,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     } catch (error) {
       logger.warn('Autonomous optimization failed', {
         strategy,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
     }
   }
@@ -1140,7 +1140,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
       });
     } catch (error) {
       logger.warn('Failed to save autonomous state', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
     }
   }

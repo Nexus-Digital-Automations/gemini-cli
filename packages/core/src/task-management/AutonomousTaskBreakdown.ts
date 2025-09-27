@@ -969,7 +969,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       } catch (error) {
         logger.error(`Phase execution failed: ${phaseName}`, {
           taskId: task.id,
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         });
 
         throw error;

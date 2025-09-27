@@ -266,7 +266,7 @@ export class DecisionEngine extends EventEmitter {
       logger.error(
         `Failed to make decision ${decisionId} after ${duration.toFixed(2)}ms`,
         {
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         },
       );
 
@@ -364,7 +364,7 @@ export class DecisionEngine extends EventEmitter {
       logger.error(
         `Decision ${decisionId} execution failed after ${duration.toFixed(2)}ms`,
         {
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         },
       );
 
