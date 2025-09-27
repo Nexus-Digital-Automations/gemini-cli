@@ -98,6 +98,10 @@ export interface ErrorAnalysis {
   originalMessage: string;
   /** Enhanced, user-friendly message */
   enhancedMessage: string;
+  /** Error text for analysis */
+  errorText?: string;
+  /** Error category */
+  category?: string;
   /** Location where error occurred */
   location: ErrorLocation;
   /** Root cause analysis */
@@ -1093,11 +1097,15 @@ export interface DebugCodeTemplate {
   /** Code template with placeholders */
   template: string;
   /** Template complexity level */
-  complexity: 'simple' | 'moderate' | 'complex';
+  complexity: 'simple' | 'moderate' | 'complex' | 'advanced';
   /** Required parameters */
   requiredParameters: string[];
   /** Optional parameters */
   optionalParameters?: string[];
+  /** Template parameters for substitution */
+  parameters?: string[];
+  /** Use cases for this template */
+  useCases?: string[];
   /** Usage examples */
   examples?: string[];
   /** Tags for categorization */
@@ -1116,6 +1124,8 @@ export interface DebugCodeSnippet {
   language: LanguageSupport;
   /** Code type */
   type?: DebugCodeType;
+  /** Template used for generation */
+  template?: string;
   /** Description */
   description?: string;
   /** Usage instructions */
@@ -1140,6 +1150,20 @@ export interface InstrumentationCode {
   code?: string;
   /** Instrumentation type */
   type?: 'logging' | 'performance' | 'error-handling' | 'all';
+  /** Logging instrumentation configuration */
+  loggingInstrumentation?: {
+    description: string;
+    placement: string;
+    level?: string;
+    format?: string;
+  };
+  /** Performance instrumentation configuration */
+  performanceInstrumentation?: {
+    description: string;
+    placement: string;
+    metrics?: string[];
+    interval?: number;
+  };
   /** Instructions for implementation */
   instructions?: string[];
   /** Estimated implementation time */
@@ -1154,6 +1178,8 @@ export interface DebugGenerationOptions {
   type: DebugCodeType;
   /** Target programming language */
   language: LanguageSupport;
+  /** Template ID to use for generation */
+  templateId?: string;
   /** Context information */
   context?: {
     /** File path */
@@ -1170,7 +1196,7 @@ export interface DebugGenerationOptions {
   /** Template preferences */
   templatePreferences?: {
     /** Complexity preference */
-    complexity?: 'simple' | 'moderate' | 'complex';
+    complexity?: 'simple' | 'moderate' | 'complex' | 'advanced';
     /** Include comments */
     includeComments?: boolean;
     /** Include error handling */
