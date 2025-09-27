@@ -6,7 +6,6 @@
 
 // Export config
 export * from './config/config.js';
-export * from './config/autonomousTaskConfig.js';
 export * from './output/types.js';
 export * from './output/json-formatter.js';
 export * from './policy/types.js';
@@ -16,7 +15,6 @@ export * from './policy/policy-engine.js';
 export * from './core/client.js';
 export * from './core/contentGenerator.js';
 export * from './core/loggingContentGenerator.js';
-export * from './core/budgetContentGenerator.js';
 export * from './core/geminiChat.js';
 export * from './core/logger.js';
 export * from './core/prompts.js';
@@ -25,12 +23,6 @@ export * from './core/turn.js';
 export * from './core/geminiRequest.js';
 export * from './core/coreToolScheduler.js';
 export * from './core/nonInteractiveToolExecutor.js';
-
-// Export Budget Management
-export * from './budget/index.js';
-
-// Export Progress Tracking
-export * from './progress/index.js';
 
 export * from './fallback/types.js';
 
@@ -63,16 +55,13 @@ export * from './utils/workspaceContext.js';
 export * from './utils/ignorePatterns.js';
 export * from './utils/partUtils.js';
 export * from './utils/promptIdContext.js';
-export * from './utils/logger.js';
+export * from './utils/thoughtUtils.js';
 
 // Export services
 export * from './services/fileDiscoveryService.js';
 export * from './services/gitService.js';
 export * from './services/chatRecordingService.js';
 export * from './services/fileSystemService.js';
-export * from './services/autonomousTaskIntegrator.js';
-export * from './services/integrationBridge.js';
-export * from './services/autonomousTaskApi.js';
 
 // Export IDE specific logic
 export * from './ide/ide-client.js';
@@ -132,9 +121,3 @@ export { Storage } from './config/storage.js';
 
 // Export test utils
 export * from './test-utils/index.js';
-
-// Export knowledge base management
-export * from './knowledge/KnowledgeBaseManager.js';
-
-// Export persona management
-export * from './persona/PersonaManager.js';

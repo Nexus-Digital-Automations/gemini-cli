@@ -27,77 +27,19 @@ export { detectIdeFromEnv } from './src/ide/detect-ide.js';
 export {
   logExtensionEnable,
   logIdeConnection,
+  logExtensionDisable,
 } from './src/telemetry/loggers.js';
 
 export {
   IdeConnectionEvent,
   IdeConnectionType,
   ExtensionInstallEvent,
+  ExtensionDisableEvent,
   ExtensionEnableEvent,
   ExtensionUninstallEvent,
+  ModelSlashCommandEvent,
 } from './src/telemetry/types.js';
 export { makeFakeConfig } from './src/test-utils/config.js';
 export * from './src/utils/pathReader.js';
 export { ClearcutLogger } from './src/telemetry/clearcut-logger/clearcut-logger.js';
-
-// Persona management exports
-export {
-  PersonaManager,
-  personaManager,
-} from './src/persona/PersonaManager.js';
-export type {
-  PersonaProfile,
-  PersonalityTraits,
-  BehavioralPatterns,
-  PersonaCustomization,
-} from './src/persona/PersonaManager.js';
-
-// Budget tracking exports
-export {
-  BudgetTracker,
-  createBudgetTracker,
-} from './src/budget/budget-tracker.js';
-export {
-  BudgetEnforcement,
-  BudgetExceededError,
-  createBudgetEnforcement,
-  isBudgetExceededError,
-} from './src/budget/budget-enforcement.js';
-export {
-  BudgetContentGenerator,
-  createBudgetContentGenerator,
-} from './src/core/budgetContentGenerator.js';
-export type { BudgetSettings, BudgetUsageData } from './src/budget/types.js';
-export type {
-  BudgetWarning,
-  BudgetEnforcementOptions,
-} from './src/budget/budget-enforcement.js';
-
-// Progress tracking exports
-export {
-  ProgressTracker,
-  globalProgressTracker,
-  OperationDetector,
-} from './src/progress/index.js';
-export type {
-  ProgressUpdateCallback,
-  ToolCallInfo,
-} from './src/progress/index.js';
-
-// Knowledge base management exports
-export {
-  KnowledgeBaseManager,
-  knowledgeBaseManager,
-  createKnowledgeBaseManager,
-  KnowledgeSourceType,
-} from './src/knowledge/KnowledgeBaseManager.js';
-export type {
-  KnowledgeSource,
-  KnowledgeDocument,
-  KnowledgeQuery,
-  KnowledgeSearchResult,
-  KnowledgeSuggestion,
-  KnowledgeStats,
-  InstitutionalPattern,
-  PatternExample,
-} from './src/knowledge/KnowledgeBaseManager.js';
+export { logModelSlashCommand } from './src/telemetry/loggers.js';

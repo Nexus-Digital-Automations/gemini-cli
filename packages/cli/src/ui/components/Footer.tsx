@@ -15,98 +15,53 @@ import Gradient from 'ink-gradient';
 import { MemoryUsageDisplay } from './MemoryUsageDisplay.js';
 import { ContextUsageDisplay } from './ContextUsageDisplay.js';
 import { DebugProfiler } from './DebugProfiler.js';
-import { BudgetDisplay } from './BudgetDisplay.js';
-import type { BudgetSettings } from '../../config/settingsSchema.js';
-import type { SandboxConfig } from '@google/gemini-cli-core';
 
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { isNarrowWidth } from '../utils/isNarrowWidth.js';
 
-/**
- * Props for the Footer component.
- * Configures the comprehensive status information displayed in the footer.
- */
-export interface FooterProps {
-  model: string;
-  targetDir: string;
-  branchName?: string;
-  debugMode: boolean;
-  debugMessage: string;
-  corgiMode: boolean;
-  errorCount: number;
-  showErrorDetails: boolean;
-  showMemoryUsage?: boolean;
-  promptTokenCount: number;
-  nightly: boolean;
-  vimMode?: string;
-  isTrustedFolder?: boolean;
-  hideCWD?: boolean;
-  hideSandboxStatus?: boolean;
-  hideModelInfo?: boolean;
-  budgetSettings?: BudgetSettings;
-  showBudgetStatus?: boolean;
-  sandboxConfig?: SandboxConfig;
-}
+import { useUIState } from '../contexts/UIStateContext.js';
+import { useConfig } from '../contexts/ConfigContext.js';
+import { useSettings } from '../contexts/SettingsContext.js';
+import { useVimMode } from '../contexts/VimModeContext.js';
 
-/**
- * Footer displays comprehensive status information at the bottom of the CLI.
- *
- * This component renders a status bar showing current directory, model information,
- * debug status, memory usage, context usage, budget status, and various other
- * system indicators. It adapts to different terminal widths and supports
- * optional information hiding for cleaner displays.
- *
- * Features:
- * - Current working directory with branch information
- * - AI model and configuration status
- * - Memory and context usage indicators
- * - Budget tracking and quota displays
- * - Debug mode indicators and error counts
- * - Sandbox status and trust indicators
- * - Responsive layout for narrow terminals
- * - Gradient theming support
- *
- * @param props - Configuration for footer display elements and behavior
- * @returns A React component showing comprehensive CLI status
- *
- * @example
- * ```tsx
- * <Footer
- *   model="gemini-pro"
- *   targetDir="/path/to/project"
- *   debugMode={false}
- *   showMemoryUsage={true}
- *   budgetSettings={budgetConfig}
- * />
- * ```
- */
-export const Footer: React.FC<FooterProps> = ({
-  model,
-  targetDir,
-  branchName,
-  debugMode,
-  debugMessage,
-  corgiMode,
-  errorCount,
-  showErrorDetails,
-  showMemoryUsage,
-  promptTokenCount,
-  nightly,
-  vimMode,
-  isTrustedFolder,
-  hideCWD = false,
-  hideSandboxStatus = false,
-  hideModelInfo = false,
-  budgetSettings,
-  showBudgetStatus = true,
-  sandboxConfig,
-}) => {
-  console.log('[DEBUG] Footer - sandboxConfig:', sandboxConfig);
-  console.log('[DEBUG] Footer - process.env.SANDBOX:', process.env['SANDBOX']);
-  console.log(
-    '[DEBUG] Footer - process.env.SEATBELT_PROFILE:',
-    process.env['SEATBELT_PROFILE'],
-  );
+export const Footer: React.FC = () => {
+  const uiState = useUIState();
+  const config = useConfig();
+  const settings = useSettings();
+  const { vimEnabled, vimMode } = useVimMode();
+
+  const {
+    model,
+    targetDir,
+    debugMode,
+    branchName,
+    debugMessage,
+    corgiMode,
+    errorCount,
+    showErrorDetails,
+    promptTokenCount,
+    nightly,
+    isTrustedFolder,
+  } = {
+    model: config.getModel(),
+    targetDir: config.getTargetDir(),
+    debugMode: config.getDebugMode(),
+    branchName: uiState.branchName,
+    debugMessage: uiState.debugMessage,
+    corgiMode: uiState.corgiMode,
+    errorCount: uiState.errorCount,
+    showErrorDetails: uiState.showErrorDetails,
+    promptTokenCount: uiState.sessionStats.lastPromptTokenCount,
+    nightly: uiState.nightly,
+    isTrustedFolder: uiState.isTrustedFolder,
+  };
+
+  const showMemoryUsage =
+    config.getDebugMode() || settings.merged.ui?.showMemoryUsage || false;
+  const hideCWD = settings.merged.ui?.footer?.hideCWD || false;
+  const hideSandboxStatus =
+    settings.merged.ui?.footer?.hideSandboxStatus || false;
+  const hideModelInfo = settings.merged.ui?.footer?.hideModelInfo || false;
 
   const { columns: terminalWidth } = useTerminalSize();
 
@@ -119,6 +74,7 @@ export const Footer: React.FC<FooterProps> = ({
     : shortenPath(tildeifyPath(targetDir), pathLength);
 
   const justifyContent = hideCWD && hideModelInfo ? 'center' : 'space-between';
+  const displayVimMode = vimEnabled ? vimMode : undefined;
 
   return (
     <Box
@@ -127,10 +83,12 @@ export const Footer: React.FC<FooterProps> = ({
       flexDirection={isNarrow ? 'column' : 'row'}
       alignItems={isNarrow ? 'flex-start' : 'center'}
     >
-      {(debugMode || vimMode || !hideCWD) && (
+      {(debugMode || displayVimMode || !hideCWD) && (
         <Box>
           {debugMode && <DebugProfiler />}
-          {vimMode && <Text color={theme.text.secondary}>[{vimMode}] </Text>}
+          {displayVimMode && (
+            <Text color={theme.text.secondary}>[{displayVimMode}] </Text>
+          )}
           {!hideCWD &&
             (nightly ? (
               <Gradient colors={theme.ui.gradient}>
@@ -155,69 +113,34 @@ export const Footer: React.FC<FooterProps> = ({
         </Box>
       )}
 
-      {/* Middle Section: Centered Trust/Sandbox Info and Budget */}
-      {(!hideSandboxStatus ||
-        (showBudgetStatus && budgetSettings?.enabled)) && (
+      {/* Middle Section: Centered Trust/Sandbox Info */}
+      {!hideSandboxStatus && (
         <Box
           flexGrow={isNarrow || hideCWD || hideModelInfo ? 0 : 1}
           alignItems="center"
           justifyContent={isNarrow || hideCWD ? 'flex-start' : 'center'}
           display="flex"
-          flexDirection={isNarrow ? 'column' : 'row'}
           paddingX={isNarrow ? 0 : 1}
           paddingTop={isNarrow ? 1 : 0}
         >
-          {!hideSandboxStatus && (
-            <Box alignItems="center">
-              {isTrustedFolder === false ? (
-                <Text color={theme.status.warning}>untrusted</Text>
-              ) : process.env['SANDBOX'] &&
-                process.env['SANDBOX'] !== 'sandbox-exec' ? (
-                <Text color="green">
-                  {process.env['SANDBOX'].replace(/^gemini-(?:cli-)?/, '')}
-                </Text>
-              ) : process.env['SANDBOX'] === 'sandbox-exec' ? (
-                <Text color={theme.status.warning}>
-                  macOS Seatbelt{' '}
-                  <Text color={theme.text.secondary}>
-                    ({process.env['SEATBELT_PROFILE']})
-                  </Text>
-                </Text>
-              ) : sandboxConfig ? (
-                sandboxConfig.command === 'sandbox-exec' ? (
-                  <Text color={theme.status.warning}>
-                    macOS Seatbelt{' '}
-                    <Text color={theme.text.secondary}>
-                      ({process.env['SEATBELT_PROFILE'] || 'permissive-open'})
-                    </Text>
-                  </Text>
-                ) : (
-                  <Text color="green">{sandboxConfig.command}</Text>
-                )
-              ) : (
-                <Text color={theme.status.error}>
-                  no sandbox{' '}
-                  <Text color={theme.text.secondary}>(see /docs)</Text>
-                </Text>
-              )}
-            </Box>
-          )}
-
-          {/* Budget Display */}
-          {showBudgetStatus && budgetSettings?.enabled && (
-            <Box
-              alignItems="center"
-              paddingLeft={!hideSandboxStatus && !isNarrow ? 2 : 0}
-            >
-              {!hideSandboxStatus && !isNarrow && (
-                <Text color={theme.ui.comment}>| </Text>
-              )}
-              <BudgetDisplay
-                budgetSettings={budgetSettings}
-                projectRoot={targetDir}
-                compact={isNarrow}
-              />
-            </Box>
+          {isTrustedFolder === false ? (
+            <Text color={theme.status.warning}>untrusted</Text>
+          ) : process.env['SANDBOX'] &&
+            process.env['SANDBOX'] !== 'sandbox-exec' ? (
+            <Text color="green">
+              {process.env['SANDBOX'].replace(/^gemini-(?:cli-)?/, '')}
+            </Text>
+          ) : process.env['SANDBOX'] === 'sandbox-exec' ? (
+            <Text color={theme.status.warning}>
+              macOS Seatbelt{' '}
+              <Text color={theme.text.secondary}>
+                ({process.env['SEATBELT_PROFILE']})
+              </Text>
+            </Text>
+          ) : (
+            <Text color={theme.status.error}>
+              no sandbox <Text color={theme.text.secondary}>(see /docs)</Text>
+            </Text>
           )}
         </Box>
       )}

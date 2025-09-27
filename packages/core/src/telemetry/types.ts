@@ -11,7 +11,10 @@ import type { CompletedToolCall } from '../core/coreToolScheduler.js';
 import { DiscoveredMCPTool } from '../tools/mcp-tool.js';
 import type { FileDiff } from '../tools/tools.js';
 import { AuthType } from '../core/contentGenerator.js';
-import { getDecisionFromOutcome, ToolCallDecision } from './tool-call-decision.js';
+import {
+  getDecisionFromOutcome,
+  ToolCallDecision,
+} from './tool-call-decision.js';
 import type { FileOperation } from './metrics.js';
 export { ToolCallDecision };
 import type { ToolRegistry } from '../tools/tool-registry.js';
@@ -135,7 +138,8 @@ export class ToolCallEvent implements BaseTelemetryEvent {
   tool_type: 'native' | 'mcp';
   content_length?: number;
   mcp_server_name?: string;
-  metadata?: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: { [key: string]: any };
 
   constructor(call: CompletedToolCall) {
     this['event.name'] = 'tool_call';
@@ -494,17 +498,20 @@ export class ContentRetryEvent implements BaseTelemetryEvent {
   attempt_number: number;
   error_type: string; // e.g., 'EmptyStreamError'
   retry_delay_ms: number;
+  model: string;
 
   constructor(
     attempt_number: number,
     error_type: string,
     retry_delay_ms: number,
+    model: string,
   ) {
     this['event.name'] = 'content_retry';
     this['event.timestamp'] = new Date().toISOString();
     this.attempt_number = attempt_number;
     this.error_type = error_type;
     this.retry_delay_ms = retry_delay_ms;
+    this.model = model;
   }
 }
 
@@ -514,10 +521,12 @@ export class ContentRetryFailureEvent implements BaseTelemetryEvent {
   total_attempts: number;
   final_error_type: string;
   total_duration_ms?: number; // Optional: total time spent retrying
+  model: string;
 
   constructor(
     total_attempts: number,
     final_error_type: string,
+    model: string,
     total_duration_ms?: number,
   ) {
     this['event.name'] = 'content_retry_failure';
@@ -525,6 +534,7 @@ export class ContentRetryFailureEvent implements BaseTelemetryEvent {
     this.total_attempts = total_attempts;
     this.final_error_type = final_error_type;
     this.total_duration_ms = total_duration_ms;
+    this.model = model;
   }
 }
 
@@ -556,63 +566,6 @@ export class ModelRoutingEvent implements BaseTelemetryEvent {
     this.error_message = error_message;
   }
 }
-
-export class FlashEscalationEvent implements BaseTelemetryEvent {
-  'event.name': 'flash_escalation';
-  'event.timestamp': string;
-  request_hash: string;
-  failure_count: number;
-  escalation_reason: string;
-  threshold_reached: boolean;
-  session_memory_enabled: boolean;
-  time_since_last_failure_ms?: number;
-
-  constructor(
-    request_hash: string,
-    failure_count: number,
-    escalation_reason: string,
-    threshold_reached: boolean,
-    session_memory_enabled: boolean,
-    time_since_last_failure_ms?: number,
-  ) {
-    this['event.name'] = 'flash_escalation';
-    this['event.timestamp'] = new Date().toISOString();
-    this.request_hash = request_hash;
-    this.failure_count = failure_count;
-    this.escalation_reason = escalation_reason;
-    this.threshold_reached = threshold_reached;
-    this.session_memory_enabled = session_memory_enabled;
-    this.time_since_last_failure_ms = time_since_last_failure_ms;
-  }
-}
-
-export type TelemetryEvent =
-  | StartSessionEvent
-  | EndSessionEvent
-  | UserPromptEvent
-  | ToolCallEvent
-  | ApiRequestEvent
-  | ApiErrorEvent
-  | ApiResponseEvent
-  | FlashFallbackEvent
-  | LoopDetectedEvent
-  | LoopDetectionDisabledEvent
-  | NextSpeakerCheckEvent
-  | KittySequenceOverflowEvent
-  | MalformedJsonResponseEvent
-  | IdeConnectionEvent
-  | ConversationFinishedEvent
-  | SlashCommandEvent
-  | FileOperationEvent
-  | InvalidChunkEvent
-  | ContentRetryEvent
-  | ContentRetryFailureEvent
-  | ExtensionEnableEvent
-  | ExtensionInstallEvent
-  | ExtensionUninstallEvent
-  | ModelRoutingEvent
-  | FlashEscalationEvent
-  | ToolOutputTruncatedEvent;
 
 export class ExtensionInstallEvent implements BaseTelemetryEvent {
   'event.name': 'extension_install';
@@ -690,6 +643,60 @@ export class ExtensionEnableEvent implements BaseTelemetryEvent {
 
   constructor(extension_name: string, settingScope: string) {
     this['event.name'] = 'extension_enable';
+    this['event.timestamp'] = new Date().toISOString();
+    this.extension_name = extension_name;
+    this.setting_scope = settingScope;
+  }
+}
+
+export class ModelSlashCommandEvent implements BaseTelemetryEvent {
+  'event.name': 'model_slash_command';
+  'event.timestamp': string;
+  model_name: string;
+
+  constructor(model_name: string) {
+    this['event.name'] = 'model_slash_command';
+    this['event.timestamp'] = new Date().toISOString();
+    this.model_name = model_name;
+  }
+}
+
+export type TelemetryEvent =
+  | StartSessionEvent
+  | EndSessionEvent
+  | UserPromptEvent
+  | ToolCallEvent
+  | ApiRequestEvent
+  | ApiErrorEvent
+  | ApiResponseEvent
+  | FlashFallbackEvent
+  | LoopDetectedEvent
+  | LoopDetectionDisabledEvent
+  | NextSpeakerCheckEvent
+  | KittySequenceOverflowEvent
+  | MalformedJsonResponseEvent
+  | IdeConnectionEvent
+  | ConversationFinishedEvent
+  | SlashCommandEvent
+  | FileOperationEvent
+  | InvalidChunkEvent
+  | ContentRetryEvent
+  | ContentRetryFailureEvent
+  | ExtensionEnableEvent
+  | ExtensionInstallEvent
+  | ExtensionUninstallEvent
+  | ModelRoutingEvent
+  | ToolOutputTruncatedEvent
+  | ModelSlashCommandEvent;
+
+export class ExtensionDisableEvent implements BaseTelemetryEvent {
+  'event.name': 'extension_disable';
+  'event.timestamp': string;
+  extension_name: string;
+  setting_scope: string;
+
+  constructor(extension_name: string, settingScope: string) {
+    this['event.name'] = 'extension_disable';
     this['event.timestamp'] = new Date().toISOString();
     this.extension_name = extension_name;
     this.setting_scope = settingScope;
