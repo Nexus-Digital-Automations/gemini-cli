@@ -584,7 +584,7 @@ export class AutomaticQueueOptimizer extends EventEmitter {
 
       // Step 2: Detect optimization opportunities
       const opportunities =
-        await this.detectOptimizationOpportunities(analysis);
+        await this.identifyOptimizationOpportunities(analysis);
 
       // Step 3: Generate recommendations
       const recommendations = await this.generateOptimizationRecommendations(

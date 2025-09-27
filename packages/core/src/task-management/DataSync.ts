@@ -96,7 +96,7 @@ export interface SyncConflict {
   /** Conflict ID */
   id: string;
   /** Entity type in conflict */
-  entityType: 'task' | 'dependency' | 'session';
+  entityType: 'task' | 'dependency' | 'session' | 'ownership';
   /** Entity ID */
   entityId: string;
   /** Conflicting changes */

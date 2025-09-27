@@ -13,6 +13,7 @@ import type {
   SchedulingFactors,
   ResourceAllocation,
 } from '../task-management/types.js';
+import { TaskPriority } from '../task-management/types.js';
 import { DecisionType, DecisionPriority } from './types.js';
 import type { Decision, DecisionContext } from './types.js';
 import {
@@ -630,9 +631,8 @@ export class TaskSequencer {
     task: Task,
     dependencyAnalysis: DependencyAnalysisResult,
   ): SchedulingFactors {
-    // Priority score
-    const priorityScores = { critical: 4, high: 3, medium: 2, low: 1 };
-    const basePriority = priorityScores[task.priority];
+    // Priority score - convert TaskPriority enum to normalized score
+    const basePriority = this.convertTaskPriorityToScore(task.priority);
 
     // Urgency based on creation time
     const ageMs = Date.now() - task.metadata.createdAt.getTime();
@@ -735,6 +735,27 @@ export class TaskSequencer {
   }
 
   // Helper methods (simplified implementations)
+
+  /**
+   * Convert TaskPriority enum to normalized score (1-4)
+   */
+  private convertTaskPriorityToScore(priority: TaskPriority): number {
+    switch (priority) {
+      case TaskPriority.CRITICAL:
+        return 4;
+      case TaskPriority.HIGH:
+        return 3;
+      case TaskPriority.NORMAL:
+      case TaskPriority.MEDIUM:
+        return 2;
+      case TaskPriority.LOW:
+      case TaskPriority.BACKGROUND:
+        return 1;
+      default:
+        return 2; // Default to medium priority
+    }
+  }
+
   private generateCacheKey(
     tasks: Map<TaskId, Task>,
     dependencies: TaskDependency[],
@@ -953,8 +974,7 @@ export class TaskSequencer {
     task: Task,
     dependencyAnalysis: DependencyAnalysisResult,
   ): number {
-    const priorityScores = { critical: 4, high: 3, medium: 2, low: 1 };
-    const baseScore = priorityScores[task.priority];
+    const baseScore = this.convertTaskPriorityToScore(task.priority);
 
     // Add bonus for tasks with many dependents
     const dependents = dependencyAnalysis.suggestedDependencies.filter(
@@ -1042,12 +1062,8 @@ export class TaskSequencer {
     for (const [resourceType, groupTasks] of resourceGroups) {
       // Sort by priority within each resource group
       const sortedTasks = groupTasks.sort((a, b) => {
-        const aPriority = { critical: 4, high: 3, medium: 2, low: 1 }[
-          a.priority
-        ];
-        const bPriority = { critical: 4, high: 3, medium: 2, low: 1 }[
-          b.priority
-        ];
+        const aPriority = this.convertTaskPriorityToScore(a.priority);
+        const bPriority = this.convertTaskPriorityToScore(b.priority);
         return bPriority - aPriority;
       });
 
@@ -1174,9 +1190,7 @@ export class TaskSequencer {
 
   private extractTaskFeatures(task: Task): number[] {
     // Extract features for ML prediction
-    const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[
-      task.priority
-    ];
+    const priorityScore = this.convertTaskPriorityToScore(task.priority);
     const categoryScore =
       {
         implementation: 4,
@@ -1288,7 +1302,7 @@ export class TaskSequencer {
 
     // Risk from high-priority tasks
     const criticalTasks = Array.from(tasks.values()).filter(
-      (t) => t.priority === 'critical',
+      (t) => t.priority === TaskPriority.CRITICAL,
     ).length;
     riskScore += (criticalTasks / tasks.size) * 0.3;
 

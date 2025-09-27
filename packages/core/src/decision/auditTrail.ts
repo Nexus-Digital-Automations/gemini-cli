@@ -466,3 +466,6 @@ export class DecisionAuditTrail {
     logger.debug(`Evicted ${toEvict} oldest audit entries`);
   }
 }
+
+// Export alias for backward compatibility
+export { DecisionAuditTrail as AuditTrail };

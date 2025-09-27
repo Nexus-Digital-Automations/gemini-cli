@@ -10,13 +10,18 @@
  */
 
 // Autonomous execution components
-export { ExecutionEngine } from './execution-engine.js';
-export { StateManager } from './state-manager.js';
-export { ValidationEngine } from './validation-engine.js';
+export { AutonomousExecutionEngine as ExecutionEngine } from './execution-engine.js';
+export { ComprehensiveStateManager as StateManager } from './state-manager.js';
+export { ComprehensiveValidationEngine as ValidationEngine } from './validation-engine.js';
 
 // Task breakdown and analysis
 export { TaskBreakdownEngine } from './task-breakdown-engine.js';
-export { ComplexityAnalyzers } from './complexity-analyzers.js';
+export {
+  LinguisticComplexityAnalyzer,
+  WorkspaceComplexityAnalyzer,
+  ToolComplexityAnalyzer,
+  DependencyComplexityAnalyzer,
+} from './complexity-analyzers.js';
 
 // TaskManager integration
-export { TaskManagerIntegration } from './taskmanager-integration.js';
+export { AutonomousTaskManagerIntegration as TaskManagerIntegration } from './taskmanager-integration.js';

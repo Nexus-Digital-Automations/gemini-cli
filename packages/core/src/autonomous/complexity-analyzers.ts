@@ -650,3 +650,12 @@ export function createDefaultComplexityAnalyzers(): ComplexityAnalyzer[] {
     new DependencyComplexityAnalyzer(),
   ];
 }
+
+// Export namespace for backward compatibility
+export const ComplexityAnalyzers = {
+  LinguisticComplexityAnalyzer,
+  WorkspaceComplexityAnalyzer,
+  ToolComplexityAnalyzer,
+  DependencyComplexityAnalyzer,
+  createDefaultComplexityAnalyzers,
+};

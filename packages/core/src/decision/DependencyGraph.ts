@@ -1586,3 +1586,6 @@ export const GraphOptimizationSchema = z.object({
   complexity: z.enum(['low', 'medium', 'high']),
   confidence: z.number().min(0).max(1),
 });
+
+// Export alias for backward compatibility
+export { DecisionDependencyGraphManager as DependencyGraph };

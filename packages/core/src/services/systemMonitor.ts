@@ -22,8 +22,8 @@ import os from 'node:os';
 import type { Config } from '../index.js';
 import type {
   AutonomousTaskIntegrator,
-  _AutonomousTask,
-  _RegisteredAgent,
+  AutonomousTask,
+  RegisteredAgent,
 } from './autonomousTaskIntegrator.js';
 import type { IntegrationBridge } from './integrationBridge.js';
 

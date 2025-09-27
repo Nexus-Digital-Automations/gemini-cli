@@ -296,3 +296,6 @@ export class ComprehensiveStateManager implements ExecutionStateManager {
     };
   }
 }
+
+// Export alias for backward compatibility
+export { ComprehensiveStateManager as StateManager };

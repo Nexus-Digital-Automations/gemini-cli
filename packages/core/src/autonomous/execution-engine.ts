@@ -855,6 +855,9 @@ export class AutonomousExecutionEngine extends EventEmitter {
   }
 }
 
+// Export alias for backward compatibility
+export { AutonomousExecutionEngine as ExecutionEngine };
+
 /**
  * Default execution strategy selector
  */

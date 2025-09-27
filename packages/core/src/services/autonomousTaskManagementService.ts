@@ -18,10 +18,12 @@
 
 import { EventEmitter } from 'node:events';
 import type { Config } from '../index.js';
+import { TaskType, TaskPriority } from '../task-management/types.js';
 import {
   AutonomousTaskIntegrator,
   type AutonomousTask,
   type RegisteredAgent,
+  type AgentCapability,
 } from './autonomousTaskIntegrator.js';
 import {
   IntegrationBridge,
@@ -257,14 +259,8 @@ export class AutonomousTaskManagementService extends EventEmitter {
   async createTask(taskConfig: {
     title: string;
     description: string;
-    type:
-      | 'implementation'
-      | 'testing'
-      | 'documentation'
-      | 'validation'
-      | 'deployment'
-      | 'analysis';
-    priority: 'critical' | 'high' | 'normal' | 'low';
+    type: TaskType;
+    priority: TaskPriority;
     dependencies?: string[];
     requiredCapabilities?: AgentCapability[];
     featureId?: string;

@@ -944,3 +944,6 @@ export class DecisionLearningEngine {
     logger.debug('Model persistence not yet implemented');
   }
 }
+
+// Export alias for backward compatibility
+export { DecisionLearningEngine as LearningEngine };

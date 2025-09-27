@@ -23,9 +23,11 @@ import type {
   DependencyNode,
   DependencyEdge,
   ViolationType,
-  ViolationSeverity,
   NodeExecutionStatus,
   DependencyStatus,
+} from '../types/Dependency.js';
+import {
+  ViolationSeverity,
   GraphErrorType,
   GraphWarningType,
   OptimizationType,

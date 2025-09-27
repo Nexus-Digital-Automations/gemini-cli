@@ -1642,7 +1642,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private analyzeRiskComponents(task: Task): any[] {
     // Simplified risk component analysis
-    const baseComponents = [
+    const baseComponents: any[] = [
       {
         id: 'low_risk',
         name: 'Low Risk Operations',

@@ -808,3 +808,6 @@ export class DefaultSuccessCriteriaValidator
     );
   }
 }
+
+// Export alias for backward compatibility
+export { ComprehensiveValidationEngine as ValidationEngine };

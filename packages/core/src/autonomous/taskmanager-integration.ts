@@ -664,3 +664,6 @@ export function createAutonomousIntegration(
     mergedConfig,
   );
 }
+
+// Export alias for backward compatibility
+export { AutonomousTaskManagerIntegration as TaskManagerIntegration };

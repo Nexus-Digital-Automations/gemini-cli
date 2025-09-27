@@ -106,6 +106,7 @@ export interface PriorityFactors {
  */
 export interface Task {
   id: string;
+  name: string;
   title: string;
   description: string;
   category: TaskCategory;
@@ -131,7 +132,7 @@ export interface Task {
   dependents: string[]; // Task IDs that depend on this task
 
   // Execution context
-  context?: TaskContext;
+  context?: Record<string, unknown>;
 
   // Dynamic priority calculation
   basePriority: TaskPriority;
@@ -141,10 +142,24 @@ export interface Task {
   // Autonomous execution
   executeFunction?: (
     task: Task,
-    context: TaskContext,
-  ) => Promise<TaskExecutionResult>;
-  validateFunction?: (task: Task, context: TaskContext) => Promise<boolean>;
-  rollbackFunction?: (task: Task, context: TaskContext) => Promise<void>;
+    context: Record<string, unknown>,
+  ) => Promise<{
+    success: boolean;
+    result?: unknown;
+    duration: number;
+    error?: Error;
+    metadata?: Record<string, unknown>;
+    artifacts?: string[];
+    nextTasks?: Array<Partial<Task>>;
+  }>;
+  validateFunction?: (
+    task: Task,
+    context: Record<string, unknown>,
+  ) => Promise<boolean>;
+  rollbackFunction?: (
+    task: Task,
+    context: Record<string, unknown>,
+  ) => Promise<void>;
 
   // Metadata
   tags?: string[];
@@ -297,6 +312,7 @@ export class TaskQueue extends EventEmitter {
   ): Promise<string> {
     const task: Task = {
       id: taskDefinition.id ?? uuidv4(),
+      name: taskDefinition.name ?? taskDefinition.title,
       title: taskDefinition.title,
       description: taskDefinition.description,
       category: taskDefinition.category ?? TaskCategory.FEATURE,
@@ -825,7 +841,7 @@ export class TaskQueue extends EventEmitter {
    */
   private evaluateCondition(
     _condition: string,
-    _context: TaskContext,
+    _context: Record<string, unknown>,
   ): boolean {
     // Basic implementation - would need a proper expression evaluator in production
     // For now, assume conditions are always true

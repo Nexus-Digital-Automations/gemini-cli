@@ -26,9 +26,9 @@ import type {
   Task,
   // TaskId, - removed unused import
   TaskStatus,
-  TaskPriority,
   TaskCategory,
 } from './types.js';
+import { TaskPriority } from './types.js';
 
 // Define interfaces locally since original imports are not available
 export interface ITask extends Task {
@@ -2063,10 +2063,10 @@ class DataIntegrityManager {
         };
       },
       repair: async (data: unknown, detection: Record<string, unknown>) => {
-        const task = { ...data } as any;
+        const task = safeSpreadAsTask(data);
         const missingFields = detection.affectedData as string[];
 
-        // Add default values for missing fields
+        // Add default values for missing fields with proper type checking
         for (const field of missingFields) {
           switch (field) {
             case 'id':
@@ -2080,6 +2080,18 @@ class DataIntegrityManager {
               break;
             case 'status':
               task.status = 'pending';
+              break;
+            case 'type':
+              task.type = 'implementation';
+              break;
+            case 'priority':
+              task.priority = TaskPriority.MEDIUM;
+              break;
+            case 'createdAt':
+              task.createdAt = new Date();
+              break;
+            case 'updatedAt':
+              task.updatedAt = new Date();
               break;
             default:
               task[field] = null;
@@ -2125,7 +2137,7 @@ class DataIntegrityManager {
         };
       },
       repair: async (data: unknown, detection: Record<string, unknown>) => {
-        const task = { ...data } as any;
+        const task = safeSpreadAsTask(data);
         const invalidFields = detection.affectedData as string[];
         const now = new Date();
 
@@ -2470,7 +2482,7 @@ class SchemaMigrationManager {
         'Adds execution context and enhanced metadata to task structure',
       reversible: true,
       migrate: async (data: unknown) => {
-        const task = { ...data } as any;
+        const task = safeSpreadAsTask(data);
 
         // Add new fields with defaults
         if (!task.context) {
@@ -2501,7 +2513,7 @@ class SchemaMigrationManager {
         return task;
       },
       rollback: async (data: unknown) => {
-        const task = { ...data } as any;
+        const task = safeSpreadAsTask(data);
 
         // Remove v1.1.0 fields
         delete task.context;
@@ -2544,9 +2556,12 @@ class SchemaMigrationManager {
         'Adds compression metadata and enhanced indexing to storage format',
       reversible: true,
       migrate: async (data: unknown) => {
-        const storage = { ...data } as any;
+        const storage = safeSpreadAsTask(data);
 
         // Add compression metadata
+        if (!storage.metadata) {
+          storage.metadata = {};
+        }
         if (!storage.metadata.compressionEnabled) {
           storage.metadata.compressionEnabled = false;
         }
@@ -2555,6 +2570,9 @@ class SchemaMigrationManager {
         }
 
         // Enhance indexes
+        if (!storage.indexes) {
+          storage.indexes = {};
+        }
         if (!storage.indexes.byCreationDate) {
           storage.indexes.byCreationDate = [];
         }
@@ -2570,7 +2588,7 @@ class SchemaMigrationManager {
         return storage;
       },
       rollback: async (data: unknown) => {
-        const storage = { ...data } as any;
+        const storage = safeSpreadAsTask(data);
 
         // Remove v1.2.0 features
         if (storage.metadata) {
@@ -2616,7 +2634,7 @@ class SchemaMigrationManager {
         'Adds integrity hashes, recovery metadata, and session tracking',
       reversible: false, // This is a major version change
       migrate: async (data: unknown) => {
-        const checkpoint = { ...data } as any;
+        const checkpoint = safeSpreadAsTask(data);
 
         // Add integrity hash if not present
         if (!checkpoint.integrityHash) {
@@ -3060,6 +3078,34 @@ class RealTimeSyncManager {
   async shutdown(): Promise<void> {
     // Shutdown real-time sync
   }
+}
+
+/**
+ * Type guard to check if data is a partial task
+ */
+function isPartialTask(data: unknown): data is Partial<ITask> {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    (!('id' in data) || typeof (data as any).id === 'string')
+  );
+}
+
+/**
+ * Type guard to check if data is task-like
+ */
+function isTaskLike(data: unknown): data is Record<string, unknown> {
+  return typeof data === 'object' && data !== null;
+}
+
+/**
+ * Safely spread unknown data as task-like object
+ */
+function safeSpreadAsTask(data: unknown): Record<string, unknown> {
+  if (isTaskLike(data)) {
+    return { ...data };
+  }
+  return {};
 }
 
 // Type definitions

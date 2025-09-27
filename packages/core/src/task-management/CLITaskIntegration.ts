@@ -21,10 +21,15 @@
 import type { Config } from '../config/config.js';
 import { TaskManager } from './TaskManager.js';
 import type { TaskManagerConfig } from './TaskManager.js';
-import type { TaskStateManager } from './TaskStateManager.js';
-import { ExtendedTaskState } from './TaskStateManager.js';
-import type { AutonomousExecutionEngine } from './AutonomousExecutionEngine.js';
-import type { Task, TaskId } from './types.js';
+import type { ExecutionState } from '../autonomous/execution-engine.js';
+import type { AutonomousExecutionEngine } from '../autonomous/execution-engine.js';
+import type {
+  Task,
+  TaskId,
+  TaskStatus,
+  TaskPriority,
+  TaskCategory,
+} from './types.js';
 
 /**
  * CLI integration configuration
@@ -410,9 +415,9 @@ export class CLITaskIntegration {
         name: title || 'Untitled Task',
         title: title || 'Untitled Task',
         description: description || 'No description provided',
-        status: 'pending',
-        priority: (options.priority as any) || 'medium',
-        category: (options.category as any) || 'implementation',
+        status: TaskStatus.PENDING,
+        priority: (options.priority as TaskPriority) || TaskPriority.NORMAL,
+        category: (options.category as TaskCategory) || TaskCategory.FEATURE,
         metadata: {
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -430,9 +435,9 @@ export class CLITaskIntegration {
         name: 'System Status Check',
         title: 'System Status Check',
         description: 'Get comprehensive system and task status',
-        status: 'pending',
-        priority: 'low',
-        category: 'analysis',
+        status: TaskStatus.PENDING,
+        priority: TaskPriority.LOW,
+        category: TaskCategory.FEATURE,
         metadata: {
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -449,9 +454,9 @@ export class CLITaskIntegration {
         name: 'System Optimization',
         title: 'System Optimization',
         description: 'Analyze and optimize task queue performance',
-        status: 'pending',
-        priority: 'high',
-        category: 'analysis',
+        status: TaskStatus.PENDING,
+        priority: TaskPriority.HIGH,
+        category: TaskCategory.PERFORMANCE,
         metadata: {
           createdAt: new Date(),
           updatedAt: new Date(),

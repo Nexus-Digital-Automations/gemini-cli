@@ -361,8 +361,8 @@ export class StackTraceAnalyzer {
           language,
           totalFrames: frames.length,
           analyzedFrames: analyzedFrames.length,
-          rootCauseFound: !!rootCause,
-          patternsDetected: errorPatterns.length,
+          rootCauseFound: !!_rootCause,
+          patternsDetected: _errorPatterns.length,
         },
       );
 

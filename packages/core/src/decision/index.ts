@@ -20,13 +20,13 @@ export { RuleEngine } from './ruleEngine.js';
 
 // Dependency management
 export { DependencyAnalyzer } from './DependencyAnalyzer.js';
-export { DependencyGraph } from './DependencyGraph.js';
+export { DecisionDependencyGraphManager as DependencyGraph } from './DependencyGraph.js';
 export { TaskSequencer } from './TaskSequencer.js';
 export { ParallelOptimizer } from './ParallelOptimizer.js';
 
 // Learning and optimization
-export { LearningEngine } from './learningEngine.js';
+export { DecisionLearningEngine as LearningEngine } from './learningEngine.js';
 
 // Utilities
-export { AuditTrail } from './auditTrail.js';
+export { DecisionAuditTrail as AuditTrail } from './auditTrail.js';
 export { ContextCollector } from './contextCollector.js';
