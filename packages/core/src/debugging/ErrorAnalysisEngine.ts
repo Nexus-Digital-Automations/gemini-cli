@@ -657,8 +657,8 @@ export class ErrorAnalysisEngine {
     // Use pattern-based root cause if available
     if (patternMatches.length > 0) {
       const bestMatch = patternMatches[0];
-      if (bestMatch.pattern.metadata?.commonCauses?.[0]) {
-        return bestMatch.pattern.metadata.commonCauses[0];
+      if (bestMatch.commonCauses?.[0]) {
+        return bestMatch.commonCauses[0];
       }
     }
 
@@ -686,14 +686,14 @@ export class ErrorAnalysisEngine {
    */
   private async generateFixSuggestions(
     patternMatches: ErrorPattern[],
-    _context: ErrorAnalysisContext,
+    context: ErrorAnalysisContext,
   ): Promise<string[]> {
     const suggestions: string[] = [];
 
     // Add pattern-based suggestions
     for (const match of patternMatches.slice(0, 3)) {
-      if (match.suggestions && match.suggestions.length > 0) {
-        suggestions.push(...match.suggestions);
+      if (match.suggestedFixes && match.suggestedFixes.length > 0) {
+        suggestions.push(...match.suggestedFixes.map((fix) => fix.description));
       }
     }
 
@@ -705,7 +705,12 @@ export class ErrorAnalysisEngine {
       suggestions.push('Check type definitions and imports');
     }
 
-    if (context.projectContext?.framework === 'react') {
+    if (
+      context.projectContext &&
+      typeof context.projectContext === 'object' &&
+      'framework' in context.projectContext &&
+      (context.projectContext as Record<string, unknown>).framework === 'react'
+    ) {
       suggestions.push(
         'Verify React component prop types and state management',
       );
@@ -722,7 +727,7 @@ export class ErrorAnalysisEngine {
   private async generateInsights(
     errorText: string,
     patternMatches: ErrorPattern[],
-    _context: ErrorAnalysisContext,
+    context: ErrorAnalysisContext,
   ): Promise<ErrorInsight[]> {
     if (!this.config.enableMLInsights) {
       return [];
@@ -733,17 +738,13 @@ export class ErrorAnalysisEngine {
     // Pattern frequency insight
     if (patternMatches.length > 0) {
       const mostCommonPattern = patternMatches[0];
-      const frequencyData = this.errorHistory.get(mostCommonPattern.pattern.id);
+      const frequencyData = this.errorHistory.get(mostCommonPattern.id);
 
-      if (frequencyData && frequencyData.totalCount > 3) {
+      if (frequencyData && frequencyData.total > 3) {
         insights.push({
           type: 'frequency',
           confidence: 0.8,
-          title: 'Recurring Error Pattern',
-          description: `This error pattern has occurred ${frequencyData.totalCount} times`,
-          actionable: true,
-          priority: 'medium',
-          tags: ['pattern', 'frequency'],
+          description: `This error pattern has occurred ${frequencyData.total} times`,
         });
       }
     }
