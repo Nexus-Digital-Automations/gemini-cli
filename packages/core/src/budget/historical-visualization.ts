@@ -1032,7 +1032,7 @@ export class HistoricalVisualizationEngine {
     months.forEach((month, monthIndex) => {
       const monthData = data[month];
       Object.keys(monthData).forEach((day) => {
-        const dayNum = parseInt(day);
+        const dayNum = parseInt(day, 10);
         const value = monthData[day];
         const intensity = value / maxValue;
         const color = `rgba(66, 133, 244, ${intensity})`;

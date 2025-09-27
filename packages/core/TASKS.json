@@ -9,33 +9,33 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 5,
+      "total_reinitializations": 6,
       "current_day": "2025-09-27",
       "time_buckets": {
-        "10:00-14:59": {
+        "11:00-15:59": {
+          "init": 0,
+          "reinit": 1
+        },
+        "16:00-20:59": {
           "init": 0,
           "reinit": 0
         },
-        "15:00-19:59": {
+        "21:00-01:59": {
           "init": 0,
           "reinit": 0
         },
-        "20:00-00:59": {
-          "init": 0,
-          "reinit": 5
-        },
-        "01:00-05:59": {
+        "02:00-06:59": {
           "init": 0,
           "reinit": 0
         },
-        "06:00-10:59": {
+        "07:00-11:59": {
           "init": 0,
           "reinit": 0
         }
       },
       "daily_history": [],
-      "last_reset": "2025-09-27T04:36:55.773Z",
-      "last_updated": "2025-09-27T04:37:08.509Z"
+      "last_reset": "2025-09-27T18:21:17.266Z",
+      "last_updated": "2025-09-27T18:21:17.266Z"
     }
   },
   "workflow_config": {
@@ -78,6 +78,13 @@
       "status": "active",
       "reinitialized": "2025-09-27T04:37:08.487Z",
       "sessionId": "c9f9d39b91c05149",
+      "previousSessions": []
+    },
+    "claude-core-debugging-fixes": {
+      "lastHeartbeat": "2025-09-27T18:21:17.266Z",
+      "status": "active",
+      "reinitialized": "2025-09-27T18:21:17.266Z",
+      "sessionId": "3504c80a7c4f22a0",
       "previousSessions": []
     }
   }

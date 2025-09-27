@@ -15,10 +15,8 @@
 import type {
   BudgetSettings,
   BudgetUsageData,
-  TokenUsageData,
   SessionUsageData,
   HistoricalDataPoint,
-  ModelUsageData,
 } from '../types.js';
 import { BudgetEnforcementLevel, NotificationFrequency } from '../types.js';
 

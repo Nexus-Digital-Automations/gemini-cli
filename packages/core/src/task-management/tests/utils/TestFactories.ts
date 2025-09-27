@@ -733,14 +733,14 @@ export class TestUtils {
   /**
    * Pick random element from array
    */
-  static randomElement<T>(array: T[]): T {
+  static randomElement<T>(array: Array<T>): T {
     return array[Math.floor(Math.random() * array.length)];
   }
 
   /**
    * Shuffle array in place
    */
-  static shuffle<T>(array: T[]): T[] {
+  static shuffle<T>(array: Array<T>): Array<T> {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];

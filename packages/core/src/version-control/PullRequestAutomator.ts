@@ -868,8 +868,8 @@ export class PullRequestAutomator {
       diffStat.split('\n').forEach((line) => {
         if (line.trim()) {
           const [addedStr, deletedStr] = line.split('\t');
-          added += parseInt(addedStr) || 0;
-          deleted += parseInt(deletedStr) || 0;
+          added += parseInt(addedStr, 10) || 0;
+          deleted += parseInt(deletedStr, 10) || 0;
         }
       });
 

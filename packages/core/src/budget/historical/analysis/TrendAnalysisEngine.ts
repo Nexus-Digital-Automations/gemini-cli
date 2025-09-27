@@ -591,14 +591,14 @@ export class TrendAnalysisEngineImpl implements TrendAnalysisEngine {
     switch (patternType) {
       case 'daily':
         nextPeakTime = new Date(currentDate);
-        nextPeakTime.setHours(parseInt(topPeak.period), 0, 0, 0);
+        nextPeakTime.setHours(parseInt(topPeak.period, 10), 0, 0, 0);
         if (nextPeakTime.getTime() <= now) {
           nextPeakTime.setDate(nextPeakTime.getDate() + 1);
         }
         break;
       case 'weekly':
         nextPeakTime = new Date(currentDate);
-        const targetDay = parseInt(topPeak.period);
+        const targetDay = parseInt(topPeak.period, 10);
         const currentDay = currentDate.getDay();
         const daysToAdd =
           targetDay >= currentDay
@@ -608,7 +608,7 @@ export class TrendAnalysisEngineImpl implements TrendAnalysisEngine {
         break;
       case 'monthly':
         nextPeakTime = new Date(currentDate);
-        const targetWeek = parseInt(topPeak.period);
+        const targetWeek = parseInt(topPeak.period, 10);
         nextPeakTime.setDate(targetWeek * 7 + 1);
         if (nextPeakTime.getTime() <= now) {
           nextPeakTime.setMonth(nextPeakTime.getMonth() + 1);

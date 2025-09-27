@@ -5,13 +5,15 @@
  */
 
 import { getComponentLogger } from '../utils/logger.js';
+import {
+  DecisionType,
+  DecisionPriority,
+} from './types.js';
 import type {
   DecisionRule,
   DecisionCondition,
   DecisionAction,
-  DecisionType,
   DecisionContext,
-  DecisionPriority,
 } from './types.js';
 
 const logger = getComponentLogger('rule-engine');

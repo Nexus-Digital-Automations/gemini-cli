@@ -49,7 +49,7 @@ interface CostAnalysis {
 /**
  * Implementation impact assessment
  */
-interface ImplementationImpact {
+interface _ImplementationImpact {
   technicalComplexity: number; // 1-10
   businessRisk: number; // 1-10
   userExperience: number; // -5 to +5 (negative means worse UX)
@@ -218,7 +218,7 @@ export class OptimizationEngine {
    */
   private async generateCostReductionRecommendations(
     costAnalysis: CostAnalysis,
-    metrics: UsageMetrics[],
+    _metrics: UsageMetrics[],
   ): Promise<OptimizationRecommendation[]> {
     const recommendations: OptimizationRecommendation[] = [];
 
@@ -777,7 +777,7 @@ export class OptimizationEngine {
     return groups;
   }
 
-  private analyzeModelUsage(metrics: UsageMetrics[]): {
+  private analyzeModelUsage(_metrics: UsageMetrics[]): {
     inefficientModels: string[];
   } {
     // Placeholder for model usage analysis
@@ -865,7 +865,7 @@ export class OptimizationEngine {
 
   private async calculateROI(
     recommendation: OptimizationRecommendation,
-    costAnalysis: CostAnalysis,
+    _costAnalysis: CostAnalysis,
   ): Promise<ROICalculation> {
     // Simplified ROI calculation
     const complexityMultiplier = { low: 1, medium: 2, high: 4 };
@@ -1022,8 +1022,8 @@ export class OptimizationEngine {
    * Generate anomaly resolution recommendations
    */
   private async generateAnomalyResolutionRecommendations(
-    anomalies: AnomalyDetection[],
-    costAnalysis: CostAnalysis,
+    _anomalies: AnomalyDetection[],
+    _costAnalysis: CostAnalysis,
   ): Promise<OptimizationRecommendation[]> {
     // Implementation would create specific recommendations for each anomaly
     return [];

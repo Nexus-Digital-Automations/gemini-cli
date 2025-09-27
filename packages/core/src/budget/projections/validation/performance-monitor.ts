@@ -6,7 +6,6 @@
 
 import os from 'node:os';
 import type { CostDataPoint } from '../types.js';
-import type { ValidationMetrics } from './algorithm-validator.js';
 import { getComponentLogger, type StructuredLogger } from '../../../utils/logger.js';
 
 /**

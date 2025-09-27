@@ -15,6 +15,8 @@ import type {
 import type {
   Decision,
   DecisionContext,
+} from './types.js';
+import {
   DecisionType,
   DecisionPriority,
 } from './types.js';
@@ -144,8 +146,8 @@ export interface PathAnalysis {
 /**
  * Advanced dependency graph with intelligent decision-making capabilities
  */
-export class DecisionDependencyGraph {
-  private graph: DecisionDependencyGraphData;
+export class DecisionDependencyGraphManager {
+  private graph: DecisionDependencyGraph;
   private tasks: Map<TaskId, Task>;
   private optimizationCache: Map<string, GraphOptimization[]>;
   private pathCache: Map<string, PathAnalysis>;
@@ -1294,7 +1296,7 @@ export class DecisionDependencyGraph {
   private calculateGraphMetrics(): any {
     const criticalPaths = this.analyzeAllCriticalPaths();
     const bottlenecks = this.identifyBottlenecks();
-    const flexibility = this.calculateFlexibilityScore();
+    const flexibility = this.calculateFlexibility();
 
     return {
       totalExecutionTime:
@@ -1510,7 +1512,7 @@ export class DecisionDependencyGraph {
 
     const averageConfidence =
       confidenceCount > 0 ? totalConfidence / confidenceCount : 0;
-    const flexibilityScore = this.calculateFlexibilityScore();
+    const flexibilityScore = this.calculateFlexibility();
     const riskScore =
       this.graph.metadata.decisionInsights.riskAssessment.overallRisk;
     const bottlenecks = this.identifyBottlenecks();

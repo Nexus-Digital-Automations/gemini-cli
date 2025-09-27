@@ -497,8 +497,8 @@ export class ValidationFramework extends EventEmitter {
   /**
    * Create batches of rules for concurrent execution
    */
-  private createBatches<T>(items: T[], batchSize: number): T[][] {
-    const batches: T[][] = [];
+  private createBatches<T>(items: Array<T>, batchSize: number): Array<Array<T>> {
+    const batches: Array<Array<T>> = [];
     for (let i = 0; i < items.length; i += batchSize) {
       batches.push(items.slice(i, i + batchSize));
     }

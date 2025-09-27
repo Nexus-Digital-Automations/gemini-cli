@@ -18,11 +18,13 @@ import {
   type AllocationStrategy,
   type ResourceRequirement,
 } from './resourceAllocator.js';
+import {
+  DecisionType,
+  DecisionPriority,
+} from './types.js';
 import type {
   DecisionContext,
   Decision,
-  DecisionType,
-  DecisionPriority,
 } from './types.js';
 
 /**

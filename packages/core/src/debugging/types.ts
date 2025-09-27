@@ -142,6 +142,8 @@ export interface ErrorAnalysis {
 export interface FixSuggestion {
   /** Unique identifier */
   id: string;
+  /** Fix title */
+  title?: string;
   /** Human-readable description */
   description: string;
   /** Detailed explanation */
@@ -150,6 +152,8 @@ export interface FixSuggestion {
   codeChanges: CodeChange[];
   /** Confidence in fix success (0-1) */
   confidence: number;
+  /** Fix complexity level */
+  complexity?: string;
   /** Impact assessment */
   impact: ImpactAssessment;
   /** Prerequisites for applying fix */
@@ -162,6 +166,12 @@ export interface FixSuggestion {
   priority: FixPriority;
   /** Category of fix */
   category: FixCategory;
+  /** Tags for categorization */
+  tags?: string[];
+  /** Source of the suggestion */
+  source?: string;
+  /** Additional metadata */
+  metadata?: Record<string, unknown>;
   /** Fix validation criteria */
   validation?: FixValidation;
   /** Code transformation instructions */
@@ -1692,6 +1702,10 @@ export interface FixValidation {
   expectedOutput?: string;
   conditions?: string[];
   isValid?: boolean;
+  warnings?: string[];
+  requirements?: string[];
+  safetyScore?: number;
+  estimatedImpact?: string;
 }
 
 /**
@@ -1791,6 +1805,89 @@ export interface LearningFix {
   pattern: string;
   effectiveness: number;
   lastUsed: Date;
+}
+
+/**
+ * Error event for real-time monitoring
+ */
+export interface ErrorEvent {
+  id: string;
+  timestamp: Date;
+  type: ErrorType;
+  severity: ErrorSeverity;
+  message: string;
+  source: string;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Error metrics for monitoring
+ */
+export interface ErrorMetrics {
+  totalErrors: number;
+  errorRate: number;
+  criticalErrors: number;
+  timeWindow: string;
+  trends: {
+    increasing: boolean;
+    percentageChange: number;
+  };
+}
+
+/**
+ * Monitoring alert configuration
+ */
+export interface MonitoringAlert {
+  id: string;
+  name: string;
+  description: string;
+  condition: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  enabled: boolean;
+  actions: string[];
+}
+
+/**
+ * System health status
+ */
+export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
+
+/**
+ * Monitored application configuration
+ */
+export interface MonitoredApplication {
+  id: string;
+  name: string;
+  version: string;
+  environment: string;
+  endpoints: string[];
+  healthCheckUrl?: string;
+}
+
+/**
+ * Error event subscriber
+ */
+export interface ErrorSubscriber {
+  id: string;
+  name: string;
+  callback: (event: ErrorEvent) => void;
+  filters?: {
+    severity?: ErrorSeverity[];
+    type?: ErrorType[];
+    source?: string[];
+  };
+}
+
+/**
+ * Overall system health information
+ */
+export interface SystemHealth {
+  status: HealthStatus;
+  lastChecked: Date;
+  uptime: number;
+  errorRate: number;
+  responseTime: number;
+  components: Record<string, HealthStatus>;
 }
 
 /**

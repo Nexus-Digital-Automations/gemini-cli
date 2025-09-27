@@ -1118,8 +1118,8 @@ export class ChangelogGenerator {
       numstat.split('\n').forEach((line) => {
         const parts = line.split('\t');
         if (parts.length === 3) {
-          additions += parseInt(parts[0]) || 0;
-          deletions += parseInt(parts[1]) || 0;
+          additions += parseInt(parts[0], 10) || 0;
+          deletions += parseInt(parts[1], 10) || 0;
           files.push(parts[2]);
         }
       });

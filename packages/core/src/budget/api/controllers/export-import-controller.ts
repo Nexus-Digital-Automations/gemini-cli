@@ -49,7 +49,7 @@ interface ExportConfig {
   includeSettings?: boolean;
   compression?: 'none' | 'gzip' | 'zip';
   template?: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
 }
 
 /**
@@ -61,8 +61,8 @@ interface ExportTemplate {
   description: string;
   format: string;
   fields: string[];
-  customFields?: Record<string, any>;
-  formatting?: Record<string, any>;
+  customFields?: Record<string, unknown>;
+  formatting?: Record<string, unknown>;
 }
 
 /**
@@ -93,12 +93,12 @@ export class ExportImportController {
     // Validate and cast format parameter
     const formatParam = req.query.format as string;
     const validFormats: Array<'json' | 'csv' | 'xlsx' | 'pdf'> = ['json', 'csv', 'xlsx', 'pdf'];
-    const format = validFormats.includes(formatParam as any) ? formatParam as 'json' | 'csv' | 'xlsx' | 'pdf' : 'json';
+    const format = validFormats.includes(formatParam as 'json' | 'csv' | 'xlsx' | 'pdf') ? formatParam as 'json' | 'csv' | 'xlsx' | 'pdf' : 'json';
 
     // Validate and cast compression parameter
     const compressionParam = req.query.compression as string;
     const validCompressions: Array<'none' | 'gzip' | 'zip'> = ['none', 'gzip', 'zip'];
-    const compression = validCompressions.includes(compressionParam as any) ? compressionParam as 'none' | 'gzip' | 'zip' : 'none';
+    const compression = validCompressions.includes(compressionParam as 'none' | 'gzip' | 'zip') ? compressionParam as 'none' | 'gzip' | 'zip' : 'none';
 
     const config: ExportConfig = {
       format,
@@ -327,13 +327,51 @@ export class ExportImportController {
   /**
    * Collect data for export based on configuration
    */
-  private async collectExportData(config: ExportConfig): Promise<any> {
+  private async collectExportData(config: ExportConfig): Promise<{
+    exportInfo: {
+      generatedAt: string;
+      format: string;
+      dateRange: {
+        startDate?: string;
+        endDate?: string;
+      };
+      filters?: Record<string, unknown>;
+    };
+    currentUsage?: BudgetUsageData;
+    settings?: BudgetSettings;
+    history?: Array<{
+      date: string;
+      requestCount: number;
+      totalCost: number;
+      timestamp: string;
+    }>;
+    analytics?: Record<string, unknown>;
+  }> {
     const budgetTracker = await getBudgetTracker();
     if (!budgetTracker) {
       throw new Error('Budget tracker unavailable');
     }
 
-    const exportData: any = {
+    const exportData: {
+      exportInfo: {
+        generatedAt: string;
+        format: string;
+        dateRange: {
+          startDate?: string;
+          endDate?: string;
+        };
+        filters?: Record<string, unknown>;
+      };
+      currentUsage?: BudgetUsageData;
+      settings?: BudgetSettings;
+      history?: Array<{
+        date: string;
+        requestCount: number;
+        totalCost: number;
+        timestamp: string;
+      }>;
+      analytics?: Record<string, unknown>;
+    } = {
       exportInfo: {
         generatedAt: new Date().toISOString(),
         format: config.format,
@@ -377,10 +415,10 @@ export class ExportImportController {
    * Generate export based on format and configuration
    */
   private async generateExport(
-    data: any,
+    data: Record<string, unknown>,
     config: ExportConfig,
   ): Promise<{
-    data?: any;
+    data?: Buffer | string;
     stream?: Readable;
     filename: string;
     size?: number;
@@ -415,7 +453,7 @@ export class ExportImportController {
   /**
    * Generate CSV export
    */
-  private generateCSVExport(data: any): string {
+  private generateCSVExport(data: Record<string, unknown>): string {
     const rows: string[] = [];
 
     // Add header
@@ -451,10 +489,10 @@ export class ExportImportController {
    * Generate Excel export (mock implementation)
    */
   private async generateExcelExport(
-    data: any,
+    data: Record<string, unknown>,
     filename: string,
   ): Promise<{
-    data?: any;
+    data?: Buffer;
     stream?: Readable;
     filename: string;
   }> {
@@ -475,10 +513,10 @@ export class ExportImportController {
    * Generate PDF export (mock implementation)
    */
   private async generatePDFExport(
-    data: any,
+    data: Record<string, unknown>,
     filename: string,
   ): Promise<{
-    data?: any;
+    data?: Buffer;
     stream?: Readable;
     filename: string;
   }> {
@@ -498,7 +536,7 @@ export class ExportImportController {
   /**
    * Generate analytics data for export
    */
-  private async generateAnalyticsForExport(config: ExportConfig): Promise<any> {
+  private async generateAnalyticsForExport(_config: ExportConfig): Promise<Record<string, unknown>> {
     // Mock analytics generation
     return {
       summary: {
@@ -515,7 +553,7 @@ export class ExportImportController {
   /**
    * Parse import data from request
    */
-  private async parseImportData(req: AuthenticatedRequest): Promise<any> {
+  private async parseImportData(req: AuthenticatedRequest): Promise<Record<string, unknown>> {
     const contentType = req.headers['content-type'] || '';
 
     if (contentType.includes('application/json')) {
@@ -530,18 +568,22 @@ export class ExportImportController {
   /**
    * Parse CSV import data
    */
-  private parseCSVData(csvText: string): any {
+  private parseCSVData(csvText: string): {
+    type: string;
+    headers: string[];
+    records: Array<Record<string, string>>;
+  } {
     const lines = csvText.split('\n').filter((line) => line.trim());
     if (lines.length < 2) {
       throw new Error('Invalid CSV data: missing header or data rows');
     }
 
     const headers = lines[0].split(',').map((h) => h.trim());
-    const records: any[] = [];
+    const records: Array<Record<string, string>> = [];
 
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map((v) => v.trim());
-      const record: any = {};
+      const record: Record<string, string> = {};
 
       headers.forEach((header, index) => {
         record[header] = values[index] || '';
@@ -560,7 +602,7 @@ export class ExportImportController {
   /**
    * Validate import data
    */
-  private validateImportData(data: any): { valid: boolean; errors: string[] } {
+  private validateImportData(data: Record<string, unknown>): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     if (!data) {
@@ -588,7 +630,12 @@ export class ExportImportController {
   /**
    * Process import data
    */
-  private async processImportData(data: any): Promise<any> {
+  private async processImportData(data: Record<string, unknown>): Promise<{
+    recordsProcessed: number;
+    recordsImported: number;
+    recordsSkipped: number;
+    errors: string[];
+  }> {
     let recordsProcessed = 0;
     let recordsImported = 0;
     let recordsSkipped = 0;
@@ -622,7 +669,7 @@ export class ExportImportController {
   /**
    * Import individual record
    */
-  private async importRecord(record: any): Promise<void> {
+  private async importRecord(record: Record<string, unknown>): Promise<void> {
     // Mock import - replace with actual import logic
     logger.debug('Importing record', { record });
 

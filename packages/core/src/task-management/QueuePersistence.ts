@@ -603,7 +603,7 @@ export class QueuePersistence extends EventEmitter {
       return this.getSnapshotList();
     } catch (error) {
       logger().error('Failed to list snapshots', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       return [];
     }
@@ -734,7 +734,7 @@ export class QueuePersistence extends EventEmitter {
       this.emit('storageCompacted', operation);
     } catch (error) {
       logger().error('Storage compaction failed', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       throw error;
     }
@@ -757,7 +757,7 @@ export class QueuePersistence extends EventEmitter {
       });
     } catch (error) {
       logger().error('Failed to initialize storage directories', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       throw error;
     }
@@ -1004,7 +1004,7 @@ export class QueuePersistence extends EventEmitter {
           snapshots.push(parsed.metadata);
         } catch (error) {
           logger().warn(`Failed to read snapshot metadata from ${file}`, {
-            error: error instanceof Error ? error.message : String(error),
+            error: error instanceof Error ? error : new Error(String(error)),
           });
         }
       }
@@ -1014,7 +1014,7 @@ export class QueuePersistence extends EventEmitter {
       );
     } catch (error) {
       logger().error('Failed to get snapshot list', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       return [];
     }
@@ -1051,7 +1051,7 @@ export class QueuePersistence extends EventEmitter {
     } catch (error) {
       logger().error('Snapshot integrity verification failed', {
         snapshotId: snapshot.metadata.id,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       return false;
     }
@@ -1110,7 +1110,7 @@ export class QueuePersistence extends EventEmitter {
         } catch (error) {
           logger().warn('Failed to delete old snapshot', {
             snapshotId: snapshot.id,
-            error: error instanceof Error ? error.message : String(error),
+            error: error instanceof Error ? error : new Error(String(error)),
           });
         }
       }
@@ -1148,7 +1148,7 @@ export class QueuePersistence extends EventEmitter {
         } catch (error) {
           logger().warn('Failed to delete old backup', {
             backupId: backup.id,
-            error: error instanceof Error ? error.message : String(error),
+            error: error instanceof Error ? error : new Error(String(error)),
           });
         }
       }

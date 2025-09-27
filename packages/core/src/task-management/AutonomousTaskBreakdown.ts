@@ -366,6 +366,9 @@ export class AutonomousTaskBreakdown extends EventEmitter {
         case BreakdownStrategy.HYBRID:
           score = this.scoreHybridStrategy(task, complexity);
           break;
+        default:
+          score = 0; // Unknown strategy gets no score
+          break;
       }
 
       strategyScores.set(strategy, score);
@@ -415,6 +418,8 @@ export class AutonomousTaskBreakdown extends EventEmitter {
       case BreakdownStrategy.HYBRID:
         subtasks = await this.performHybridBreakdown(task, complexity);
         break;
+      default:
+        throw new Error(`Unsupported breakdown strategy: ${strategy}`);
     }
 
     // Calculate expected improvement

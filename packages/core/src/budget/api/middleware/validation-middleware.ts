@@ -341,7 +341,7 @@ export function validateContentType(expectedTypes: string[]) {
 export function validateRequestSize(maxSize: number = 1024 * 1024) {
   // 1MB default
   return (req: Request, res: Response, next: NextFunction): void => {
-    const contentLength = parseInt(req.get('Content-Length') || '0');
+    const contentLength = parseInt(req.get('Content-Length') || '0', 10);
 
     logger.debug('Request size validation', {
       contentLength,

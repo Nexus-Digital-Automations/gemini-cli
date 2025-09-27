@@ -315,9 +315,9 @@ export function auditLogMiddleware(
         method: req.method,
         statusCode: res.statusCode,
         duration,
-        requestSize: parseInt(req.get('Content-Length') || '0'),
+        requestSize: parseInt(req.get('Content-Length') || '0', 10),
         responseSize: res.get('Content-Length')
-          ? parseInt(res.get('Content-Length')!)
+          ? parseInt(res.get('Content-Length')!, 10)
           : undefined,
         details: createAuditDetails(req, res, responseData),
         tags: req.auditContext?.tags || [],
@@ -495,7 +495,7 @@ export function getAuditLogs(req: Request, res: Response): void {
   const { userId, eventType, startDate, endDate, limit = 100 } = req.query;
 
   const filters: any = {
-    limit: parseInt(limit as string),
+    limit: parseInt(limit as string, 10),
   };
 
   if (userId) filters.userId = userId as string;

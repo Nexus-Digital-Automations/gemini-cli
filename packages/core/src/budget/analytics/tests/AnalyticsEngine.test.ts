@@ -67,7 +67,7 @@ describe('AnalyticsEngine', () => {
     // Clean up temporary directory
     try {
       await fs.rm(tempDir, { recursive: true, force: true });
-    } catch (error) {
+    } catch (_error) {
       // Ignore cleanup errors
     }
   });
@@ -139,7 +139,7 @@ describe('AnalyticsEngine', () => {
 
       // Mock the anomaly detection method
       const checkForAnomaliesSpy = vi.spyOn(
-        analyticsEngine as any,
+        analyticsEngine as unknown as { checkForAnomalies: (metrics: UsageMetrics[]) => Promise<void> },
         'checkForAnomalies',
       );
 

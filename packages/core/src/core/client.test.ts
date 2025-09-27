@@ -123,7 +123,7 @@ vi.mock('../telemetry/uiTelemetry.js', () => ({
  *
  * Buffers an async generator into an array and returns the result.
  */
-async function fromAsync<T>(promise: AsyncGenerator<T>): Promise<readonly T[]> {
+async function fromAsync<T>(promise: AsyncGenerator<T>): Promise<readonly Array<T>> {
   const results: T[] = [];
   for await (const result of promise) {
     results.push(result);

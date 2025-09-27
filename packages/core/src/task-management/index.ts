@@ -126,6 +126,9 @@ export type {
 
 export {
   InfiniteHookIntegration,
+} from './InfiniteHookIntegration.js';
+
+export type {
   TaskManagerAPI,
 } from './InfiniteHookIntegration.js';
 

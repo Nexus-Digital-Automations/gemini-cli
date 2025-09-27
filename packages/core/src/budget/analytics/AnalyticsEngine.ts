@@ -7,7 +7,6 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type { BudgetTracker } from '../budget-tracker.js';
-import type { BudgetSettings, BudgetUsageData } from '../types.js';
 
 /**
  * Multi-dimensional usage analysis dimensions
@@ -788,32 +787,32 @@ export class AnalyticsEngine {
 
   // Additional placeholder methods for pattern detection
   private groupMetricsByTimeWindow(
-    metrics: UsageMetrics[],
-    window: 'hour' | 'day',
+    _metrics: UsageMetrics[],
+    _window: 'hour' | 'day',
   ): Map<string, UsageMetrics[]> {
     return new Map(); // Placeholder
   }
 
   private detectSpikes(
-    timeGrouped: Map<string, UsageMetrics[]>,
+    _timeGrouped: Map<string, UsageMetrics[]>,
   ): PatternAnalysis[] {
     return []; // Placeholder
   }
 
   private detectPeriodicPatterns(
-    timeGrouped: Map<string, UsageMetrics[]>,
+    _timeGrouped: Map<string, UsageMetrics[]>,
   ): PatternAnalysis[] {
     return []; // Placeholder
   }
 
   private detectBusinessHoursPattern(
-    timeGrouped: Map<string, UsageMetrics[]>,
+    _timeGrouped: Map<string, UsageMetrics[]>,
   ): PatternAnalysis | null {
     return null; // Placeholder
   }
 
   private detectWeekendPattern(
-    timeGrouped: Map<string, UsageMetrics[]>,
+    _timeGrouped: Map<string, UsageMetrics[]>,
   ): PatternAnalysis | null {
     return null; // Placeholder
   }
@@ -827,21 +826,21 @@ export class AnalyticsEngine {
     return metrics.filter((m) => new Date(m.timestamp) >= cutoff);
   }
 
-  private detectCostAnomalies(metrics: UsageMetrics[]): AnomalyDetection[] {
+  private detectCostAnomalies(_metrics: UsageMetrics[]): AnomalyDetection[] {
     return []; // Placeholder
   }
 
-  private detectVolumeAnomalies(metrics: UsageMetrics[]): AnomalyDetection[] {
+  private detectVolumeAnomalies(_metrics: UsageMetrics[]): AnomalyDetection[] {
     return []; // Placeholder
   }
 
   private detectEfficiencyAnomalies(
-    metrics: UsageMetrics[],
+    _metrics: UsageMetrics[],
   ): AnomalyDetection[] {
     return []; // Placeholder
   }
 
-  private async checkForAnomalies(metrics: UsageMetrics[]): Promise<void> {
+  private async checkForAnomalies(_metrics: UsageMetrics[]): Promise<void> {
     // Real-time anomaly checking logic would go here
   }
   /**
@@ -851,9 +850,27 @@ export class AnalyticsEngine {
     startDate: string;
     endDate: string;
     granularity: 'hour' | 'day' | 'week' | 'month';
-    filters?: Record<string, any>;
+    filters?: Record<string, unknown>;
     groupBy?: string;
-  }): Promise<any> {
+  }): Promise<{
+    dataPoints: Array<{
+      period: string;
+      cost: number;
+      requests: number;
+      averageCost: number;
+    }>;
+    summary: {
+      totalCost: number;
+      totalRequests: number;
+      averageCost: number;
+      costRange?: {
+        min: number;
+        max: number;
+      };
+    };
+    patterns: PatternAnalysis[];
+    recommendations: OptimizationRecommendation[];
+  }> {
     try {
       const metrics = await this.getMetricsInRange(params.startDate, params.endDate);
       const filteredMetrics = this.applyFilters(metrics, params.filters || {});
@@ -879,7 +896,21 @@ export class AnalyticsEngine {
     startDate: string;
     endDate: string;
     granularity: 'hour' | 'day' | 'week' | 'month';
-  }): Promise<any> {
+  }): Promise<{
+    trends: Array<{
+      metric: string;
+      direction: 'increasing' | 'decreasing' | 'stable';
+      changePercentage: number;
+      confidence: number;
+    }>;
+    patterns: PatternAnalysis[];
+    volatility: string;
+    forecast: Array<{
+      date: string;
+      predictedCost: number;
+      confidence: number;
+    }>;
+  }> {
     try {
       const metrics = await this.getMetricsInRange(params.startDate, params.endDate);
       const trends = this.calculateTrends(metrics);
@@ -904,8 +935,17 @@ export class AnalyticsEngine {
     startDate: string;
     endDate: string;
     groupBy: string;
-    filters?: Record<string, any>;
-  }): Promise<any> {
+    filters?: Record<string, unknown>;
+  }): Promise<{
+    categories: Array<{
+      category: string;
+      cost: number;
+      requests: number;
+      averageCost: number;
+    }>;
+    totalCost: number;
+    totalRequests: number;
+  }> {
     try {
       const metrics = await this.getMetricsInRange(params.startDate, params.endDate);
       const filteredMetrics = this.applyFilters(metrics, params.filters || {});
@@ -915,8 +955,8 @@ export class AnalyticsEngine {
 
       return {
         categories,
-        totalCost: categories.reduce((sum: number, cat: any) => sum + cat.cost, 0),
-        totalRequests: categories.reduce((sum: number, cat: any) => sum + cat.requests, 0)
+        totalCost: categories.reduce((sum: number, cat: { cost: number }) => sum + cat.cost, 0),
+        totalRequests: categories.reduce((sum: number, cat: { requests: number }) => sum + cat.requests, 0)
       };
     } catch (error) {
       console.error('Failed to generate cost breakdown:', error);
@@ -928,11 +968,17 @@ export class AnalyticsEngine {
    * Execute custom analytics query
    */
   async executeCustomQuery(params: {
-    query: any;
-    aggregations: Record<string, any>;
-    filters: Record<string, any>;
-    customMetrics: any[];
-  }): Promise<any> {
+    query: Record<string, unknown>;
+    aggregations: Record<string, string>;
+    filters: Record<string, unknown>;
+    customMetrics: Array<Record<string, unknown>>;
+  }): Promise<{
+    results: Record<string, unknown>;
+    totalRecords: number;
+    appliedFilters?: Record<string, unknown>;
+    executionTime?: number;
+    error?: string;
+  }> {
     try {
       // Basic implementation for custom queries
       const allMetrics = await this.loadMetrics();
@@ -960,10 +1006,10 @@ export class AnalyticsEngine {
     return await this.getMetricsInRange(thirtyDaysAgo, today);
   }
 
-  private applyFilters(metrics: UsageMetrics[], filters: Record<string, any>): UsageMetrics[] {
+  private applyFilters(metrics: UsageMetrics[], filters: Record<string, unknown>): UsageMetrics[] {
     return metrics.filter(metric => {
       for (const [key, value] of Object.entries(filters)) {
-        if ((metric as any)[key] !== value) {
+        if ((metric as Record<string, unknown>)[key] !== value) {
           return false;
         }
       }
@@ -971,7 +1017,12 @@ export class AnalyticsEngine {
     });
   }
 
-  private groupByGranularity(metrics: UsageMetrics[], granularity: string): any[] {
+  private groupByGranularity(metrics: UsageMetrics[], granularity: string): Array<{
+    period: string;
+    cost: number;
+    requests: number;
+    averageCost: number;
+  }> {
     const groups = new Map<string, UsageMetrics[]>();
 
     for (const metric of metrics) {
@@ -985,11 +1036,12 @@ export class AnalyticsEngine {
         case 'day':
           key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
           break;
-        case 'week':
+        case 'week': {
           const weekStart = new Date(date);
           weekStart.setDate(date.getDate() - date.getDay());
           key = `${weekStart.getFullYear()}-W${Math.ceil(weekStart.getDate() / 7)}`;
           break;
+        }
         case 'month':
           key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
           break;
@@ -1011,7 +1063,15 @@ export class AnalyticsEngine {
     }));
   }
 
-  private calculateSummaryStats(metrics: UsageMetrics[]): any {
+  private calculateSummaryStats(metrics: UsageMetrics[]): {
+    totalCost: number;
+    totalRequests: number;
+    averageCost: number;
+    costRange?: {
+      min: number;
+      max: number;
+    };
+  } {
     if (metrics.length === 0) {
       return { totalCost: 0, totalRequests: 0, averageCost: 0 };
     }
@@ -1043,7 +1103,12 @@ export class AnalyticsEngine {
     return recommendations;
   }
 
-  private calculateTrends(metrics: UsageMetrics[]): any[] {
+  private calculateTrends(metrics: UsageMetrics[]): Array<{
+    metric: string;
+    direction: 'increasing' | 'decreasing' | 'stable';
+    changePercentage: number;
+    confidence: number;
+  }> {
     if (metrics.length < 2) return [];
 
     // Simple linear trend calculation
@@ -1080,7 +1145,11 @@ export class AnalyticsEngine {
     return 'low';
   }
 
-  private generateSimpleForecast(metrics: UsageMetrics[]): any[] {
+  private generateSimpleForecast(metrics: UsageMetrics[]): Array<{
+    date: string;
+    predictedCost: number;
+    confidence: number;
+  }> {
     if (metrics.length < 5) return [];
 
     // Simple moving average forecast
@@ -1108,7 +1177,7 @@ export class AnalyticsEngine {
     const groups = new Map<string, UsageMetrics[]>();
 
     for (const metric of metrics) {
-      const key = (metric as any)[field] || 'unknown';
+      const key = (metric as Record<string, unknown>)[field] || 'unknown';
       if (!groups.has(key)) {
         groups.set(key, []);
       }
@@ -1118,7 +1187,12 @@ export class AnalyticsEngine {
     return groups;
   }
 
-  private calculateCategoryStats(breakdown: Map<string, UsageMetrics[]>): any[] {
+  private calculateCategoryStats(breakdown: Map<string, UsageMetrics[]>): Array<{
+    category: string;
+    cost: number;
+    requests: number;
+    averageCost: number;
+  }> {
     return Array.from(breakdown.entries()).map(([category, categoryMetrics]) => ({
       category,
       cost: categoryMetrics.reduce((sum, m) => sum + m.cost, 0),
@@ -1127,11 +1201,11 @@ export class AnalyticsEngine {
     })).sort((a, b) => b.cost - a.cost);
   }
 
-  private applyAggregations(metrics: UsageMetrics[], aggregations: Record<string, any>): any {
-    const results: any = {};
+  private applyAggregations(metrics: UsageMetrics[], aggregations: Record<string, string>): Record<string, unknown> {
+    const results: Record<string, unknown> = {};
 
     for (const [field, aggType] of Object.entries(aggregations)) {
-      const values = metrics.map(m => (m as any)[field]).filter(v => v !== undefined);
+      const values = metrics.map(m => (m as Record<string, unknown>)[field]).filter(v => v !== undefined);
 
       switch (aggType) {
         case 'sum':

@@ -5,7 +5,6 @@
  */
 
 import type {
-  OptimizationRecommendation,
   OptimizationType,
   FeatureCostAnalysis,
 } from '../analytics/AnalyticsEngine.js';

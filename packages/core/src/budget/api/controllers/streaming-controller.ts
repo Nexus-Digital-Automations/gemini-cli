@@ -109,7 +109,7 @@ export class StreamingController {
       // Create WebSocket server for this request
       const wss = new WebSocketServer({ noServer: true });
 
-      wss.on('connection', (ws: WebSocket, request: any) => {
+      wss.on('connection', (ws: WebSocket, _request: any) => {
         this.handleWebSocketConnection(ws, req.user);
       });
 

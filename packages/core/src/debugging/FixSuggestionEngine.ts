@@ -25,8 +25,10 @@ import type {
   CodeTransformation,
   ConfigurationFix,
   DependencyFix,
+  ErrorPattern,
+  ImpactAssessment,
 } from './types.js';
-import { FixCategory, FixPriority } from './types.js';
+import { FixCategory, FixPriority, ErrorSeverity } from './types.js';
 
 import {
   ErrorAnalysisEngine,
@@ -821,9 +823,14 @@ export class FixSuggestionEngine {
           id: `pattern-fix-${pattern.id}-${template.id}`,
           title: template.title,
           description: template.description,
+          explanation: template.description,
+          codeChanges: [],
+          impact: {} as ImpactAssessment,
+          prerequisites: [],
+          risks: [],
           category: FixCategory.CODE_CHANGE,
           priority: this.determinePriority(template, errorAnalysis),
-          confidence: template.confidence,
+          confidence: template.confidence || 0.5,
           complexity: template.complexity,
           estimatedTime: template.estimatedTime,
           tags: template.tags || [],
@@ -831,7 +838,7 @@ export class FixSuggestionEngine {
           codeTransformation: template.codeTemplate
             ? {
                 type: 'replace' as const,
-                target: errorAnalysis.context.filePath || '',
+                target: String(errorAnalysis.context.filePath || ''),
                 replacement: template.codeTemplate,
               }
             : undefined,
@@ -868,7 +875,12 @@ export class FixSuggestionEngine {
       suggestions.push({
         id: 'quick-fix-semicolon',
         title: 'Add missing semicolon',
-        description: 'Add semicolon at the end of the statement',
+        description: 'Add missing semicolon',
+        explanation: 'Add semicolon at the end of the statement',
+        codeChanges: [],
+        impact: {} as ImpactAssessment,
+        prerequisites: [],
+        risks: [],
         category: FixCategory.CODE_CHANGE,
         priority: FixPriority.HIGH,
         confidence: 0.95,
@@ -893,6 +905,11 @@ export class FixSuggestionEngine {
         id: 'quick-fix-import',
         title: 'Add missing import',
         description: 'Import the required module or function',
+        explanation: 'Import the required module or function',
+        codeChanges: [],
+        impact: {} as ImpactAssessment,
+        prerequisites: [],
+        risks: [],
         category: FixCategory.CODE_CHANGE,
         priority: FixPriority.HIGH,
         confidence: 0.8,
@@ -902,7 +919,8 @@ export class FixSuggestionEngine {
         source: 'quick-fix-generator',
         codeTransformation: {
           type: 'insert',
-          moduleHint: this.extractModuleHint(errorAnalysis),
+          target: 'top-of-file',
+          replacement: `import { ${this.extractModuleHint(errorAnalysis)} } from 'module-name';`,
         },
       });
     }
@@ -927,6 +945,11 @@ export class FixSuggestionEngine {
         id: 'auto-fix-linting',
         title: 'Auto-fix linting issues',
         description: 'Automatically fix code style and formatting issues',
+        explanation: 'Automatically fix code style and formatting issues',
+        codeChanges: [],
+        impact: {} as ImpactAssessment,
+        prerequisites: [],
+        risks: [],
         category: FixCategory.COMMAND,
         priority: FixPriority.MEDIUM,
         confidence: 0.9,
@@ -935,9 +958,9 @@ export class FixSuggestionEngine {
         tags: ['automated', 'linting'],
         source: 'automated-fix-generator',
         command: {
-          command: this.getLintFixCommand(errorAnalysis.context.language),
+          command: this.getLintFixCommand(String(errorAnalysis.context.language || '')),
           description: 'Run linter with auto-fix flag',
-          workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath,
+          workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath || '.',
         },
       });
     }
@@ -963,18 +986,22 @@ export class FixSuggestionEngine {
           id: 'transform-var-to-let',
           title: 'Replace var with let/const',
           description: 'Modernize variable declarations using let or const',
-          category: 'code-change',
-          priority: 'low',
+          explanation: 'Modernize variable declarations using let or const',
+          codeChanges: [],
+          impact: {} as ImpactAssessment,
+          prerequisites: [],
+          risks: [],
+          category: FixCategory.CODE_CHANGE,
+          priority: FixPriority.LOW,
           confidence: 0.85,
           complexity: 'simple',
           estimatedTime: '2-5 minutes',
           tags: ['modernization', 'best-practices'],
           source: 'transformation-generator',
           codeTransformation: {
-            type: 'find-replace',
-            find: 'var ',
-            replace: 'let ',
-            scope: 'file',
+            type: 'replace',
+            target: String(errorAnalysis.context.filePath || ''),
+            replacement: 'let ',
           },
         });
       }
@@ -999,7 +1026,7 @@ export class FixSuggestionEngine {
       errorText.includes('compilation error')
     ) {
       const buildCommands = COMMAND_SUGGESTIONS.build.filter(
-        (cmd) => !language || cmd.platforms.includes(language),
+        (cmd) => !language || cmd.platforms?.includes(String(language)),
       );
 
       for (const cmd of buildCommands) {
@@ -1007,8 +1034,13 @@ export class FixSuggestionEngine {
           id: `command-${cmd.command.replace(/\s+/g, '-')}`,
           title: `Run: ${cmd.command}`,
           description: cmd.description,
-          category: 'command',
-          priority: 'medium',
+          explanation: cmd.description,
+          codeChanges: [],
+          impact: {} as ImpactAssessment,
+          prerequisites: [],
+          risks: [],
+          category: FixCategory.COMMAND,
+          priority: FixPriority.MEDIUM,
           confidence: 0.75,
           complexity: 'simple',
           estimatedTime: '1-5 minutes',
@@ -1017,7 +1049,7 @@ export class FixSuggestionEngine {
           command: {
             command: cmd.command,
             description: cmd.description,
-            workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath,
+            workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath || '.',
           },
         });
       }
@@ -1029,7 +1061,7 @@ export class FixSuggestionEngine {
       errorText.includes('package not found')
     ) {
       const installCommands = COMMAND_SUGGESTIONS.install.filter(
-        (cmd) => !language || cmd.platforms.includes(language),
+        (cmd) => !language || cmd.platforms?.includes(String(language)),
       );
 
       for (const cmd of installCommands) {
@@ -1037,8 +1069,13 @@ export class FixSuggestionEngine {
           id: `command-${cmd.command.replace(/\s+/g, '-')}`,
           title: `Run: ${cmd.command}`,
           description: cmd.description,
-          category: 'command',
-          priority: 'high',
+          explanation: cmd.description,
+          codeChanges: [],
+          impact: {} as ImpactAssessment,
+          prerequisites: [],
+          risks: [],
+          category: FixCategory.COMMAND,
+          priority: FixPriority.HIGH,
           confidence: 0.8,
           complexity: 'simple',
           estimatedTime: '1-3 minutes',
@@ -1047,7 +1084,7 @@ export class FixSuggestionEngine {
           command: {
             command: cmd.command,
             description: cmd.description,
-            workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath,
+            workingDirectory: (errorAnalysis.context.projectContext as any)?.rootPath || '.',
           },
         });
       }
@@ -1074,8 +1111,13 @@ export class FixSuggestionEngine {
         id: 'fix-tsconfig',
         title: 'Update TypeScript configuration',
         description: 'Fix TypeScript compiler configuration issues',
-        category: 'configuration',
-        priority: 'medium',
+        explanation: 'Fix TypeScript compiler configuration issues',
+        codeChanges: [],
+        impact: {} as ImpactAssessment,
+        prerequisites: [],
+        risks: [],
+        category: FixCategory.CONFIGURATION,
+        priority: FixPriority.MEDIUM,
         confidence: 0.7,
         complexity: 'moderate',
         estimatedTime: '5-15 minutes',
@@ -1158,19 +1200,19 @@ export class FixSuggestionEngine {
   ): FixPriority {
     // High priority for critical errors
     if (
-      errorAnalysis.severity === 'critical' ||
-      errorAnalysis.severity === 'error'
+      errorAnalysis.severity === ErrorSeverity.CRITICAL ||
+      errorAnalysis.severity === ErrorSeverity.HIGH
     ) {
-      return 'high';
+      return FixPriority.HIGH;
     }
 
-    // Medium priority for warnings
-    if (errorAnalysis.severity === 'warning') {
-      return 'medium';
+    // Medium priority for medium severity
+    if (errorAnalysis.severity === ErrorSeverity.MEDIUM) {
+      return FixPriority.MEDIUM;
     }
 
     // Default to low priority
-    return 'low';
+    return FixPriority.LOW;
   }
 
   /**
@@ -1270,7 +1312,7 @@ export class FixSuggestionEngine {
       const requirements: string[] = [];
 
       // Check for required files
-      if (suggestion.codeTransformation?.targetFile) {
+      if (suggestion.codeTransformation?.target) {
         // In a real implementation, would check if file exists
         requirements.push('Target file must exist and be writable');
       }
@@ -1283,12 +1325,13 @@ export class FixSuggestionEngine {
       // Check complexity vs error severity
       if (
         suggestion.complexity === 'complex' &&
-        errorAnalysis.severity === 'warning'
+        errorAnalysis.severity === ErrorSeverity.LOW
       ) {
-        warnings.push('Complex fix for a warning-level issue');
+        warnings.push('Complex fix for a low-severity issue');
       }
 
       return {
+        required: true,
         isValid,
         warnings,
         requirements,
@@ -1297,6 +1340,7 @@ export class FixSuggestionEngine {
       };
     } catch (error) {
       return {
+        required: true,
         isValid: false,
         warnings: ['Validation failed'],
         requirements: [],
@@ -1489,12 +1533,12 @@ export class FixSuggestionEngine {
     dryRun?: boolean,
   ): Promise<void> {
     if (dryRun) {
-      logger.info('DRY RUN: Would apply dependency change', depChange);
+      logger.info('DRY RUN: Would apply dependency change', depChange as unknown as Record<string, unknown>);
       return;
     }
 
     // In a real implementation, would modify package.json, requirements.txt, etc.
-    logger.info('Applied dependency change', depChange);
+    logger.info('Applied dependency change', depChange as unknown as Record<string, unknown>);
   }
 }
 

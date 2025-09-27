@@ -14,7 +14,7 @@
  */
 
 import type { Request, Response } from 'express';
-import type { BudgetSettings, BudgetEventType } from '../../types.js';
+import type { BudgetSettings as _BudgetSettings, BudgetEventType as _BudgetEventType } from '../../types.js';
 import { getBudgetTracker } from '../../budget-tracker.js';
 
 // Simple console-based logging for now
@@ -145,7 +145,7 @@ export class NotificationController {
       }
 
       // Apply limit
-      const limitNum = parseInt(limit as string);
+      const limitNum = parseInt(limit as string, 10);
       filteredAlerts = filteredAlerts.slice(0, limitNum);
 
       const responseTime = Date.now() - startTime;
@@ -638,7 +638,7 @@ export class NotificationController {
    */
   private async sendDesktopNotification(
     notification: any,
-    config: any,
+    _config: any,
   ): Promise<any> {
     // Mock desktop notification - replace with actual desktop notification API
     logger.info('Mock desktop notification sent', {

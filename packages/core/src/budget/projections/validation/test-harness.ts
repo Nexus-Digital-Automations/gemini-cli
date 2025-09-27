@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { CostDataPoint, CostProjection } from '../types.js';
+import type { CostDataPoint } from '../types.js';
 import { getComponentLogger, type StructuredLogger } from '../../../utils/logger.js';
 import type {
   ValidationReport,

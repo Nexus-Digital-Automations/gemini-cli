@@ -15,6 +15,8 @@ import type {
 import type {
   Decision,
   DecisionContext,
+} from './types.js';
+import {
   DecisionType,
   DecisionPriority,
 } from './types.js';
@@ -678,7 +680,7 @@ export class ParallelOptimizer {
     // Group tasks by priority level
     const priorityGroups = new Map<string, TaskId[]>();
     for (const [taskId, task] of tasks) {
-      const priority = task.priority;
+      const priority = String(task.priority);
       if (!priorityGroups.has(priority)) {
         priorityGroups.set(priority, []);
       }
@@ -1114,7 +1116,7 @@ export class ParallelOptimizer {
     for (const taskId of taskIds) {
       const task = tasks.get(taskId);
       if (task) {
-        totalPriority += priorities[task.priority];
+        totalPriority += priorities[String(task.priority) as keyof typeof priorities];
       }
     }
 
@@ -1637,7 +1639,7 @@ export class ParallelOptimizer {
     for (const taskId of group.tasks) {
       const task = tasks.get(taskId);
       if (task) {
-        avgPriority += priorities[task.priority];
+        avgPriority += priorities[String(task.priority) as keyof typeof priorities];
       }
     }
     features.push(avgPriority / group.tasks.length / 4);

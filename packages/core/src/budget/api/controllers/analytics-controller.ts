@@ -46,7 +46,7 @@ interface AnalyticsQuery {
   endDate?: string;
   granularity?: 'hour' | 'day' | 'week' | 'month';
   metrics?: string[];
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   groupBy?: string;
 }
 

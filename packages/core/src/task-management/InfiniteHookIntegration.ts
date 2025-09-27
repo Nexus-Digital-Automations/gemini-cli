@@ -6,13 +6,13 @@
 
 import type { Config } from '../config/config.js';
 import type { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
-import type {
-  Task,
+import type { Task } from './TaskExecutionEngine.js';
+import {
   TaskType,
   TaskStatus,
   TaskPriority,
   TaskComplexity,
-} from './TaskExecutionEngine.js';
+} from './types.js';
 import type { ExecutionMonitoringSystem } from './ExecutionMonitoringSystem.js';
 import { spawn, type ChildProcess } from 'node:child_process';
 import * as path from 'node:path';
@@ -543,19 +543,19 @@ export class InfiniteHookIntegration {
   private mapFeatureCategoryToTaskType(category: string): TaskType {
     switch (category) {
       case 'bug-fix':
-        return 'implementation';
+        return TaskType.IMPLEMENTATION;
       case 'security':
-        return 'security';
+        return TaskType.SECURITY;
       case 'performance':
-        return 'performance';
+        return TaskType.PERFORMANCE;
       case 'documentation':
-        return 'documentation';
+        return TaskType.DOCUMENTATION;
       case 'new-feature':
-        return 'implementation';
+        return TaskType.IMPLEMENTATION;
       case 'enhancement':
-        return 'implementation';
+        return TaskType.IMPLEMENTATION;
       default:
-        return 'implementation';
+        return TaskType.IMPLEMENTATION;
     }
   }
 
@@ -563,18 +563,18 @@ export class InfiniteHookIntegration {
    * Maps feature priority indicators to task priority
    */
   private mapFeaturePriorityToTaskPriority(feature: any): TaskPriority {
-    if (feature.category === 'security') return 'critical';
-    if (feature.category === 'bug-fix') return 'high';
+    if (feature.category === 'security') return TaskPriority.CRITICAL;
+    if (feature.category === 'bug-fix') return TaskPriority.HIGH;
 
     const businessValue = feature.business_value?.toLowerCase() || '';
-    if (businessValue.includes('critical')) return 'critical';
+    if (businessValue.includes('critical')) return TaskPriority.CRITICAL;
     if (
       businessValue.includes('essential') ||
       businessValue.includes('important')
     )
-      return 'high';
+      return TaskPriority.HIGH;
 
-    return 'normal';
+    return TaskPriority.NORMAL;
   }
 
   /**

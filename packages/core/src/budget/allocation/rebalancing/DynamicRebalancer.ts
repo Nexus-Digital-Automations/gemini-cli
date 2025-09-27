@@ -632,6 +632,8 @@ export class DynamicRebalancer {
         case 'gradual':
           await this.executeGradual(analysis.recommendedActions);
           break;
+        default:
+          throw new Error(`Unsupported execution strategy: ${this.config.automation.execution.strategy}`);
       }
 
       // Update counters (simplified - would track actual execution results)
@@ -953,7 +955,7 @@ export class DynamicRebalancer {
   private determineAction(
     state: ResourceState,
     candidate: AllocationCandidate,
-    triggeredConditions: RebalancingTrigger[],
+    _triggeredConditions: RebalancingTrigger[],
   ): RebalancingAction | null {
     // Determine if action is needed based on state
     let actionType: 'increase' | 'decrease' | 'maintain' | 'redistribute' =
@@ -1008,6 +1010,12 @@ export class DynamicRebalancer {
       case 'decrease':
         changeAmount = -currentAllocation * 0.15;
         break;
+      case 'maintain':
+      case 'redistribute':
+        changeAmount = 0;
+        break;
+      default:
+        throw new Error(`Unhandled action type: ${actionType}`);
     }
 
     const recommendedAllocation = Math.max(
@@ -1046,7 +1054,7 @@ export class DynamicRebalancer {
    */
   private assessRebalancingRisks(
     actions: RebalancingAction[],
-    resourceStates: ResourceState[],
+    _resourceStates: ResourceState[],
   ): RebalancingRiskAssessment {
     const riskFactors: RiskFactor[] = [];
 
@@ -1117,7 +1125,7 @@ export class DynamicRebalancer {
    */
   private predictRebalancingOutcomes(
     actions: RebalancingAction[],
-    resourceStates: ResourceState[],
+    _resourceStates: ResourceState[],
   ): RebalancingOutcome {
     const performanceImprovement =
       actions.reduce(
@@ -1518,7 +1526,7 @@ export class DynamicRebalancer {
     const match = timeString.match(/(\d+)([smhd])/);
     if (!match) return 60000; // Default 1 minute
 
-    const value = parseInt(match[1]);
+    const value = parseInt(match[1], 10);
     const unit = match[2];
 
     switch (unit) {

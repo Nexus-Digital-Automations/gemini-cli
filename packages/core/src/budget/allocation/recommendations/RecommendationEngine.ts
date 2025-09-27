@@ -386,7 +386,7 @@ export class RecommendationEngine {
     context: RecommendationContext,
   ): AllocationAlgorithmConfig['weights'] {
     const { riskTolerance, priorityFocus } = context.preferences;
-    const { businessCycle, marketConditions } = context.businessContext;
+    const { businessCycle, _marketConditions } = context.businessContext;
 
     let baseWeights = {
       cost: 0.25,
@@ -425,6 +425,16 @@ export class RecommendationEngine {
           risk: 0.1,
         };
         break;
+      default:
+        // Use balanced weights for unknown strategies
+        baseWeights = {
+          cost: 0.25,
+          performance: 0.25,
+          roi: 0.25,
+          businessValue: 0.15,
+          risk: 0.1,
+        };
+        break;
     }
 
     // Adjust based on risk tolerance
@@ -458,6 +468,9 @@ export class RecommendationEngine {
         baseWeights.businessValue -= 0.05;
         baseWeights.risk -= 0.05;
         break;
+      default:
+        // No adjustment for unknown priority focus - keep base weights
+        break;
     }
 
     // Adjust based on business cycle
@@ -484,7 +497,7 @@ export class RecommendationEngine {
    */
   private getStrategyObjectives(
     strategy: AllocationStrategy,
-    context: RecommendationContext,
+    _context: RecommendationContext,
   ): string[] {
     const baseObjectives = ['maximize_efficiency', 'minimize_risk'];
 
@@ -724,13 +737,13 @@ export class RecommendationEngine {
    */
   private calculateScenarioOutcomes(
     recommendations: AllocationRecommendation[],
-    candidates: AllocationCandidate[],
+    _candidates: AllocationCandidate[],
   ): ScenarioOutcome {
     const totalCost = recommendations.reduce(
       (sum, rec) => sum + rec.recommendedAllocation,
       0,
     );
-    const totalSavings = recommendations.reduce(
+    const _totalSavings = recommendations.reduce(
       (sum, rec) => sum + rec.potentialSavings,
       0,
     );

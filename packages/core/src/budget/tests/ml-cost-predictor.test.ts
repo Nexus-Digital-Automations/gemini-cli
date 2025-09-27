@@ -10,10 +10,6 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import {
   MLCostPredictor,
-  type HistoricalUsagePoint,
-  type BudgetPrediction,
-  type ForecastResult,
-  type TrendAnalysis,
 } from '../ml-cost-predictor.js';
 import type { BudgetUsageData } from '../types.js';
 

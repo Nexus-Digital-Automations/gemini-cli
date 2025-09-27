@@ -10,13 +10,17 @@ import type {
   Task,
   TaskDependency,
   DependencyType,
+  CircularDependency,
+} from '../task-management/types.js';
+import {
   TaskPriority,
   TaskCategory,
-  CircularDependency,
 } from '../task-management/types.js';
 import type {
   Decision,
   DecisionContext,
+} from './types.js';
+import {
   DecisionType,
   DecisionPriority,
 } from './types.js';

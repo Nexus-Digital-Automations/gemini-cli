@@ -649,7 +649,7 @@ export class CommitMessageGenerator {
     return `update ${analysis.modifiedFiles.length} file${analysis.modifiedFiles.length > 1 ? 's' : ''}`;
   }
 
-  private getMostFrequent<T>(array: T[]): T | null {
+  private getMostFrequent<T>(array: Array<T>): T | null {
     if (array.length === 0) return null;
 
     const frequency: Record<string, number> = {};

@@ -298,7 +298,13 @@ export interface PullRequest {
     updatedAt: Date;
   }>;
   /** PR comments */
-  comments: any[];
+  comments: Array<{
+    id: string;
+    author: string;
+    body: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }>;
   /** PR metrics */
   metrics: PRMetrics;
   /** PR analysis */
