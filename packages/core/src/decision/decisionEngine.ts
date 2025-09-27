@@ -11,11 +11,10 @@ import type {
   DecisionContext,
   DecisionOutcome,
   DecisionRule,
-  DecisionType,
   DecisionConfig,
-  DecisionPriority,
   DecisionAction,
 } from './types.js';
+import { DecisionType, DecisionPriority } from './types.js';
 import { DecisionContextSchema, DecisionSchema } from './types.js';
 import { DecisionAuditTrail } from './auditTrail.js';
 import { DecisionLearningEngine } from './learningEngine.js';
@@ -430,7 +429,7 @@ export class DecisionEngine extends EventEmitter {
    */
   private checkRateLimit(): boolean {
     const now = Date.now();
-    const windowStart = now - 60000; // 1 minute window
+    const _windowStart = now - 60000; // 1 minute window
 
     // Reset counter if we're in a new minute
     if (now - this.lastDecisionTime > 60000) {
@@ -622,8 +621,8 @@ export class DecisionEngine extends EventEmitter {
    */
   private estimateResources<T>(
     type: DecisionType,
-    input: T,
-    context: DecisionContext,
+    _input: T,
+    _context: DecisionContext,
   ): string[] {
     const resources: string[] = [];
 
@@ -707,7 +706,7 @@ export class DecisionEngine extends EventEmitter {
 }
 
 // Type augmentation for EventEmitter to provide proper typing
-interface DecisionEngineEventMethods {
+export interface DecisionEngineEventMethods {
   on<K extends keyof DecisionEngineEvents>(
     event: K,
     listener: DecisionEngineEvents[K],

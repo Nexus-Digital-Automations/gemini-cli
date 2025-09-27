@@ -6,13 +6,9 @@
 
 import type {
   Task,
-  TaskType,
-  TaskComplexity,
-  TaskStatus,
-  TaskExecutionContext,
   TaskDependency,
-  AgentCapability,
 } from './TaskExecutionEngine.js';
+import { TaskType, TaskStatus } from './types.js';
 
 /**
  * Utility methods and helper functions for TaskExecutionEngine

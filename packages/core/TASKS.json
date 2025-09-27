@@ -1,15 +1,15 @@
 {
-  "project": "gemini-cli",
+  "project": "core",
   "features": [],
   "metadata": {
     "version": "1.0.0",
-    "created": "2025-09-27T04:12:07.921Z",
-    "updated": "2025-09-27T04:12:07.921Z",
+    "created": "2025-09-27T04:36:55.770Z",
+    "updated": "2025-09-27T04:36:55.770Z",
     "total_features": 0,
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 7,
+      "total_reinitializations": 5,
       "current_day": "2025-09-27",
       "time_buckets": {
         "10:00-14:59": {
@@ -22,7 +22,7 @@
         },
         "20:00-00:59": {
           "init": 0,
-          "reinit": 7
+          "reinit": 5
         },
         "01:00-05:59": {
           "init": 0,
@@ -34,8 +34,8 @@
         }
       },
       "daily_history": [],
-      "last_reset": "2025-09-27T04:12:07.923Z",
-      "last_updated": "2025-09-27T04:52:17.425Z"
+      "last_reset": "2025-09-27T04:36:55.773Z",
+      "last_updated": "2025-09-27T04:37:08.509Z"
     }
   },
   "workflow_config": {
@@ -55,26 +55,30 @@
     ]
   },
   "agents": {
-    "gemini-cli-build-fix-agent": {
-      "lastHeartbeat": "2025-09-27T04:37:54.632Z",
+    "test-agent": {
+      "lastHeartbeat": "2025-09-27T04:37:00.768Z",
       "status": "active",
-      "reinitialized": "2025-09-27T04:37:54.632Z",
-      "sessionId": "e12677265c79e2dc",
+      "reinitialized": "2025-09-27T04:37:00.768Z",
+      "sessionId": "e22b921c82704b20",
       "previousSessions": [
-        "a39dc0b8449c7788",
-        "540cf8a6ad4b9a6a"
+        "a5f138c5fd87f107"
       ]
     },
-    "claude-agent-build-fix": {
-      "lastHeartbeat": "2025-09-27T04:52:17.424Z",
+    "TASK_EXECUTION_ENGINE": {
+      "lastHeartbeat": "2025-09-27T04:37:03.490Z",
       "status": "active",
-      "reinitialized": "2025-09-27T04:52:17.424Z",
-      "sessionId": "01763c35cb11b858",
+      "reinitialized": "2025-09-27T04:37:03.490Z",
+      "sessionId": "b8fd3df4c4409bd0",
       "previousSessions": [
-        "3c230495ef44e371"
+        "5a741ef27f658c4a"
       ]
+    },
+    "custom-agent": {
+      "lastHeartbeat": "2025-09-27T04:37:08.487Z",
+      "status": "active",
+      "reinitialized": "2025-09-27T04:37:08.487Z",
+      "sessionId": "c9f9d39b91c05149",
+      "previousSessions": []
     }
-  },
-  "tasks": [],
-  "completed_tasks": []
+  }
 }

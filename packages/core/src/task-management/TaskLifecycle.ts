@@ -8,11 +8,6 @@ import { EventEmitter } from 'node:events';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 import type { Task } from './TaskQueue.js';
-import {
-  TaskStatus,
-  TaskExecutionRecord,
-  TaskExecutionResult,
-} from './TaskQueue.js';
 import type { TaskId } from './types.js';
 
 /**
