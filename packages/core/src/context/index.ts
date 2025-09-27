@@ -76,7 +76,7 @@ export {
 export {
   SuggestionEngine,
   createSuggestionEngine,
-  DEFAULT_SUGGESTION_CONFIG,
+  DEFAULT_SUGGESTION_ENGINE_CONFIG,
 } from './SuggestionEngine.js';
 
 // Configuration Types
@@ -97,8 +97,6 @@ export type {
 } from './SuggestionEngine.js';
 export type {
   StorageConfig,
-  SessionIndex,
-  StorageStats,
 } from './CrossSessionStorage.js';
 
 import { getComponentLogger } from '../utils/logger.js';
@@ -121,7 +119,7 @@ import {
 } from './CodeContextAnalyzer.js';
 import {
   SuggestionEngine,
-  DEFAULT_SUGGESTION_CONFIG,
+  DEFAULT_SUGGESTION_ENGINE_CONFIG,
 } from './SuggestionEngine.js';
 import type {
   ContextItem,
@@ -130,10 +128,8 @@ import type {
   ContextWindow,
   PrioritizationConfig,
   CompressionConfig,
-  ContextWindowConfig,
-  CodeAnalysisConfig,
-  SuggestionConfig,
 } from './types.js';
+import type { StorageConfig } from './CrossSessionStorage.js';
 
 const logger = getComponentLogger('context-system');
 
@@ -149,12 +145,6 @@ export interface ContextSystemConfig {
   compression?: Partial<CompressionConfig>;
   /** Configuration for cross-session storage */
   storage?: Partial<StorageConfig>; // StorageConfig from CrossSessionStorage
-  /** Configuration for context window management */
-  window?: Partial<ContextWindowConfig>;
-  /** Configuration for code analysis */
-  codeAnalysis?: Partial<CodeAnalysisConfig>;
-  /** Configuration for suggestion engine */
-  suggestions?: Partial<SuggestionConfig>;
   /** Enable automatic optimization */
   autoOptimize?: boolean;
   /** Optimization interval in milliseconds */
@@ -218,12 +208,9 @@ export class ContextSystem {
     this.prioritizer = new ContextPrioritizer(this.config.prioritization);
     this.compressor = new SemanticCompressor(this.config.compression);
     this.storage = new CrossSessionStorage(this.config.storage);
-    this.windowManager = new ContextWindowManager(this.config.window);
-    this.codeAnalyzer = new CodeContextAnalyzer(
-      this.config.projectPath,
-      this.config.codeAnalysis,
-    );
-    this.suggestionEngine = new SuggestionEngine(this.config.suggestions);
+    this.windowManager = new ContextWindowManager();
+    this.codeAnalyzer = new CodeContextAnalyzer(this.config.projectPath);
+    this.suggestionEngine = new SuggestionEngine();
 
     logger.info('ContextSystem created', {
       projectPath: this.config.projectPath,
@@ -729,7 +716,7 @@ export async function createDevelopmentContextSystem(
       enableTestCorrelation: true,
     },
     suggestions: {
-      ...DEFAULT_SUGGESTION_CONFIG,
+      ...DEFAULT_SUGGESTION_ENGINE_CONFIG,
       enablePatternLearning: true,
       enableWorkflowOptimization: true,
     },
@@ -760,7 +747,7 @@ export async function createProductionContextSystem(
       bufferPercentage: 0.1, // Larger buffer for production stability
     },
     suggestions: {
-      ...DEFAULT_SUGGESTION_CONFIG,
+      ...DEFAULT_SUGGESTION_ENGINE_CONFIG,
       minConfidenceThreshold: 0.5, // Higher confidence threshold for production
     },
   });
