@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 // Note: Using relative import to utils/logger for internal usage
 
 import { logger as getLogger } from '../utils/logger.js';
+import type { TaskMetadata } from './types.js';
 
 const logger = getLogger();
 
@@ -160,7 +161,7 @@ export interface Task {
 
   // Metadata
   tags?: string[];
-  metadata?: Record<string, unknown>;
+  metadata: TaskMetadata;
 
   // Resource requirements
   requiredResources?: string[];
