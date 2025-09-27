@@ -461,11 +461,11 @@ export class ExecutionMonitoringSystem {
     const recommendations: string[] = [];
 
     // Component health assessment
-    const components = {
-      taskQueue: 'healthy' as const,
-      executionEngine: 'healthy' as const,
-      monitoring: 'healthy' as const,
-      persistence: 'healthy' as const,
+    const components: SystemHealthStatus['components'] = {
+      taskQueue: 'healthy',
+      executionEngine: 'healthy',
+      monitoring: 'healthy',
+      persistence: 'healthy',
     };
 
     // Task queue health

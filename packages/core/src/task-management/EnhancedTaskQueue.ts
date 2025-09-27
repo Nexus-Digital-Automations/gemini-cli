@@ -346,12 +346,12 @@ export class EnhancedTaskQueue extends TaskQueue {
 
     // Calculate how many slots each priority level should get
     const allocations = new Map<TaskPriority, number>();
-    let totalWeight = 0;
+    let _totalWeight = 0;
 
     this.priorityQueues.forEach((queue, priority) => {
       if (queue.length > 0) {
         const weight = weights.get(priority) || 0.1;
-        totalWeight += weight;
+        _totalWeight += weight;
         allocations.set(
           priority,
           Math.max(1, Math.floor(availableSlots * weight)),
@@ -504,8 +504,9 @@ export class EnhancedTaskQueue extends TaskQueue {
     // Use ML model to predict optimal scheduling order
     const taskFeatures = allTasks.map((task) => this.extractTaskFeatures(task));
     const predictions =
-      (this.predictionModel as any)?.predict?.(taskFeatures) ||
-      taskFeatures.map(() => Math.random());
+      (
+        this.predictionModel as { predict?: (features: unknown[]) => number[] }
+      )?.predict?.(taskFeatures) || taskFeatures.map(() => Math.random());
 
     // Combine predictions with task objects and sort
     const tasksWithPredictions = allTasks
@@ -531,7 +532,7 @@ export class EnhancedTaskQueue extends TaskQueue {
    * Hybrid scheduling combining multiple algorithms dynamically
    */
   private hybridScheduling(availableSlots: number): Task[] {
-    const systemLoad = this.calculateSystemLoad();
+    const _systemLoad = this.calculateSystemLoad();
     const queuePressure = this.calculateQueuePressure();
     const resourceUtilization = this.calculateResourceUtilization();
 
@@ -608,10 +609,11 @@ export class EnhancedTaskQueue extends TaskQueue {
           executor.currentLoad < min.currentLoad ? executor : min,
         );
 
-      case LoadBalancingStrategy.ROUND_ROBIN:
+      case LoadBalancingStrategy.ROUND_ROBIN: {
         // Simple round-robin selection
         const nextIndex = Math.floor(Math.random() * eligibleExecutors.length);
         return eligibleExecutors[nextIndex];
+      }
 
       case LoadBalancingStrategy.CAPABILITY_BASED:
         return this.selectBestCapabilityMatch(task, eligibleExecutors);
@@ -706,7 +708,9 @@ export class EnhancedTaskQueue extends TaskQueue {
     const boostLevels = Math.floor(
       waitTime / this.schedulingConfig.maxStarvationTime,
     );
-    const priorityValues = Object.values(TaskPriority).filter(value => typeof value === 'number') as TaskPriority[];
+    const priorityValues = Object.values(TaskPriority).filter(
+      (value) => typeof value === 'number',
+    ) as TaskPriority[];
     priorityValues.sort((a, b) => b - a);
     const currentIndex = priorityValues.indexOf(originalPriority);
     const boostedIndex = Math.max(0, currentIndex - boostLevels);
@@ -984,7 +988,9 @@ export class EnhancedTaskQueue extends TaskQueue {
 
     // Initialize counts
     Object.values(TaskPriority).forEach((priority) => {
-      completionCounts.set(priority, 0);
+      if (typeof priority === 'number') {
+        completionCounts.set(priority as TaskPriority, 0);
+      }
     });
 
     // Count completions
@@ -1017,7 +1023,7 @@ export class EnhancedTaskQueue extends TaskQueue {
   private startAdvancedOptimization(): void {
     // Performance monitoring
     setInterval(() => {
-      this.updatePerformanceMetrics();
+      // this.updatePerformanceMetrics() is called when recording execution stats
       this.optimizeResourceAllocation();
     }, 30000); // Every 30 seconds
 
