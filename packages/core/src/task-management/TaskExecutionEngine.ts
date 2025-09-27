@@ -9,13 +9,12 @@ import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { AnyDeclarativeTool as _AnyDeclarativeTool } from '../tools/tools.js';
 import type {
   TaskCategory as _TaskCategory,
-  TaskStatus,
   TaskId as _TaskId,
   TaskPriority,
   TaskMetadata as _TaskMetadata,
   Task as BaseTask,
 } from './types.js';
-import { TaskComplexity } from './types.js';
+import { TaskComplexity, TaskStatus } from './types.js';
 import { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 import {
   SubAgentScope,

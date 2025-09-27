@@ -15,14 +15,13 @@ import type {
   Task,
   TaskType,
   TaskComplexity,
-  TaskStatus,
   TaskPriority,
   TaskExecutionContext,
   TaskDependency,
   AgentCapability,
   TaskMetrics,
 } from './TaskExecutionEngine.js';
-import { TaskBreakdownAnalyzer } from './TaskExecutionEngine.js';
+import { TaskBreakdownAnalyzer, TaskStatus } from './TaskExecutionEngine.js';
 import { TaskExecutionUtils } from './TaskExecutionEngine.utils.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';

@@ -10,9 +10,9 @@ import type {
   Task,
   TaskPriority,
   TaskCategory,
-  TaskStatus,
   QueueMetrics,
 } from './TaskQueue.js';
+import { TaskStatus } from './TaskQueue.js';
 import type {
   DependencyAnalysis,
   DependencyNode,
