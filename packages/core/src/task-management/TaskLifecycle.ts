@@ -916,9 +916,9 @@ export class TaskLifecycle extends EventEmitter {
       timing: 'before',
       action: async (task: Task, _context: LifecycleContext) => {
         // Simulate resource allocation
-        context.resources.allocated = [...task.requiredResources];
+        _context.resources.allocated = [...task.requiredResources];
         logger().debug(`Resources allocated for task: ${task.id}`, {
-          resources: context.resources.allocated,
+          resources: _context.resources.allocated,
         });
       },
       priority: 100,
@@ -931,10 +931,10 @@ export class TaskLifecycle extends EventEmitter {
       state: LifecycleState.COMPLETED,
       timing: 'after',
       action: async (task: Task, _context: LifecycleContext) => {
-        context.resources.released = [...context.resources.allocated];
-        context.resources.allocated = [];
+        _context.resources.released = [..._context.resources.allocated];
+        _context.resources.allocated = [];
         logger().debug(`Resources released for task: ${task.id}`, {
-          resources: context.resources.released,
+          resources: _context.resources.released,
         });
       },
       priority: 100,

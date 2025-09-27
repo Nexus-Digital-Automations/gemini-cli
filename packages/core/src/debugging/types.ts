@@ -1531,3 +1531,97 @@ export interface ResourceUsage {
   /** Network usage */
   network: number;
 }
+
+/**
+ * Error pattern match result
+ */
+export interface ErrorPatternMatch {
+  /** Pattern identifier */
+  patternId: string;
+  /** Confidence score */
+  confidence: number;
+  /** Matched text segments */
+  matches: string[];
+  /** Match context */
+  context?: Record<string, unknown>;
+}
+
+/**
+ * Pattern matching result
+ */
+export interface PatternMatchResult {
+  /** Pattern identifier */
+  patternId: string;
+  /** Matched pattern */
+  pattern: ErrorPattern;
+  /** Confidence score (0-1) */
+  confidence: number;
+  /** Matched text segments */
+  matches: string[];
+  /** Match location information */
+  location?: {
+    start: number;
+    end: number;
+    line?: number;
+    column?: number;
+  };
+  /** Additional context */
+  context?: Record<string, unknown>;
+  /** Whether this is a match */
+  isMatch: boolean;
+}
+
+/**
+ * Pattern matching configuration
+ */
+export interface PatternMatchConfig {
+  /** Minimum confidence threshold */
+  minConfidence: number;
+  /** Maximum number of results */
+  maxResults: number;
+  /** Enable fuzzy matching */
+  fuzzyMatch: boolean;
+  /** Case sensitive matching */
+  caseSensitive: boolean;
+  /** Additional matching options */
+  options?: Record<string, unknown>;
+}
+
+/**
+ * Pattern learning data
+ */
+export interface PatternLearningData {
+  /** Original error text */
+  errorText: string;
+  /** Pattern matching results */
+  matches: PatternMatchResult[];
+  /** User feedback */
+  userFeedback?: {
+    correctMatch?: string;
+    isCorrect?: boolean;
+    confidence?: number;
+  };
+  /** Learning timestamp */
+  timestamp: Date;
+  /** Learning context */
+  context?: ErrorAnalysisContext;
+}
+
+/**
+ * Common error pattern (built-in patterns)
+ */
+export interface CommonErrorPattern extends ErrorPattern {
+  /** Built-in pattern category */
+  category: string;
+  /** Pattern language */
+  language: string;
+  /** Usage frequency */
+  frequency: number;
+  /** Pattern effectiveness score */
+  effectiveness: number;
+}
+
+/**
+ * Error frequency statistics (alias for ErrorFrequencyData)
+ */
+export type ErrorFrequencyStats = ErrorFrequencyData;

@@ -164,19 +164,25 @@ export class TaskExecutionEngine {
    */
   private deserializeTask(data: Record<string, unknown>): Task {
     return {
-      ...data,
-      createdAt: new Date(data.createdAt),
-      updatedAt: new Date(data.updatedAt),
-      scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
-      startedAt: data.startedAt ? new Date(data.startedAt) : undefined,
-      completedAt: data.completedAt ? new Date(data.completedAt) : undefined,
+      ...(data as unknown as Task),
+      createdAt: new Date(data.createdAt as string | number | Date),
+      updatedAt: new Date(data.updatedAt as string | number | Date),
+      scheduledAt: data.scheduledAt ? new Date(data.scheduledAt as string | number | Date) : undefined,
+      startedAt: data.startedAt ? new Date(data.startedAt as string | number | Date) : undefined,
+      completedAt: data.completedAt ? new Date(data.completedAt as string | number | Date) : undefined,
       metrics: data.metrics
         ? {
-            ...data.metrics,
-            startTime: new Date(data.metrics.startTime),
-            endTime: data.metrics.endTime
-              ? new Date(data.metrics.endTime)
+            ...(data.metrics as Record<string, unknown>),
+            startTime: new Date((data.metrics as any).startTime),
+            endTime: (data.metrics as any).endTime
+              ? new Date((data.metrics as any).endTime)
               : undefined,
+            durationMs: (data.metrics as any).durationMs || 0,
+            tokenUsage: (data.metrics as any).tokenUsage || 0,
+            toolCallsCount: (data.metrics as any).toolCallsCount || 0,
+            subAgentCount: (data.metrics as any).subAgentCount || 0,
+            errorCount: (data.metrics as any).errorCount || 0,
+            retryCount: (data.metrics as any).retryCount || 0,
           }
         : undefined,
     };

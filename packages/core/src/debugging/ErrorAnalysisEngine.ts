@@ -312,28 +312,31 @@ export class ErrorAnalysisEngine {
       // Generate error signature for tracking
       const signature = this.generateErrorSignature(errorText, context);
 
+      // Extract ErrorPattern objects from PatternMatchResult
+      const patterns = patternMatches.map(match => match.pattern);
+
       // Perform comprehensive analysis
       const analysis: ErrorAnalysis = {
         id: `analysis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        errorType: this.determineErrorType(patternMatches, errorText),
-        severity: this.calculateSeverity(patternMatches, errorText, context),
+        errorType: this.determineErrorType(patterns, errorText),
+        severity: this.calculateSeverity(patterns, errorText, context),
         language: this.detectLanguage(context),
         originalMessage: errorText,
         enhancedMessage: await this.enhanceErrorMessage(
           errorText,
-          patternMatches,
+          patterns,
         ),
         errorText,
-        category: this.determineCategory(patternMatches, errorText),
+        category: this.determineCategory(patterns, errorText),
         location: this.extractLocation(context),
         rootCause: await this.identifyRootCause(
           errorText,
-          patternMatches,
+          patterns,
           context,
         ),
         affectedComponents: this.identifyAffectedComponents(errorText, context),
         suggestedFixes: (
-          await this.generateFixSuggestions(patternMatches, context)
+          await this.generateFixSuggestions(patterns, context)
         ).map((suggestion, index) => ({
           id: `fix-${Date.now()}-${index}`,
           description: suggestion,
@@ -360,16 +363,16 @@ export class ErrorAnalysisEngine {
           priority: FixPriority.MEDIUM,
           category: FixCategory.QUICK_FIX,
         })),
-        confidence: this.calculateOverallConfidence(patternMatches),
+        confidence: this.calculateOverallConfidence(patterns),
         timestamp: new Date(),
         context,
         signature,
-        patterns: patternMatches,
+        patterns: patterns,
         metadata: {
           analysisVersion: '1.0.0',
           insights: await this.generateInsights(
             errorText,
-            patternMatches,
+            patterns,
             context,
           ),
           contextualFactors: await this.analyzeContextualFactors(context),
@@ -409,7 +412,7 @@ export class ErrorAnalysisEngine {
         category: analysis.category,
         severity: analysis.severity,
         confidence: analysis.confidence,
-        patternsFound: patternMatches.length,
+        patternsFound: patterns.length,
       });
 
       return analysis;
@@ -1366,8 +1369,8 @@ export class ErrorAnalysisEngine {
       line: context.lineNumber,
       column: context.columnNumber,
       functionName: context.functionName,
-      className: context.className,
-      moduleName: context.moduleName,
+      className: String(context.className || ''),
+      moduleName: String(context.moduleName || ''),
     };
   }
 

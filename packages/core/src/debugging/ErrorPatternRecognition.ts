@@ -13,6 +13,7 @@
  */
 
 import { getComponentLogger } from '../utils/logger.js';
+import { ErrorSeverity } from './types.js';
 import type {
   ErrorPattern,
   ErrorPatternMatch,
@@ -82,7 +83,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
   // JavaScript/TypeScript patterns
   {
     id: 'js-undefined-property',
-    regex: /Cannot read propert(y|ies) of undefined/i,
+    pattern: /Cannot read propert(y|ies) of undefined/i,
     category: 'runtime',
     language: 'javascript',
     description: 'Accessing property on undefined value',
@@ -91,12 +92,12 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Missing null/undefined check',
       'Async operation not awaited',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.95,
   },
   {
     id: 'ts-type-mismatch',
-    regex: /Type '.+' is not assignable to type '.+'/i,
+    pattern: /Type '.+' is not assignable to type '.+'/i,
     category: 'compile',
     language: 'typescript',
     description: 'Type assignment mismatch',
@@ -105,12 +106,12 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Missing type guards',
       'Union type not handled properly',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.9,
   },
   {
     id: 'js-syntax-error',
-    regex: /Unexpected token|Unexpected end of input/i,
+    pattern: /Unexpected token|Unexpected end of input/i,
     category: 'syntax',
     language: 'javascript',
     description: 'JavaScript syntax error',
@@ -119,14 +120,14 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Incorrect operator usage',
       'Invalid object/array literal',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.85,
   },
 
   // Python patterns
   {
     id: 'python-import-error',
-    regex: /ModuleNotFoundError: No module named '.+'/i,
+    pattern: /ModuleNotFoundError: No module named '.+'/i,
     category: 'import',
     language: 'python',
     description: 'Python module import error',
@@ -135,12 +136,12 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Incorrect module path',
       'Virtual environment not activated',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.95,
   },
   {
     id: 'python-indentation-error',
-    regex: /IndentationError|unindent does not match/i,
+    pattern: /IndentationError|unindent does not match/i,
     category: 'syntax',
     language: 'python',
     description: 'Python indentation error',
@@ -149,12 +150,12 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Incorrect indentation level',
       'Missing colon after control structure',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.9,
   },
   {
     id: 'python-attribute-error',
-    regex: /AttributeError: '.+' object has no attribute '.+'/i,
+    pattern: /AttributeError: '.+' object has no attribute '.+'/i,
     category: 'runtime',
     language: 'python',
     description: 'Accessing non-existent attribute',
@@ -163,14 +164,14 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Object not fully initialized',
       'Missing method or property',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.85,
   },
 
   // Java patterns
   {
     id: 'java-null-pointer',
-    regex: /NullPointerException/i,
+    pattern: /NullPointerException/i,
     category: 'runtime',
     language: 'java',
     description: 'Java null pointer exception',
@@ -179,12 +180,12 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Method called on null object',
       'Array not properly initialized',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.95,
   },
   {
     id: 'java-class-not-found',
-    regex: /ClassNotFoundException|NoClassDefFoundError/i,
+    pattern: /ClassNotFoundException|NoClassDefFoundError/i,
     category: 'compile',
     language: 'java',
     description: 'Java class loading error',
@@ -193,14 +194,14 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Incorrect package declaration',
       'Build configuration issue',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.9,
   },
 
   // Go patterns
   {
     id: 'go-undefined-variable',
-    regex: /undefined: .+/i,
+    pattern: /undefined: .+/i,
     category: 'compile',
     language: 'go',
     description: 'Go undefined variable or function',
@@ -209,12 +210,12 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Typo in variable name',
       'Variable declared in different scope',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.9,
   },
   {
     id: 'go-interface-mismatch',
-    regex: /cannot use .+ as .+ in .+: missing method/i,
+    pattern: /cannot use .+ as .+ in .+: missing method/i,
     category: 'compile',
     language: 'go',
     description: 'Go interface implementation mismatch',
@@ -223,14 +224,14 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Incorrect method signature',
       'Receiver type mismatch',
     ],
-    severity: 'error',
+    severity: ErrorSeverity.HIGH,
     confidence: 0.85,
   },
 
   // Generic patterns
   {
     id: 'stack-overflow',
-    regex: /StackOverflowError|RecursionError|stack overflow/i,
+    pattern: /StackOverflowError|RecursionError|stack overflow/i,
     category: 'runtime',
     language: 'generic',
     description: 'Stack overflow from excessive recursion',
@@ -239,12 +240,12 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Missing base case in recursive function',
       'Deep call chain',
     ],
-    severity: 'critical',
+    severity: ErrorSeverity.CRITICAL,
     confidence: 0.95,
   },
   {
     id: 'out-of-memory',
-    regex: /OutOfMemoryError|MemoryError|out of memory/i,
+    pattern: /OutOfMemoryError|MemoryError|out of memory/i,
     category: 'runtime',
     language: 'generic',
     description: 'Memory exhaustion error',
@@ -253,7 +254,7 @@ const BUILTIN_ERROR_PATTERNS: CommonErrorPattern[] = [
       'Large data structures',
       'Insufficient heap size',
     ],
-    severity: 'critical',
+    severity: ErrorSeverity.CRITICAL,
     confidence: 0.9,
   },
 ];
@@ -601,8 +602,8 @@ export class ErrorPatternRecognition {
         matchers: [
           {
             type: 'regex',
-            pattern: builtinPattern.regex.source,
-            flags: this.extractRegexFlags(builtinPattern.regex),
+            pattern: builtinPattern.pattern.source,
+            flags: this.extractRegexFlags(builtinPattern.pattern),
             weight: 1.0,
           },
         ],
