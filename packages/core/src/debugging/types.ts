@@ -1098,6 +1098,8 @@ export interface DebugCodeTemplate {
   template: string;
   /** Template complexity level */
   complexity: 'simple' | 'moderate' | 'complex' | 'advanced';
+  /** Template category */
+  category?: string;
   /** Required parameters */
   requiredParameters: string[];
   /** Optional parameters */
