@@ -44,7 +44,9 @@ export type TaskType =
   | 'documentation'
   | 'validation'
   | 'deployment'
-  | 'analysis';
+  | 'analysis'
+  | 'security'
+  | 'performance';
 export type TaskPriority = 'critical' | 'high' | 'normal' | 'low';
 export type TaskStatus =
   | 'queued'
@@ -104,7 +106,8 @@ export class AutonomousTaskIntegrator extends EventEmitter {
   private dependencyGraph: Map<string, Set<string>> = new Map(); // taskId -> dependencies
   private scheduler?: CoreToolScheduler;
   private config: Config;
-  private apiEndpoints: Map<string, Function> = new Map();
+  private apiEndpoints: Map<string, (...args: unknown[]) => unknown> =
+    new Map();
 
   constructor(config: Config) {
     super();
@@ -408,7 +411,10 @@ export class AutonomousTaskIntegrator extends EventEmitter {
   /**
    * Handle external API calls to the task management system
    */
-  async handleApiCall(endpoint: string, params: any[] = []): Promise<any> {
+  async handleApiCall(
+    endpoint: string,
+    params: unknown[] = [],
+  ): Promise<unknown> {
     const handler = this.apiEndpoints.get(endpoint);
     if (!handler) {
       throw new Error(`Unknown API endpoint: ${endpoint}`);
@@ -618,24 +624,26 @@ export class AutonomousTaskIntegrator extends EventEmitter {
 
   private handleToolOutput(
     toolCallId: string,
-    outputChunk: string | any,
+    outputChunk: string | unknown,
   ): void {
     // Handle real-time tool output updates
     this.emit('tool_output', { toolCallId, output: outputChunk });
   }
 
-  private async handleToolsComplete(completedToolCalls: any[]): Promise<void> {
+  private async handleToolsComplete(
+    _completedToolCalls: unknown[],
+  ): Promise<void> {
     // Find the task associated with these tool calls
     // Update task status to completed
     // This would be enhanced based on tool call metadata
   }
 
-  private handleToolsUpdate(toolCalls: any[]): void {
+  private handleToolsUpdate(toolCalls: unknown[]): void {
     // Handle tool call status updates
     this.emit('tools_update', { toolCalls });
   }
 
-  private async updateTaskManagerAgent(agent: RegisteredAgent): Promise<void> {
+  private async updateTaskManagerAgent(_agent: RegisteredAgent): Promise<void> {
     // Update agent information in TaskManager API
   }
 
