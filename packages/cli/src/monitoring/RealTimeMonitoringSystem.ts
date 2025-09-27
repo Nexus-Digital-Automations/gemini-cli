@@ -542,8 +542,12 @@ export class RealTimeMonitoringSystem extends EventEmitter {
       return JSON.stringify(exportData, null, 2);
     }
 
-    // CSV export implementation
-    return this.convertToCSV(exportData);
+    if (format === 'csv') {
+      return this.convertToCSV(exportData);
+    }
+
+    // Throw error for unsupported formats
+    throw new Error(`Unsupported export format: ${format}`);
   }
 
   // Private methods for system implementation
@@ -586,7 +590,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         await this.persistMonitoringData();
       }
     } catch (error) {
-      this.logger.error('Error collecting monitoring snapshot', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error('Error collecting monitoring snapshot', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
     }
   }
 
@@ -888,7 +894,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         this.predictiveInsights = this.predictiveInsights.slice(-100);
       }
     } catch (error) {
-      this.logger.error('Error generating predictive insights', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error('Error generating predictive insights', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
     }
   }
 
@@ -1289,7 +1297,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         });
 
         ws.on('error', (error) => {
-          this.logger.error('WebSocket error', { error: error instanceof Error ? error : new Error(String(error)) });
+          this.logger.error('WebSocket error', {
+            error: error instanceof Error ? error : new Error(String(error)),
+          });
           this.connectedClients.delete(ws);
         });
       });
@@ -1298,7 +1308,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         port: this.config.websocketPort,
       });
     } catch (error) {
-      this.logger.error('Failed to initialize WebSocket server', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error('Failed to initialize WebSocket server', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
     }
   }
 
@@ -1316,7 +1328,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
           disconnectedClients.add(client);
         }
       } catch (error) {
-        this.logger.error('Error broadcasting to WebSocket client', { error: error instanceof Error ? error : new Error(String(error)) });
+        this.logger.error('Error broadcasting to WebSocket client', {
+          error: error instanceof Error ? error : new Error(String(error)),
+        });
         disconnectedClients.add(client);
       }
     }
@@ -1400,7 +1414,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         // File doesn't exist - start fresh
       }
     } catch (error) {
-      this.logger.error('Error loading persisted data', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error('Error loading persisted data', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
     }
   }
 
@@ -1442,7 +1458,9 @@ export class RealTimeMonitoringSystem extends EventEmitter {
         JSON.stringify(insightsData, null, 2),
       );
     } catch (error) {
-      this.logger.error('Error persisting monitoring data', { error: error instanceof Error ? error : new Error(String(error)) });
+      this.logger.error('Error persisting monitoring data', {
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
     }
   }
 
@@ -1473,36 +1491,35 @@ export class RealTimeMonitoringSystem extends EventEmitter {
   }
 
   private convertToCSV(data: { snapshots?: MonitoringSnapshot[] }): string {
-    // Simple CSV conversion for snapshots
-    const headers = [
-      'timestamp',
-      'system_health',
-      'memory_mb',
-      'total_tasks',
-      'completed_tasks',
-      'failed_tasks',
-      'success_rate',
-      'throughput_per_hour',
-      'active_agents',
-      'active_alerts',
-    ];
-
+    // CSV conversion with metric-based format expected by tests
+    const headers = ['timestamp', 'metric', 'value', 'unit'];
     const rows = [headers.join(',')];
 
     for (const snapshot of data.snapshots || []) {
-      const row = [
-        snapshot.timestamp,
-        snapshot.systemHealth.overall,
-        snapshot.systemHealth.memoryUsageMB.toFixed(2),
-        snapshot.taskMetrics.total,
-        snapshot.taskMetrics.completed,
-        snapshot.taskMetrics.failed,
-        snapshot.taskMetrics.successRate.toFixed(2),
-        snapshot.taskMetrics.throughputPerHour.toFixed(2),
-        snapshot.agentMetrics.active,
-        snapshot.activeAlerts.length,
+      // Add multiple metric rows per snapshot
+      const metrics = [
+        ['memory_usage', snapshot.systemHealth.memoryUsageMB.toFixed(2), 'MB'],
+        ['total_tasks', snapshot.taskMetrics.total.toString(), 'count'],
+        ['completed_tasks', snapshot.taskMetrics.completed.toString(), 'count'],
+        ['failed_tasks', snapshot.taskMetrics.failed.toString(), 'count'],
+        [
+          'success_rate',
+          snapshot.taskMetrics.successRate.toFixed(2),
+          'percent',
+        ],
+        [
+          'throughput_per_hour',
+          snapshot.taskMetrics.throughputPerHour.toFixed(2),
+          'tasks/hour',
+        ],
+        ['active_agents', snapshot.agentMetrics.active.toString(), 'count'],
+        ['active_alerts', snapshot.activeAlerts.length.toString(), 'count'],
       ];
-      rows.push(row.join(','));
+
+      for (const [metric, value, unit] of metrics) {
+        const row = [snapshot.timestamp.toISOString(), metric, value, unit];
+        rows.push(row.join(','));
+      }
     }
 
     return rows.join('\n');
