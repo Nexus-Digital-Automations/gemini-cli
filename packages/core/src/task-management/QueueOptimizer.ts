@@ -532,7 +532,7 @@ export class QueueOptimizer extends EventEmitter {
 
         logger().warn('Failed to apply optimization recommendation', {
           type: recommendation.type,
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : new Error(String(error)),
         });
       }
     }
@@ -1328,7 +1328,7 @@ export class QueueOptimizer extends EventEmitter {
     } catch (error) {
       logger().error('Failed to apply recommendation', {
         type: recommendation.type,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       return false;
     }

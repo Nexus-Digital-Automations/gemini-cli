@@ -9,13 +9,13 @@ import { logger } from '../utils/logger.js';
 import type { Task, TaskCategory } from './TaskQueue.js';
 import {
   TaskPriority,
-  TaskStatus,
-  PriorityFactors,
-  SchedulingFactors,
-  ExecutionSequence,
-  DependencyGraph,
-  ResourceAllocation,
-  ExecutionPlan,
+  TaskStatus as _TaskStatus,
+  PriorityFactors as _PriorityFactors,
+  SchedulingFactors as _SchedulingFactors,
+  ExecutionSequence as _ExecutionSequence,
+  DependencyGraph as _DependencyGraph,
+  ResourceAllocation as _ResourceAllocation,
+  ExecutionPlan as _ExecutionPlan,
 } from './TaskQueue.js';
 import type { TaskId } from './types.js';
 
@@ -172,7 +172,7 @@ export class PriorityScheduler extends EventEmitter {
       return decision;
     } catch (error) {
       logger().error('Scheduling failed, falling back to priority-based', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
         algorithm: this.currentAlgorithm,
       });
 
@@ -714,7 +714,7 @@ export class PriorityScheduler extends EventEmitter {
     const inDegree = new Map<TaskId, number>();
     const result: Task[] = [];
     const queue: Task[] = [];
-    const taskMap = new Map(tasks.map((t) => [t.id, t]));
+    const _taskMap = new Map(tasks.map((t) => [t.id, t]));
 
     // Initialize in-degrees
     for (const task of tasks) {

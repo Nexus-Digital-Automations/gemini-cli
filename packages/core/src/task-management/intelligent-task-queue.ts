@@ -252,7 +252,7 @@ export class IntelligentTaskQueue {
       await this.processingPromise;
     } catch (error) {
       logger.error('Queue processing failed', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error : new Error(String(error)),
       });
     } finally {
       this.isProcessing = false;
@@ -580,7 +580,7 @@ export class IntelligentTaskQueue {
     logger.warn('Task execution failed', {
       taskId: context.taskId,
       title: context.task.title,
-      error: error.message,
+      error,
       retryCount: context.retryCount,
     });
 

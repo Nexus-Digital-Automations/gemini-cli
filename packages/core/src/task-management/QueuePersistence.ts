@@ -246,7 +246,7 @@ export class QueuePersistence extends EventEmitter {
 
       logger().error('Queue snapshot save failed', {
         snapshotId,
-        error: operation.error,
+        error: new Error(operation.error),
         duration: operation.duration,
       });
 
@@ -321,7 +321,7 @@ export class QueuePersistence extends EventEmitter {
 
       logger().error('Queue snapshot load failed', {
         snapshotId: targetSnapshotId,
-        error: operation.error,
+        error: new Error(operation.error),
         duration: operation.duration,
       });
 
@@ -411,7 +411,7 @@ export class QueuePersistence extends EventEmitter {
 
       logger().error('Queue backup creation failed', {
         backupId,
-        error: operation.error,
+        error: new Error(operation.error),
         duration: operation.duration,
       });
 
@@ -490,7 +490,7 @@ export class QueuePersistence extends EventEmitter {
 
       logger().error('Restore from backup failed', {
         backupId,
-        error: operation.error,
+        error: new Error(operation.error),
         duration: operation.duration,
       });
 

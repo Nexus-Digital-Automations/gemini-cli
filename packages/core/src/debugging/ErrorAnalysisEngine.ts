@@ -751,18 +751,17 @@ export class ErrorAnalysisEngine {
 
     // Context-based insights
     if (
-      context.executionContext?.stage === 'build' &&
+      context.executionContext &&
+      typeof context.executionContext === 'object' &&
+      'stage' in context.executionContext &&
+      (context.executionContext as Record<string, unknown>).stage === 'build' &&
       errorText.includes('import')
     ) {
       insights.push({
         type: 'context',
         confidence: 0.9,
-        title: 'Build-Time Import Issue',
         description:
           'Import errors during build often indicate missing dependencies or wrong paths',
-        actionable: true,
-        priority: 'high',
-        tags: ['build', 'imports'],
       });
     }
 
@@ -774,12 +773,8 @@ export class ErrorAnalysisEngine {
       insights.push({
         type: 'performance',
         confidence: 0.85,
-        title: 'Memory Management Issue',
         description:
           'Memory-related errors can indicate memory leaks or inefficient resource usage',
-        actionable: true,
-        priority: 'high',
-        tags: ['memory', 'performance'],
       });
     }
 
