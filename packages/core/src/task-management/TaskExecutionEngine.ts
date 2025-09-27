@@ -508,6 +508,7 @@ Focus on creating a practical, executable breakdown that enables efficient auton
       id:
         (data.id as string) ||
         `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      name: (data.title as string) || 'Untitled Task', // Use title as name for compatibility
       title: (data.title as string) || 'Untitled Task',
       description: (data.description as string) || '',
       type: (data.type as TaskType) || TaskType.IMPLEMENTATION,
@@ -641,6 +642,7 @@ export class TaskExecutionEngine {
 
     const task: Task = {
       id: taskId,
+      name: title, // Use title as name for compatibility
       title,
       description,
       type: options.type || TaskType.IMPLEMENTATION,

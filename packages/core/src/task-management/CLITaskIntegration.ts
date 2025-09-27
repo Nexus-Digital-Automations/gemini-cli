@@ -296,9 +296,9 @@ export class CLITaskIntegration {
   /**
    * Get current task status for CLI display
    */
-  getTaskProgress(taskId: TaskId): TaskProgressInfo | null {
+  async getTaskProgress(taskId: TaskId): Promise<TaskProgressInfo | null> {
     try {
-      const status = this.taskManager.getTaskStatus(taskId);
+      const status = await this.taskManager.getTaskStatus(taskId);
       if (!status) return null;
 
       return {

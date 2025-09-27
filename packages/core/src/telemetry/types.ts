@@ -296,7 +296,11 @@ export class FlashEscalationEvent implements BaseTelemetryEvent {
   failure_reason: string;
   escalation_trigger: string;
 
-  constructor(auth_type: string, failure_reason: string, escalation_trigger: string) {
+  constructor(
+    auth_type: string,
+    failure_reason: string,
+    escalation_trigger: string,
+  ) {
     this['event.name'] = 'flash_escalation';
     this['event.timestamp'] = new Date().toISOString();
     this.auth_type = auth_type;

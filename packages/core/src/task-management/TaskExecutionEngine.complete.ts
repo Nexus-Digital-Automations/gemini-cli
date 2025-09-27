@@ -379,6 +379,7 @@ export class TaskExecutionEngine {
 
     const task: Task = {
       id: taskId,
+      name: title, // Use title as name for compatibility
       title,
       description,
       type: options.type || TaskType.IMPLEMENTATION,

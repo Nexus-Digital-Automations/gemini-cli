@@ -19,6 +19,7 @@ import {
   EVENT_TOOL_CALL,
   EVENT_USER_PROMPT,
   EVENT_FLASH_FALLBACK,
+  EVENT_FLASH_ESCALATION,
   EVENT_NEXT_SPEAKER_CHECK,
   SERVICE_NAME,
   EVENT_SLASH_COMMAND,
@@ -45,6 +46,7 @@ import type {
   ToolCallEvent,
   UserPromptEvent,
   FlashFallbackEvent,
+  FlashEscalationEvent,
   NextSpeakerCheckEvent,
   LoopDetectedEvent,
   LoopDetectionDisabledEvent,
@@ -304,6 +306,27 @@ export function logFlashFallback(
   const logger = logs.getLogger(SERVICE_NAME);
   const logRecord: LogRecord = {
     body: `Switching to flash as Fallback.`,
+    attributes,
+  };
+  logger.emit(logRecord);
+}
+
+export function logFlashEscalation(
+  config: Config,
+  event: FlashEscalationEvent,
+): void {
+  if (!isTelemetrySdkInitialized()) return;
+
+  const attributes: LogAttributes = {
+    ...getCommonAttributes(config),
+    ...event,
+    'event.name': EVENT_FLASH_ESCALATION,
+    'event.timestamp': new Date().toISOString(),
+  };
+
+  const logger = logs.getLogger(SERVICE_NAME);
+  const logRecord: LogRecord = {
+    body: `Flash escalation triggered: ${event.escalation_trigger}. Reason: ${event.failure_reason}`,
     attributes,
   };
   logger.emit(logRecord);

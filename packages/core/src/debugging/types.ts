@@ -1871,7 +1871,14 @@ export interface MonitoringAlert {
   description: string;
   condition?: string;
   type?: string;
-  severity: 'low' | 'medium' | 'high' | 'critical' | 'info' | 'warning' | 'error';
+  severity:
+    | 'low'
+    | 'medium'
+    | 'high'
+    | 'critical'
+    | 'info'
+    | 'warning'
+    | 'error';
   enabled?: boolean;
   actions?: string[];
   timestamp: Date;
@@ -1882,7 +1889,13 @@ export interface MonitoringAlert {
 /**
  * System health status
  */
-export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | 'warning' | 'critical';
+export type HealthStatus =
+  | 'healthy'
+  | 'degraded'
+  | 'unhealthy'
+  | 'unknown'
+  | 'warning'
+  | 'critical';
 
 /**
  * Monitored application configuration
@@ -2115,4 +2128,3 @@ export interface TaskPerformanceMetrics extends PerformanceMetrics {
   /** System efficiency percentage */
   systemEfficiency: number;
 }
-

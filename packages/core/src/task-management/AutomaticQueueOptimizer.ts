@@ -25,11 +25,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type {
-  Task,
-  TaskPriority,
-  TaskStatus,
-} from './TaskQueue.js';
+import type { Task, TaskPriority, TaskStatus } from './TaskQueue.js';
 import type {
   QueueMetrics,
   AutonomousQueueMetrics,

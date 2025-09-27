@@ -17,6 +17,7 @@ export const EVENT_EXTENSION_ENABLE = 'gemini_cli.extension_enable';
 export const EVENT_EXTENSION_INSTALL = 'gemini_cli.extension_install';
 export const EVENT_EXTENSION_UNINSTALL = 'gemini_cli.extension_uninstall';
 export const EVENT_FLASH_FALLBACK = 'gemini_cli.flash_fallback';
+export const EVENT_FLASH_ESCALATION = 'gemini_cli.flash_escalation';
 export const EVENT_RIPGREP_FALLBACK = 'gemini_cli.ripgrep_fallback';
 export const EVENT_NEXT_SPEAKER_CHECK = 'gemini_cli.next_speaker_check';
 export const EVENT_SLASH_COMMAND = 'gemini_cli.slash_command';

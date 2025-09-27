@@ -147,10 +147,7 @@ export type {
 } from './knowledge/KnowledgeBaseManager.js';
 
 // Export persona system
-export {
-  PersonaManager,
-  personaManager,
-} from './persona/PersonaManager.js';
+export { PersonaManager, personaManager } from './persona/PersonaManager.js';
 export type {
   PersonalityTraits,
   BehavioralPatterns,

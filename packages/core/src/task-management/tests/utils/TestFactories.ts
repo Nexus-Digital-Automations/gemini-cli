@@ -343,12 +343,22 @@ export class TestFactories {
         ensureProjectTempDirExists: vi.fn(),
         getProjectRoot: vi.fn(() => '/tmp/test-project'),
         getHistoryDir: vi.fn(() => '/tmp/test-project/.gemini/history'),
-        getWorkspaceSettingsPath: vi.fn(() => '/tmp/test-project/.gemini/settings.json'),
-        getProjectCommandsDir: vi.fn(() => '/tmp/test-project/.gemini/commands'),
-        getProjectTempCheckpointsDir: vi.fn(() => '/tmp/test-project/.gemini/checkpoints'),
+        getWorkspaceSettingsPath: vi.fn(
+          () => '/tmp/test-project/.gemini/settings.json',
+        ),
+        getProjectCommandsDir: vi.fn(
+          () => '/tmp/test-project/.gemini/commands',
+        ),
+        getProjectTempCheckpointsDir: vi.fn(
+          () => '/tmp/test-project/.gemini/checkpoints',
+        ),
         getExtensionsDir: vi.fn(() => '/tmp/test-project/.gemini/extensions'),
-        getExtensionsConfigPath: vi.fn(() => '/tmp/test-project/.gemini/extensions.json'),
-        getHistoryFilePath: vi.fn(() => '/tmp/test-project/.gemini/history/history.json'),
+        getExtensionsConfigPath: vi.fn(
+          () => '/tmp/test-project/.gemini/extensions.json',
+        ),
+        getHistoryFilePath: vi.fn(
+          () => '/tmp/test-project/.gemini/history/history.json',
+        ),
       },
       getSessionId: vi.fn(() => 'test-session-id'),
       settings: {

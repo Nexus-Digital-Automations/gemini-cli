@@ -39,23 +39,54 @@ export interface AllocationResult {
   allocatedResources: ResourceRequirement[];
   cost: number;
   estimatedDuration: number;
+  estimatedCost?: number;
+  allocations: Array<{ type: ResourceType; amount: number }>;
+  requestId: string;
   error?: string;
 }
 
-export type AllocationStrategy = 'balanced' | 'cost-optimized' | 'performance-optimized' | 'power-efficient';
+export type AllocationStrategy =
+  | 'balanced'
+  | 'cost-optimized'
+  | 'performance-optimized'
+  | 'power-efficient';
 
 export const AllocationStrategies = {
   Balanced: 'balanced' as AllocationStrategy,
   CostOptimized: 'cost-optimized' as AllocationStrategy,
   PerformanceOptimized: 'performance-optimized' as AllocationStrategy,
   PowerEfficient: 'power-efficient' as AllocationStrategy,
+  Efficiency: 'balanced' as AllocationStrategy, // Alias for balanced
+  Fairness: 'balanced' as AllocationStrategy, // Alias for balanced
+  DeadlineOptimized: 'performance-optimized' as AllocationStrategy, // Alias for performance-optimized
 };
 
+export interface AllocationRequest {
+  requestId: string;
+  taskId: string;
+  requirements: ResourceRequirement[];
+  deadline?: number;
+  preemptible: boolean;
+  estimatedDuration: number;
+  businessValue: number;
+}
+
+export interface AllocationMetrics {
+  utilization: Record<string, number>;
+  queueLength: number;
+  fairnessIndex: number;
+  costEfficiency: number;
+}
+
 export class ResourceAllocator {
+  private resources = new Map<ResourceType, ResourceInfo>();
+
   constructor(private strategy: AllocationStrategy) {}
 
   initializeResources(resources: ResourceInfo[]): void {
-    // Placeholder implementation
+    resources.forEach(resource => {
+      this.resources.set(resource.type, resource);
+    });
   }
 
   allocate(requirements: ResourceRequirement[]): AllocationResult {
@@ -65,7 +96,59 @@ export class ResourceAllocator {
       allocatedResources: requirements,
       cost: 0,
       estimatedDuration: 0,
+      allocations: requirements.map(req => ({ type: req.type, amount: req.amount })),
+      requestId: `allocation_${Date.now()}`,
     };
+  }
+
+  async allocateResources(request: AllocationRequest, context: DecisionContext): Promise<AllocationResult> {
+    // Placeholder implementation
+    return {
+      success: true,
+      allocatedResources: request.requirements,
+      cost: 10,
+      estimatedDuration: request.estimatedDuration,
+      estimatedCost: 10,
+      allocations: request.requirements.map(req => ({ type: req.type, amount: req.amount })),
+      requestId: request.requestId,
+    };
+  }
+
+  releaseResources(requestId: string): void {
+    // Placeholder implementation
+  }
+
+  getResourceStatus(): Map<ResourceType, ResourceInfo> {
+    return this.resources;
+  }
+
+  getMetrics(): AllocationMetrics {
+    return {
+      utilization: {
+        [ResourceType.CPU]: 0.5,
+        [ResourceType.MEMORY]: 0.3,
+        [ResourceType.STORAGE]: 0.7,
+      },
+      queueLength: 3,
+      fairnessIndex: 0.8,
+      costEfficiency: 0.9,
+    };
+  }
+
+  updateStrategy(strategy: AllocationStrategy): void {
+    this.strategy = strategy;
+  }
+
+  async optimizeAllocations(): Promise<void> {
+    // Placeholder implementation
+  }
+
+  destroy(): void {
+    this.resources.clear();
+  }
+
+  on(event: string, callback: (data: any) => void): void {
+    // Placeholder implementation for EventEmitter-like behavior
   }
 
   deallocate(allocation: AllocationResult): void {
@@ -221,11 +304,12 @@ export class ResourceDecisionService extends EventEmitter {
     const recommendations: ResourceOptimizationRecommendation[] = [];
 
     // Analyze resource utilization patterns
-    for (const [resourceType, utilization] of Object.entries(
+    for (const [resourceType, utilizationValue] of Object.entries(
       currentMetrics.utilization,
     )) {
+      const utilization = Number(utilizationValue);
       const resource = resourceStatus.get(resourceType as ResourceType);
-      if (!resource) continue;
+      if (!resource || isNaN(utilization)) continue;
 
       // Check for underutilization
       if (utilization < 0.3) {

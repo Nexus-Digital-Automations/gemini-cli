@@ -66,6 +66,7 @@ export interface StorageConfig {
 }
 
 export interface TransactionContext {
+  id: string;
   transactionId: string;
   isolationLevel: TransactionIsolationLevel;
   operations: unknown[];

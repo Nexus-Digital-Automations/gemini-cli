@@ -814,12 +814,12 @@ export class DataSync extends EventEmitter {
     // TaskPersistence doesn't have individual task methods
     // We work with queue state instead
     const queueState = await this.persistence.loadQueueState();
-    if (queueState.success && queueState.state) {
-      // Find the specific task in the queue state
-      const task = queueState.state.tasks.find(t => t.id === taskId);
+    if (queueState) {
+      // Find the specific task in the queue state (tasks is a Map)
+      const task = queueState.tasks.get(taskId);
       if (task) {
         // Force save entire queue state to trigger synchronization
-        await this.persistence.saveQueueState(queueState.state);
+        await this.persistence.saveQueueState(queueState);
       }
     }
   }
@@ -881,7 +881,7 @@ export class DataSync extends EventEmitter {
     );
 
     const merged = {
-      ...winner.data.after,
+      ...(winner.data.after as Record<string, unknown> || {}),
       metadata: mergedMetadata,
     };
 

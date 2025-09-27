@@ -18,7 +18,6 @@ import type {
   StackFrame,
   StackTraceAnalysis,
   LanguageSupport,
-  ErrorAnalysis,
   StackTraceFrame,
   ContextLine,
   SourceLocation,
@@ -309,24 +308,24 @@ export class StackTraceAnalyzer {
       const frameAnalyses = await this.analyzeFrames(analyzedFrames, options);
 
       // Perform call chain analysis
-      const callChainAnalysis = await this.analyzeCallChain(analyzedFrames);
+      const _callChainAnalysis = await this.analyzeCallChain(analyzedFrames);
 
       // Detect error patterns
-      const errorPatterns = this.detectErrorPatterns(stackTraceText);
+      const _errorPatterns = this.detectErrorPatterns(stackTraceText);
 
       // Identify root cause frame
-      const rootCause = this.identifyRootCause(frameAnalyses);
+      const _rootCause = this.identifyRootCause(frameAnalyses);
 
       // Classify frames by importance
-      const frameClassification = this.classifyFrames(frameAnalyses);
+      const _frameClassification = this.classifyFrames(frameAnalyses);
 
       // Detect recursion
-      const recursionDetection = this.config.enableRecursionDetection
+      const _recursionDetection = this.config.enableRecursionDetection
         ? this.detectRecursion(analyzedFrames)
         : undefined;
 
       // Analyze async call chains if enabled
-      const asyncAnalysis = this.config.enableAsyncAnalysis
+      const _asyncAnalysis = this.config.enableAsyncAnalysis
         ? await this.analyzeAsyncChain(analyzedFrames, stackTraceText)
         : undefined;
 
@@ -336,10 +335,22 @@ export class StackTraceAnalyzer {
         id: crypto.randomUUID(),
         originalTrace: stackTraceText,
         frames,
-        errorOrigin: frames[0] || { functionName: 'unknown', filePath: 'unknown', lineNumber: 0, columnNumber: 0, isAsync: false, isNative: false } as StackFrame,
-        propagationPath: frames.map(f => f.functionName || 'anonymous'),
+        errorOrigin:
+          frames[0] ||
+          ({
+            functionName: 'unknown',
+            filePath: 'unknown',
+            lineNumber: 0,
+            columnNumber: 0,
+            isAsync: false,
+            isNative: false,
+          } as StackFrame),
+        propagationPath: frames.map((f) => f.functionName || 'anonymous'),
         variableStates: {},
-        recommendations: ['Check error origin in frame 0', 'Review stack trace for patterns'],
+        recommendations: [
+          'Check error origin in frame 0',
+          'Review stack trace for patterns',
+        ],
         relatedErrors: [],
         confidence: 0.8,
       };

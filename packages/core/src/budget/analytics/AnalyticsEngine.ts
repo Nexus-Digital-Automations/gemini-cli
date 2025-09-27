@@ -267,7 +267,7 @@ export class AnalyticsEngine {
     await this.budgetTracker.recordRequest();
 
     // Trigger real-time analysis for critical patterns
-    if (metrics.cost > (await this.getAverageCostPerRequest()) * 3) {
+    if (typeof metrics.cost === 'number' && metrics.cost > (await this.getAverageCostPerRequest()) * 3) {
       await this.checkForAnomalies([usageRecord]);
     }
   }

@@ -18,6 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { EventEmitter } from 'node:events';
 import type { Config } from '../config/config.js';
 import { TaskExecutionEngine } from './TaskExecutionEngine.complete.js';
 import {
@@ -157,7 +158,7 @@ export interface AutonomousDecision {
  * Provides enterprise-grade autonomous task management with intelligent
  * breakdown, adaptive scheduling, cross-session persistence, and real-time monitoring.
  */
-export class TaskManager {
+export class TaskManager extends EventEmitter {
   private readonly config: Config;
   private readonly taskEngine: TaskExecutionEngine;
   private readonly autonomousQueue: EnhancedAutonomousTaskQueue;
@@ -177,6 +178,7 @@ export class TaskManager {
   private executionInterval?: NodeJS.Timeout;
 
   constructor(options: TaskManagerConfig) {
+    super();
     console.log('🚀 Initializing TaskManager with autonomous capabilities...');
 
     this.config = options.config;
@@ -369,6 +371,7 @@ export class TaskManager {
       // Create task for traditional queue
       const task: Task = {
         id: this.generateTaskId(),
+        name: title, // Use title as name for compatibility
         title,
         description,
         status: TaskStatus.PENDING,
@@ -816,6 +819,9 @@ export class TaskManager {
 
   private async handleTaskComplete(task: Task): Promise<void> {
     console.log(`✅ Task completed successfully: ${task.title}`);
+
+    // Emit event for CLI integration
+    this.emit('taskCompleted', task.id, { success: true, output: task.metadata });
 
     if (this.monitoring) {
       this.monitoring.recordEvent({

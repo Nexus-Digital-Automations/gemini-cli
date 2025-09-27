@@ -274,7 +274,11 @@ export class DependencyManager {
   ): boolean {
     // Sort resolution strategies by impact (low impact first)
     const sortedStrategies = [...cycle.resolutionStrategies].sort((a, b) => {
-      const impactOrder: { [key: string]: number } = { low: 0, medium: 1, high: 2 };
+      const impactOrder: { [key: string]: number } = {
+        low: 0,
+        medium: 1,
+        high: 2,
+      };
       return impactOrder[a.impact] - impactOrder[b.impact];
     });
 

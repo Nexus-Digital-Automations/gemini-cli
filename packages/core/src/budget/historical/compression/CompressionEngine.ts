@@ -15,7 +15,10 @@
 import * as zlib from 'node:zlib';
 import * as crypto from 'node:crypto';
 import { promisify } from 'node:util';
-import { getComponentLogger, type StructuredLogger } from '../../../utils/logger.js';
+import {
+  getComponentLogger,
+  type StructuredLogger,
+} from '../../../utils/logger.js';
 import type { BudgetUsageTimeSeriesPoint } from '../storage/types.js';
 import type {
   CompressionEngine,
