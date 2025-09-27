@@ -318,7 +318,9 @@ export class AnalyticsEngine {
     const featureGroups = this.groupMetricsByDimension(metrics, 'feature');
     const analyses: FeatureCostAnalysis[] = [];
 
-    for (const [featureId, featureMetrics] of featureGroups.entries()) {
+    for (const [featureId, featureMetrics] of Array.from(
+      featureGroups.entries(),
+    )) {
       if (!featureId || featureId === 'undefined') continue;
 
       const totalCost = featureMetrics.reduce((sum, m) => sum + m.cost, 0);
@@ -701,7 +703,7 @@ export class AnalyticsEngine {
       hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1);
     }
 
-    const maxCount = Math.max(...hourCounts.values());
+    const maxCount = Math.max(...Array.from(hourCounts.values()));
     return Array.from(hourCounts.entries())
       .filter(([_, count]) => count >= maxCount * 0.8)
       .map(([hour]) => `${hour}:00`)
@@ -1053,7 +1055,7 @@ export class AnalyticsEngine {
   ): UsageMetrics[] {
     return metrics.filter((metric) => {
       for (const [key, value] of Object.entries(filters)) {
-        const metricRecord = metric as Record<string, unknown>;
+        const metricRecord = metric as unknown as Record<string, unknown>;
         if (metricRecord[key] !== value) {
           return false;
         }
@@ -1243,7 +1245,7 @@ export class AnalyticsEngine {
     const groups = new Map<string, UsageMetrics[]>();
 
     for (const metric of metrics) {
-      const metricRecord = metric as Record<string, unknown>;
+      const metricRecord = metric as unknown as Record<string, unknown>;
       const key = String(metricRecord[field] || 'unknown');
       if (!groups.has(key)) {
         groups.set(key, []);
@@ -1282,25 +1284,24 @@ export class AnalyticsEngine {
 
     for (const [field, aggType] of Object.entries(aggregations)) {
       const values = metrics
-        .map((m) => (m as Record<string, unknown>)[field])
+        .map((m) => (m as unknown as Record<string, unknown>)[field])
         .filter((v) => v !== undefined);
 
       switch (aggType) {
         case 'sum':
-          results[field] = values.reduce(
-            (sum, v) => sum + (typeof v === 'number' ? v : 0),
+          results[field] = values.reduce<number>(
+            (sum: number, v: unknown) => sum + (typeof v === 'number' ? v : 0),
             0,
           );
           break;
-        case 'avg':
-          results[field] =
-            values.length > 0
-              ? values.reduce(
-                  (sum, v) => sum + (typeof v === 'number' ? v : 0),
-                  0,
-                ) / values.length
-              : 0;
+        case 'avg': {
+          const sum = values.reduce<number>(
+            (acc: number, v: unknown) => acc + (typeof v === 'number' ? v : 0),
+            0,
+          );
+          results[field] = values.length > 0 ? sum / values.length : 0;
           break;
+        }
         case 'count':
           results[field] = values.length;
           break;
