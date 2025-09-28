@@ -708,7 +708,7 @@ class RealtimeTaskMonitor extends EventEmitter {
     }
   }
 
-  async _updateAgentWorkload(agentId, activity, metadata) {
+  async _updateAgentWorkload(agentId, activity, _metadata) {
     if (!this.state.agentWorkloads.has(agentId)) {
       this.state.agentWorkloads.set(agentId, {
         currentTasks: 0,
@@ -761,7 +761,7 @@ class RealtimeTaskMonitor extends EventEmitter {
     return activeAgents > 0 ? activeTasks / activeAgents : 0;
   }
 
-  _determineAlertSeverity(type, data) {
+  _determineAlertSeverity(type, _data) {
     const severityMap = {
       task_timeout: 'warning',
       memory_usage: 'warning',
@@ -949,4 +949,4 @@ class RealtimeTaskMonitor extends EventEmitter {
   }
 }
 
-module.Exports = RealtimeTaskMonitor;
+module.exports = RealtimeTaskMonitor;
