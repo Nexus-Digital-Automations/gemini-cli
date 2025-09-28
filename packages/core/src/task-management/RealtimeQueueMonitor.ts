@@ -25,7 +25,6 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { TaskStatus } from './TaskQueue.js';
 import type { TaskPriority } from './types.js';
 import type {
   QueueMetrics,
@@ -202,7 +201,7 @@ export interface HistoricalTrend {
   dataPoints: Array<{
     timestamp: Date;
     value: number;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }>;
   trend: 'increasing' | 'decreasing' | 'stable';
   changeRate: number; // percentage change
@@ -643,8 +642,6 @@ export class RealtimeQueueMonitor extends EventEmitter {
     // Calculate derived metrics
     const totalTasks =
       metrics.tasksProcessed + metrics.activeTasks + metrics.pendingTasks;
-    const completionRate =
-      totalTasks > 0 ? (metrics.tasksProcessed / totalTasks) * 100 : 0;
 
     // Calculate throughput (tasks per minute/hour)
     const timeRangeHours = 1; // Last hour
@@ -1016,7 +1013,7 @@ export class RealtimeQueueMonitor extends EventEmitter {
   private getLatestSnapshots(): RealtimeQueueSnapshot[] {
     const latest: RealtimeQueueSnapshot[] = [];
 
-    for (const [queueId, snapshots] of this.snapshots) {
+    for (const [, snapshots] of this.snapshots) {
       if (snapshots.length > 0) {
         latest.push(snapshots[snapshots.length - 1]);
       }
@@ -1399,8 +1396,8 @@ export class RealtimeQueueMonitor extends EventEmitter {
    */
   private getAlertRecommendations(
     type: string,
-    currentValue: number,
-    threshold: number,
+    _currentValue: number,
+    _threshold: number,
   ): string[] {
     switch (type) {
       case 'queue-size-critical':
@@ -1506,7 +1503,7 @@ export class RealtimeQueueMonitor extends EventEmitter {
 
         case 'file':
           if (channel.endpoint) {
-            const fs = require('node:fs').promises;
+            const { promises: fs } = await import('node:fs');
             const logEntry = `${new Date().toISOString()} [${alert.severity.toUpperCase()}] ${alert.message}\n`;
             await fs.appendFile(channel.endpoint, logEntry);
           }
@@ -1532,6 +1529,12 @@ export class RealtimeQueueMonitor extends EventEmitter {
           // Would send Slack notification
           console.log(
             `[RealtimeQueueMonitor] Would send Slack alert: ${alert.message}`,
+          );
+          break;
+
+        default:
+          console.warn(
+            `[RealtimeQueueMonitor] Unknown alert channel type: ${channel.type}`,
           );
           break;
       }
