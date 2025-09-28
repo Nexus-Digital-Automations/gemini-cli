@@ -318,8 +318,8 @@ export const MonitoringUtils = {
       ];
 
     return createTokenMonitoringIntegration(
-      config as Config,
-      budgetSettings as BudgetSettings,
+      config as unknown as Config,
+      budgetSettings as unknown as BudgetSettings,
       preset,
     );
   },
@@ -336,8 +336,8 @@ export const MonitoringUtils = {
     try {
       return await createMonitoringEnabledContentGenerator(
         baseContentGenerator as ContentGenerator,
-        config as Config,
-        budgetSettings as BudgetSettings,
+        config as unknown as Config,
+        budgetSettings as unknown as BudgetSettings,
         MonitoringPresets.Production,
       );
     } catch (error) {

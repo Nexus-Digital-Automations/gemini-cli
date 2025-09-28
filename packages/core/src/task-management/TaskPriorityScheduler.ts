@@ -599,7 +599,15 @@ export class TaskPriorityScheduler extends EventEmitter {
     }
 
     const features = this.extractMLFeatures(task, context);
-    const predictedPriority = this.mlModel.predict([features])[0];
+    const predictions = (
+      this.mlModel as { predict?: (features: number[][]) => number[] }
+    )?.predict?.([features]);
+
+    if (!predictions || predictions.length === 0) {
+      return this.calculateHybridPriority(task, context);
+    }
+
+    const predictedPriority = predictions[0];
 
     // Bound the prediction to reasonable limits
     return Math.max(1, Math.min(2000, predictedPriority));

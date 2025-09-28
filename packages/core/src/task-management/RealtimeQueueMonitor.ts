@@ -33,6 +33,24 @@ import type {
 } from './EnhancedAutonomousTaskQueue.js';
 
 /**
+ * WebSocket client interface for type safety
+ */
+interface WebSocketClient {
+  readyState: number;
+  send(data: string): void;
+  close(): void;
+}
+
+/**
+ * WebSocket server interface for type safety
+ */
+interface WebSocketServer {
+  port: number;
+  clients: Set<WebSocketClient>;
+  broadcast(data: unknown): void;
+}
+
+/**
  * Comprehensive monitoring configuration for queue surveillance
  */
 export interface MonitoringConfig {
@@ -293,8 +311,8 @@ export class RealtimeQueueMonitor extends EventEmitter {
   private dashboardInterval: NodeJS.Timeout | null;
 
   // WebSocket server for live updates
-  private webSocketServer: unknown | null;
-  private connectedClients: Set<unknown>;
+  private webSocketServer: WebSocketServer | null;
+  private connectedClients: Set<WebSocketClient>;
 
   // Performance tracking
   private performanceMetrics: Map<string, number[]>;
@@ -515,9 +533,9 @@ export class RealtimeQueueMonitor extends EventEmitter {
           // Broadcast to all connected clients
           this.connectedClients.forEach((client) => {
             try {
-              if (client.readyState === 1) {
+              if ((client as WebSocketClient).readyState === 1) {
                 // WebSocket.OPEN
-                client.send(JSON.stringify(data));
+                (client as WebSocketClient).send(JSON.stringify(data));
               }
             } catch (error) {
               console.warn(
@@ -603,7 +621,7 @@ export class RealtimeQueueMonitor extends EventEmitter {
 
     // Broadcast to WebSocket clients
     if (this.config.enableWebSocketUpdates && this.webSocketServer) {
-      this.webSocketServer.broadcast({
+      (this.webSocketServer as WebSocketServer).broadcast({
         type: 'queueUpdate',
         queueId,
         snapshot,
@@ -898,7 +916,7 @@ export class RealtimeQueueMonitor extends EventEmitter {
 
       // Broadcast to WebSocket clients
       if (this.config.enableWebSocketUpdates && this.webSocketServer) {
-        this.webSocketServer.broadcast({
+        (this.webSocketServer as WebSocketServer).broadcast({
           type: 'dashboardUpdate',
           data: this.dashboardData,
         });
@@ -1683,7 +1701,7 @@ export class RealtimeQueueMonitor extends EventEmitter {
       // Close all client connections
       this.connectedClients.forEach((client) => {
         try {
-          client.close();
+          (client as WebSocketClient).close();
         } catch (error) {
           console.warn(
             `[RealtimeQueueMonitor] Error closing client connection:`,
