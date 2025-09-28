@@ -577,7 +577,7 @@ export class HistoricalBudgetAnalyzer {
     const sumY = values.reduce((sum, y) => sum + y, 0);
     const sumXY = xValues.reduce((sum, x, i) => sum + x * values[i], 0);
     const sumXX = xValues.reduce((sum, x) => sum + x * x, 0);
-    const sumYY = values.reduce((sum, y) => sum + y * y, 0);
+    const _sumYY = values.reduce((sum, y) => sum + y * y, 0);
 
     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
@@ -775,7 +775,7 @@ export class HistoricalBudgetAnalyzer {
   private calculateForecastVariance(
     daysAhead: number,
     analysis: TrendAnalysis,
-    records: HistoricalBudgetRecord[],
+    _records: HistoricalBudgetRecord[],
   ): number {
     // Base variance from historical volatility
     const baseVariance = Math.pow(analysis.volatility, 2);
@@ -913,8 +913,8 @@ export class HistoricalBudgetAnalyzer {
   private generateAnomalyAction(
     type: AnomalyDetection['type'],
     severity: AnomalyDetection['severity'],
-    actualUsage: number,
-    expectedUsage: number,
+    _actualUsage: number,
+    _expectedUsage: number,
   ): string {
     if (type === 'spike' && severity === 'critical') {
       return 'Investigate unusual activity and consider temporary budget increase';

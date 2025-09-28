@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as path from 'node:path';
+import * as _path from 'node:path';
 import { mlBudgetAPI } from '../api/ml-budget-api.js';
-import type { BudgetSettings } from '../types.js';
+import type { BudgetSettings, MLBudgetRecommendation } from '../types.js';
 
 /**
  * CLI utility for ML budget operations
@@ -497,14 +497,14 @@ export class MLBudgetCLI {
   // Helper methods
   private displayRecommendationCategory(
     title: string,
-    recommendations: any[],
+    recommendations: MLBudgetRecommendation[],
   ): void {
     if (recommendations.length > 0) {
       console.log(`\n${title}:`);
       console.log('─'.repeat(50));
 
       for (const rec of recommendations) {
-        const icon = this.getRecommendationIcon(rec.type, rec.priority);
+        const icon = this.getRecommendationIcon(rec.type, rec.priority.toString());
         console.log(
           `${icon} [${rec.expectedImpact.confidence}] ${rec.description}`,
         );

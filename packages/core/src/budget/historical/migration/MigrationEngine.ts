@@ -1183,7 +1183,7 @@ export class MigrationEngineImpl implements MigrationEngine {
   /**
    * Load current data based on data source type
    */
-  private async loadCurrentData(): Promise<any> {
+  private async loadCurrentData(): Promise<unknown> {
     switch (this.dataSource.type) {
       case 'file':
         return await this.loadFileData();
@@ -1225,7 +1225,7 @@ export class MigrationEngineImpl implements MigrationEngine {
   /**
    * Load data from file
    */
-  private async loadFileData(): Promise<any> {
+  private async loadFileData(): Promise<unknown> {
     const filePath = this.dataSource.config.location;
     if (!filePath) {
       throw new Error('File data source requires location config');
@@ -1258,7 +1258,7 @@ export class MigrationEngineImpl implements MigrationEngine {
   /**
    * Load data from database (placeholder)
    */
-  private async loadDatabaseData(): Promise<any> {
+  private async loadDatabaseData(): Promise<unknown> {
     // This would implement actual database loading
     throw new Error('Database data source not yet implemented');
   }

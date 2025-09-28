@@ -54,22 +54,7 @@
       "category"
     ]
   },
-  "agents": {
-    "agent_structured_logger_fix": {
-      "lastHeartbeat": "2025-09-27T22:54:22.292Z",
-      "status": "active",
-      "reinitialized": "2025-09-27T22:54:22.292Z",
-      "sessionId": "3264c06e4af14d6a",
-      "previousSessions": []
-    },
-    "SHELL_TYPE_FIX_AGENT": {
-      "lastHeartbeat": "2025-09-27T22:54:22.644Z",
-      "status": "active",
-      "reinitialized": "2025-09-27T22:54:22.644Z",
-      "sessionId": "9f49a258d0597579",
-      "previousSessions": []
-    }
-  },
+  "agents": {},
   "tasks": [],
   "completed_tasks": []
 }

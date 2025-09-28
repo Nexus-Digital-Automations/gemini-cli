@@ -6,7 +6,7 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { BudgetSettings, BudgetUsageData } from './types.js';
+import type { BudgetSettings, BudgetUsageData as _BudgetUsageData } from './types.js';
 import type { BudgetTracker } from './budget-tracker.js';
 import { createBudgetTracker } from './budget-tracker.js';
 import type { HistoricalBudgetAnalyzer } from './historical-analysis.js';
@@ -26,8 +26,8 @@ import {
 import type { HistoricalVisualizationEngine } from './historical-visualization.js';
 import {
   createHistoricalVisualizationEngine,
-  type ChartConfig,
-  type DashboardWidget,
+  type ChartConfig as _ChartConfig,
+  type DashboardWidget as _DashboardWidget,
   type ReportConfig,
   type VisualizationArtifact,
 } from './historical-visualization.js';
@@ -761,7 +761,7 @@ export class HistoricalBudgetService {
       );
       const data = await fs.readFile(dataPath, 'utf-8');
       return JSON.parse(data) as HistoricalBudgetRecord[];
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }

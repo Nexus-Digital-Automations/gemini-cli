@@ -15,8 +15,8 @@ import type {
   ExtendedForecastPoint,
   ModelMetrics as _ModelMetrics,
   AnomalyDetectionResult as _AnomalyDetectionResult,
-  BudgetRiskCategory,
 } from '../types.js';
+import { BudgetRiskCategory } from '../types.js';
 import type { MLEnhancedBudgetTracker } from '../ml-enhanced-tracker.js';
 import { createMLEnhancedBudgetTracker } from '../ml-enhanced-tracker.js';
 
@@ -271,7 +271,11 @@ export class MLBudgetAPI {
               modelAccuracy: 0.7,
               historicalPerformance: 0.6,
               sampleSize: 0.8,
-              lastUpdated: new Date().toISOString(),
+              factors: [],
+              interval: {
+                lower: 0.6,
+                upper: 0.8,
+              },
             },
           },
           generatedAt: new Date().toISOString(),
@@ -342,7 +346,7 @@ export class MLBudgetAPI {
           coefficient: number;
           description: string;
         };
-      } = patternsData || {
+      } = (patternsData as any) || {
         seasonality: {
           detected: false,
           description: 'No seasonal patterns detected',
@@ -440,7 +444,7 @@ export class MLBudgetAPI {
   ): Promise<UsageStatsResponse> {
     try {
       const tracker = this.getTracker(request.projectRoot, request.settings);
-      const trendAnalysis = await tracker.getTrendAnalysis();
+      const _trendAnalysis = await tracker.getTrendAnalysis();
 
       // Mock some basic stats since the interface changed
       const mockStats = {
@@ -477,11 +481,11 @@ export class MLBudgetAPI {
             },
             lastMLUpdate: Date.now(),
             modelAccuracy: 0.85,
-            trendAnalysis: trendAnalysis
+            trendAnalysis: _trendAnalysis
               ? {
-                  direction: trendAnalysis.trend || 'stable',
+                  direction: _trendAnalysis.trend || 'stable',
                   confidence: 0.8,
-                  seasonalityDetected: trendAnalysis.seasonality || false,
+                  seasonalityDetected: _trendAnalysis.seasonality || false,
                 }
               : undefined,
           },
@@ -505,7 +509,7 @@ export class MLBudgetAPI {
     settings: BudgetSettings,
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const tracker = this.getTracker(projectRoot, settings);
+      const _tracker = this.getTracker(projectRoot, settings);
       // Request recording is handled internally by updateUsageData
       // await tracker.recordRequest();
 
@@ -538,7 +542,7 @@ export class MLBudgetAPI {
   }> {
     try {
       const tracker = this.getTracker(projectRoot, settings);
-      const trendAnalysis = await tracker.getTrendAnalysis();
+      const _trendAnalysis = await tracker.getTrendAnalysis();
       const metrics = await tracker.getModelMetrics();
 
       // Mock some basic stats since we don't have actual stats
@@ -847,7 +851,10 @@ export const mlBudgetHandlers = {
 
       const parsedSettings =
         typeof settings === 'string' ? JSON.parse(settings) : settings;
-      const result = await mlBudgetAPI.healthCheck(projectRoot, parsedSettings);
+      const result = await mlBudgetAPI.healthCheck(
+        projectRoot as string,
+        parsedSettings as BudgetSettings
+      );
 
       res.status(200).json(result);
     } catch (error) {

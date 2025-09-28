@@ -58,12 +58,22 @@ import { createMockWorkspaceContext } from '../test-utils/mockWorkspaceContext.j
 import { StandardFileSystemService } from '../services/fileSystemService.js';
 import type { BaseLlmClient } from '../core/baseLlmClient.js';
 
+// Type definition for mock client
+interface MockGeminiClient {
+  generateJson: Mock;
+}
+
+interface MockIdeClient {
+  openDiff: Mock;
+  isDiffingEnabled: Mock;
+}
+
 describe('SmartEditTool', () => {
   let tool: SmartEditTool;
   let tempDir: string;
   let rootDir: string;
   let mockConfig: Config;
-  let geminiClient: any;
+  let geminiClient: MockGeminiClient;
   let baseLlmClient: BaseLlmClient;
 
   beforeEach(() => {
@@ -501,7 +511,7 @@ describe('SmartEditTool', () => {
   describe('IDE mode', () => {
     const testFile = 'edit_me.txt';
     let filePath: string;
-    let ideClient: any;
+    let ideClient: MockIdeClient;
 
     beforeEach(() => {
       filePath = path.join(rootDir, testFile);

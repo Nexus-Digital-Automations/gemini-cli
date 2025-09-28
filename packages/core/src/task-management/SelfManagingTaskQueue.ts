@@ -51,8 +51,9 @@ import {
   TaskCategory,
   type TaskContext,
   type QueueMetrics,
+  type PriorityFactors,
 } from './TaskQueue.js';
-import type { TaskId } from './types.js';
+import type { TaskId, TaskMetadata } from './types.js';
 
 /**
  * Advanced self-management configuration
@@ -125,6 +126,86 @@ export interface TaskPrediction {
 }
 
 /**
+ * ML prediction interfaces
+ */
+export interface ComplexityPrediction {
+  score: number;
+  factors: string[];
+  historicalSuccessRate: number;
+}
+
+export interface DurationPrediction {
+  duration: number;
+  confidence: number;
+  factors: string[];
+}
+
+export interface ResourcePrediction {
+  resources: string[];
+  estimatedUsage: Map<string, number>;
+  confidence: number;
+}
+
+export interface FailurePrediction {
+  probability: number;
+  factors: string[];
+  confidence: number;
+}
+
+/**
+ * Enhanced task definition with proper typing
+ */
+export interface TaskDefinitionWithML {
+  id?: string;
+  title: string;
+  description: string;
+  executeFunction: () => Promise<{ success: boolean; result: unknown; duration: number }>;
+  estimatedDuration?: number;
+  requiredResources?: string[];
+  category?: TaskCategory;
+  priority?: TaskPriority;
+  dependencies?: string[];
+  metadata?: Partial<TaskMetadata>;
+  priorityFactors?: Partial<PriorityFactors>;
+  status?: TaskStatus;
+  retryCount?: number;
+  timeout?: number;
+  context?: TaskContext;
+}
+
+/**
+ * Execution record with proper typing
+ */
+export interface ExecutionRecord {
+  duration: number;
+  startTime: Date;
+  endTime: Date;
+  success: boolean;
+  result?: unknown;
+  error?: Error;
+}
+
+/**
+ * Optimization record with proper typing
+ */
+export interface OptimizationRecord {
+  impact: number;
+  timestamp: Date;
+  strategy: string;
+  metrics: Record<string, number>;
+}
+
+/**
+ * ML Model interface for prediction components
+ */
+export interface MLModel {
+  taskComplexityPredictor: unknown; // Would be actual ML model instance
+  executionTimePredictor: unknown; // Would be actual ML model instance
+  resourceUsagePredictor: unknown; // Would be actual ML model instance
+  failurePredictionModel: unknown; // Would be actual ML model instance
+}
+
+/**
  * Queue state snapshot for persistence
  */
 export interface QueueStateSnapshot {
@@ -134,11 +215,11 @@ export interface QueueStateSnapshot {
   metrics: RealTimeQueueMetrics;
   config: SelfManagingQueueConfig;
   learningData: {
-    executionHistory: unknown[];
-    adaptationHistory: unknown[];
+    executionHistory: ExecutionRecord[];
+    adaptationHistory: Record<string, unknown>[];
     performanceBaselines: Map<string, number>;
   };
-  resourceState: Map<string, unknown>;
+  resourceState: Map<string, { allocated: number; available: number; reserved: number }>;
 }
 
 /**
@@ -161,18 +242,58 @@ export class SelfManagingTaskQueue extends EventEmitter {
   private performanceBaselines = new Map<string, number>();
 
   // Machine learning components
-  private mlModel: {
-    taskComplexityPredictor: unknown;
-    executionTimePredictor: unknown;
-    resourceUsagePredictor: unknown;
-    failurePredictionModel: unknown;
-  } | null = null;
+  private mlModel: MLModel | null = null;
 
   // State management
   private stateSnapshots: QueueStateSnapshot[] = [];
   private isShuttingDown = false;
   private optimizationTimer: NodeJS.Timeout | null = null;
   private persistenceTimer: NodeJS.Timeout | null = null;
+
+  /**
+   * Convert TaskDefinitionWithML to Task-compatible format
+   */
+  private convertToTaskDefinition(
+    taskDef: TaskDefinitionWithML,
+  ): Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'> {
+    const { priorityFactors, metadata, ...rest } = taskDef;
+
+    // Convert partial priority factors to full priority factors if needed
+    const fullPriorityFactors: PriorityFactors | undefined = priorityFactors
+      ? {
+          age: priorityFactors.age ?? 0,
+          userImportance: priorityFactors.userImportance ?? 0.5,
+          systemCriticality: priorityFactors.systemCriticality ?? 0.5,
+          dependencyWeight: priorityFactors.dependencyWeight ?? 0,
+          resourceAvailability: priorityFactors.resourceAvailability ?? 1.0,
+          executionHistory: priorityFactors.executionHistory ?? 0.5,
+        }
+      : undefined;
+
+    // Convert partial metadata to full metadata if needed
+    const fullMetadata: TaskMetadata | undefined = metadata
+      ? {
+          createdAt: metadata.createdAt ?? new Date(),
+          updatedAt: metadata.updatedAt ?? new Date(),
+          createdBy: metadata.createdBy ?? 'SelfManagingTaskQueue',
+          estimatedDuration: metadata.estimatedDuration,
+          startTime: metadata.startTime,
+          endTime: metadata.endTime,
+          actualDuration: metadata.actualDuration,
+          custom: metadata.custom,
+        }
+      : {
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          createdBy: 'SelfManagingTaskQueue',
+        };
+
+    return {
+      ...rest,
+      priorityFactors: fullPriorityFactors,
+      metadata: fullMetadata,
+    };
+  }
 
   constructor(config: Partial<SelfManagingQueueConfig> = {}) {
     super();
@@ -326,8 +447,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
    * Add task with advanced intelligence and prediction
    */
   async addTask(
-    taskDefinition: Partial<Task> &
-      Pick<Task, 'title' | 'description' | 'executeFunction'>,
+    taskDefinition: TaskDefinitionWithML,
   ): Promise<string> {
     const startTime = Date.now();
 
@@ -381,7 +501,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
       }
 
       // Add to base autonomous queue
-      const taskId = await this.baseQueue.addTask(enhancedTaskDefinition);
+      const taskId = await this.baseQueue.addTask(
+        this.convertToTaskDefinition(enhancedTaskDefinition),
+      );
 
       // Update real-time metrics
       this.updateRealTimeMetrics('taskAdded', {
@@ -422,11 +544,8 @@ export class SelfManagingTaskQueue extends EventEmitter {
    * Enhance task definition with ML predictions
    */
   private async enhanceTaskWithPredictions(
-    taskDefinition: Partial<Task> &
-      Pick<Task, 'title' | 'description' | 'executeFunction'>,
-  ): Promise<
-    Partial<Task> & Pick<Task, 'title' | 'description' | 'executeFunction'>
-  > {
+    taskDefinition: TaskDefinitionWithML,
+  ): Promise<TaskDefinitionWithML> {
     if (!this.mlModel) {
       return taskDefinition;
     }
@@ -454,13 +573,16 @@ export class SelfManagingTaskQueue extends EventEmitter {
         requiredResources: resourcePrediction.resources,
         metadata: {
           ...taskDefinition.metadata,
-          mlPredictions: {
-            complexity: complexityPrediction,
-            duration: durationPrediction,
-            resources: resourcePrediction,
-            failureRisk: failurePrediction,
-            predictionTimestamp: new Date(),
-            modelVersion: '1.0',
+          custom: {
+            ...taskDefinition.metadata?.custom,
+            mlPredictions: {
+              complexity: complexityPrediction,
+              duration: durationPrediction,
+              resources: resourcePrediction,
+              failureRisk: failurePrediction,
+              predictionTimestamp: new Date(),
+              modelVersion: '1.0',
+            },
           },
         },
         priorityFactors: {
@@ -492,7 +614,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
    * Check and reserve resources for task execution
    */
   private async checkAndReserveResources(
-    taskDefinition: Partial<Task>,
+    taskDefinition: TaskDefinitionWithML,
   ): Promise<{ success: boolean; reason?: string; reservationId?: string }> {
     const requiredResources = taskDefinition.requiredResources || ['cpu'];
     const reservationId = uuidv4();
@@ -539,14 +661,13 @@ export class SelfManagingTaskQueue extends EventEmitter {
    * Queue task for later execution when resources become available
    */
   private async queueForLaterExecution(
-    taskDefinition: Partial<Task>,
+    taskDefinition: TaskDefinitionWithML,
     reason: string,
   ): Promise<string> {
     const taskId = taskDefinition.id || uuidv4();
 
     // Create a deferred execution wrapper
-    const deferredTask: Partial<Task> &
-      Pick<Task, 'title' | 'description' | 'executeFunction'> = {
+    const deferredTask: TaskDefinitionWithML = {
       ...taskDefinition,
       id: taskId,
       title: taskDefinition.title || 'Deferred Task',
@@ -569,7 +690,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     };
 
     // Add to base queue with deferred status
-    await this.baseQueue.addTask(deferredTask);
+    await this.baseQueue.addTask(this.convertToTaskDefinition(deferredTask));
 
     this.emit('taskDeferred', {
       taskId,
@@ -584,7 +705,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
    * Generate execution prediction for a task
    */
   private async generateTaskPrediction(
-    taskDefinition: Partial<Task>,
+    taskDefinition: TaskDefinitionWithML,
   ): Promise<TaskPrediction> {
     const taskId = taskDefinition.id || uuidv4();
     const currentTime = new Date();
@@ -909,7 +1030,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
 
   // Private helper methods for advanced functionality
 
-  private async predictTaskComplexity(taskDefinition: unknown): Promise<unknown> {
+  private async predictTaskComplexity(taskDefinition: TaskDefinitionWithML): Promise<ComplexityPrediction> {
     // Placeholder for ML-based complexity prediction
     // In real implementation, would use trained model
     return {
@@ -919,7 +1040,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     };
   }
 
-  private async predictExecutionTime(taskDefinition: unknown): Promise<unknown> {
+  private async predictExecutionTime(taskDefinition: TaskDefinitionWithML): Promise<DurationPrediction> {
     // Placeholder for ML-based duration prediction
     return {
       duration: taskDefinition.estimatedDuration || 60000,
@@ -928,7 +1049,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     };
   }
 
-  private async predictResourceUsage(taskDefinition: unknown): Promise<unknown> {
+  private async predictResourceUsage(taskDefinition: TaskDefinitionWithML): Promise<ResourcePrediction> {
     // Placeholder for ML-based resource prediction
     return {
       resources: taskDefinition.requiredResources || ['cpu'],
@@ -941,8 +1062,8 @@ export class SelfManagingTaskQueue extends EventEmitter {
   }
 
   private async predictTaskFailureProbability(
-    taskDefinition: unknown,
-  ): Promise<unknown> {
+    taskDefinition: TaskDefinitionWithML,
+  ): Promise<FailurePrediction> {
     // Placeholder for ML-based failure prediction
     return {
       probability: 0.1,
@@ -968,7 +1089,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
   }
 
   private estimateResourceRequirement(
-    taskDefinition: unknown,
+    taskDefinition: TaskDefinitionWithML | Task,
     resourceType: string,
   ): number {
     // Simple estimation based on task complexity and category
@@ -1052,7 +1173,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return multipliers[category || TaskCategory.FEATURE]?.[resourceType] || 1.0;
   }
 
-  private calculateQueuePosition(taskDefinition: unknown): number {
+  private calculateQueuePosition(taskDefinition: TaskDefinitionWithML): number {
     // Estimate queue position based on priority and current queue state
     const metrics = this.baseQueue.getAutonomousQueueStatus();
     const priority = taskDefinition.priority || TaskPriority.MEDIUM;
@@ -1061,7 +1182,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return Math.max(0, metrics.pendingTasks * (1 - priority / 1000));
   }
 
-  private async calculateDependencyDelay(taskDefinition: unknown): Promise<number> {
+  private async calculateDependencyDelay(taskDefinition: TaskDefinitionWithML): Promise<number> {
     const dependencies = taskDefinition.dependencies || [];
     if (dependencies.length === 0) return 0;
 
@@ -1077,7 +1198,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return Math.max(0, maxDependencyDelay);
   }
 
-  private calculatePredictionConfidence(taskDefinition: unknown): number {
+  private calculatePredictionConfidence(taskDefinition: TaskDefinitionWithML): number {
     let confidence = 0.5; // Base confidence
 
     // Increase confidence based on available data
@@ -1091,7 +1212,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return Math.min(1.0, confidence);
   }
 
-  private identifyTaskRiskFactors(taskDefinition: unknown): string[] {
+  private identifyTaskRiskFactors(taskDefinition: TaskDefinitionWithML): string[] {
     const riskFactors: string[] = [];
 
     if ((taskDefinition.estimatedDuration || 0) > 300000) {
@@ -1114,7 +1235,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
   }
 
   private calculateResourceRequirements(
-    taskDefinition: unknown,
+    taskDefinition: TaskDefinitionWithML,
   ): Map<string, number> {
     const requirements = new Map<string, number>();
     const resources = taskDefinition.requiredResources || ['cpu'];
@@ -1130,7 +1251,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return requirements;
   }
 
-  private updateRealTimeMetrics(event: string, data: unknown): void {
+  private updateRealTimeMetrics(event: string, data: Record<string, unknown>): void {
     // Update various metrics based on events
     switch (event) {
       case 'taskAdded':
@@ -1160,7 +1281,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         : 0;
   }
 
-  private handleTaskCompletion(task: Task, record: unknown, result: unknown): void {
+  private handleTaskCompletion(task: Task, record: ExecutionRecord, result: unknown): void {
     // Release reserved resources
     this.releaseTaskResources(task);
 
@@ -1174,7 +1295,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     this.executionPredictions.delete(task.id);
   }
 
-  private handleTaskFailure(task: Task, record: unknown, error: unknown): void {
+  private handleTaskFailure(task: Task, record: ExecutionRecord, error: Error): void {
     // Release reserved resources
     this.releaseTaskResources(task);
 
@@ -1183,17 +1304,17 @@ export class SelfManagingTaskQueue extends EventEmitter {
     this.executionPredictions.delete(task.id);
   }
 
-  private handleTaskBreakdown(originalTask: Task, breakdown: unknown): void {
+  private handleTaskBreakdown(originalTask: Task, breakdown: Task[]): void {
     // Update breakdown-related metrics
     this.realTimeMetrics.tasksBrokenDown++;
   }
 
-  private handleSchedulingAlgorithmChange(change: unknown): void {
+  private handleSchedulingAlgorithmChange(change: Record<string, unknown>): void {
     // Log algorithm changes for monitoring
     logger.info('Scheduling algorithm adapted', change);
   }
 
-  private handleOptimizationCompleted(optimization: unknown): void {
+  private handleOptimizationCompleted(optimization: OptimizationRecord): void {
     // Track optimization effectiveness
     this.realTimeMetrics.optimizationImpact += optimization.impact || 0;
   }

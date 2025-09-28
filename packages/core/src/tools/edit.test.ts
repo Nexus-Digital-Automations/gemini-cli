@@ -52,6 +52,20 @@ import type { Content, Part, SchemaUnion } from '@google/genai';
 import { createMockWorkspaceContext } from '../test-utils/mockWorkspaceContext.js';
 import { StandardFileSystemService } from '../services/fileSystemService.js';
 
+// Type definitions for mock clients
+interface MockGeminiClient {
+  generateJson: Mock;
+}
+
+interface MockBaseLlmClient {
+  generateJson: Mock;
+}
+
+interface MockIdeClient {
+  openDiff: Mock;
+  isDiffingEnabled: Mock;
+}
+
 describe('EditTool', () => {
   let tool: EditTool;
   let tempDir: string;
@@ -101,7 +115,7 @@ describe('EditTool', () => {
       setUserMemory: vi.fn(),
       getGeminiMdFileCount: () => 0,
       setGeminiMdFileCount: vi.fn(),
-      getToolRegistry: () => ({}) as any, // Minimal mock for ToolRegistry
+      getToolRegistry: () => ({}) as unknown, // Minimal mock for ToolRegistry
     } as unknown as Config;
 
     // Reset mocks before each test
@@ -1028,7 +1042,7 @@ describe('EditTool', () => {
   describe('IDE mode', () => {
     const testFile = 'edit_me.txt';
     let filePath: string;
-    let ideClient: any;
+    let ideClient: MockIdeClient;
 
     beforeEach(() => {
       filePath = path.join(rootDir, testFile);

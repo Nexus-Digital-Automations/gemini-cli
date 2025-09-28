@@ -23,6 +23,7 @@ import type {
   AllToolCallsCompleteHandler,
   ToolCallsUpdateHandler,
 } from '../core/coreToolScheduler.js';
+import type { ToolCallRequestInfo } from '../core/turn.js';
 
 const logger = getComponentLogger('IntelligentTaskQueue');
 
@@ -457,13 +458,14 @@ export class IntelligentTaskQueue {
   /**
    * Convert a Task to ToolCallRequest format (simplified conversion)
    */
-  private taskToToolCallRequest(task: Task): Record<string, unknown> {
+  private taskToToolCallRequest(task: Task): ToolCallRequestInfo {
     // This is a simplified conversion - in practice, you'd need more sophisticated mapping
     // based on the task category and parameters
     return {
       callId: `task-${task.id}`,
       name: this.getToolNameForTask(task),
       args: task.parameters || {},
+      isClientInitiated: true,
       prompt_id: task.id,
     };
   }

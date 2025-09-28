@@ -16,7 +16,25 @@ import {
   globalProgressTracker,
   OperationDetector,
 } from '@google/gemini-cli-core';
-const ProgressContext = createContext(undefined);
+// Default context value to prevent errors when used outside provider
+const defaultProgressContext = {
+  activeOperations: [],
+  primaryOperation: undefined,
+  startOperation: () => '',
+  updateOperationProgress: () => {},
+  completeOperation: () => {},
+  failOperation: () => {},
+  addStep: () => {},
+  startStep: () => {},
+  completeStep: () => {},
+  failStep: () => {},
+  handleInteraction: () => false,
+  isProgressPanelExpanded: false,
+  toggleProgressPanel: () => {},
+  cleanup: () => {},
+};
+
+const ProgressContext = createContext(defaultProgressContext);
 export const ProgressProvider = ({ children }) => {
   const [activeOperations, setActiveOperations] = useState([]);
   const [isProgressPanelExpanded, setIsProgressPanelExpanded] = useState(false);
@@ -140,9 +158,6 @@ export const ProgressProvider = ({ children }) => {
 };
 export const useProgress = () => {
   const context = useContext(ProgressContext);
-  if (context === undefined) {
-    throw new Error('useProgress must be used within a ProgressProvider');
-  }
   return context;
 };
 // Auto-create steps for known operations that have predictable step patterns

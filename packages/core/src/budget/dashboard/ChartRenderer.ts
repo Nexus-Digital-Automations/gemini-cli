@@ -20,7 +20,7 @@ interface ChalkInstance {
 
 // Create chalk instance with fallback for when chalk is not available
 const createChalk = (): ChalkInstance => {
-  let chalkModule: any = null;
+  let chalkModule: unknown = null;
 
   try {
     // Try to import chalk dynamically
