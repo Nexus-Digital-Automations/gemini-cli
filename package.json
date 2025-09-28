@@ -56,12 +56,15 @@
     "wrap-ansi": "9.0.2",
     "ansi-regex": "5.0.1",
     "strip-ansi": "6.0.1",
+    "cliui": {
+      "wrap-ansi": "7.0.0"
+    },
     "ansi-align": {
       "strip-ansi": "6.0.1",
       "ansi-regex": "5.0.1"
     },
-    "cliui": {
-      "wrap-ansi": "7.0.0"
+    "boxen": {
+      "ansi-align": "3.0.1"
     }
   },
   "bin": {
