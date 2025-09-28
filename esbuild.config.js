@@ -17,10 +17,10 @@ try {
   process.exit(0);
 }
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const FILENAME = fileURLToPath(import.meta.url);
+const DIRNAME = path.dirname(FILENAME);
 const require = createRequire(import.meta.url);
-const pkg = require(path.resolve(__dirname, 'package.json'));
+const pkg = require(path.resolve(DIRNAME, 'package.json'));
 
 const external = [
   '@lydell/node-pty',
@@ -41,16 +41,13 @@ esbuild
     format: 'esm',
     external,
     alias: {
-      'is-in-ci': path.resolve(
-        __dirname,
-        'packages/cli/src/patches/is-in-ci.ts',
-      ),
+      'is-in-ci': path.resolve(DIRNAME, 'packages/cli/src/patches/is-in-ci.ts'),
     },
     define: {
       'process.env.CLI_VERSION': JSON.stringify(pkg.version),
     },
     banner: {
-      js: `import { createRequire as _createRequire } from 'module'; const require = _createRequire(import.meta.url); globalThis.__filename = require('url').fileURLToPath(import.meta.url); globalThis.__dirname = require('path').dirname(globalThis.__filename);`,
+      js: `import { createRequire as _createRequire } from 'module'; const require = _createRequire(import.meta.url); globalThis.FILENAME = require('url').fileURLToPath(import.meta.url); globalThis.DIRNAME = require('path').dirname(globalThis.FILENAME);`,
     },
     loader: { '.node': 'file' },
     metafile: true,

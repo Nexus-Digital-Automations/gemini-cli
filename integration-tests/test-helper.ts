@@ -13,7 +13,7 @@ import { DEFAULT_GEMINI_MODEL } from '../packages/core/src/config/models.js';
 import fs from 'node:fs';
 import * as pty from '@lydell/node-pty';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
 
 function sanitizeTestName(name: string): string {
   return name
@@ -136,7 +136,7 @@ export class TestRig {
   _lastRunStdout?: string;
 
   constructor() {
-    this.bundlePath = join(__dirname, '..', 'bundle/gemini.js');
+    this.bundlePath = join(DIRNAME, '..', 'bundle/gemini.js');
     this.testDir = null;
   }
 

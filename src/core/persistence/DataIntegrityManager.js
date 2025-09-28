@@ -1494,4 +1494,4 @@ class DataIntegrityManager extends EventEmitter {
   }
 }
 
-module.exports = DataIntegrityManager;
+module.Exports = DataIntegrityManager;

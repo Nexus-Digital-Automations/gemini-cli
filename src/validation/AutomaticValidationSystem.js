@@ -529,7 +529,7 @@ export class AutomaticValidationSystem {
                 return [
                     'Run `npm run build` to see build errors',
                     'Fix compilation errors and missing dependencies',
-                    'Verify all imports and exports are correct',
+                    'Verify all imports and Exports are correct',
                 ];
             case GateType.UNIT_TESTS:
                 return [

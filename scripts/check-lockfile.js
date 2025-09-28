@@ -8,8 +8,8 @@ import fs from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = join(__dirname, '..');
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const root = join(DIRNAME, '..');
 const lockfilePath = join(root, 'package-lock.json');
 
 function readJsonFile(filePath) {

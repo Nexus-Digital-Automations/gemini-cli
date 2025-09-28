@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { env } from 'node:process';
 import { EOL } from 'node:os';
 import fs from 'node:fs';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
 function sanitizeTestName(name) {
   return name
     .toLowerCase()
@@ -95,7 +95,7 @@ export class TestRig {
   testName;
   _lastRunStdout;
   constructor() {
-    this.bundlePath = join(__dirname, '..', 'bundle/gemini.js');
+    this.bundlePath = join(DIRNAME, '..', 'bundle/gemini.js');
     this.testDir = null;
   }
   // Get timeout based on environment

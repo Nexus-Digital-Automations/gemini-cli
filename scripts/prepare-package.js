@@ -8,11 +8,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// ES module equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// ES module equivalent of DIRNAME
+const FILENAME = fileURLToPath(import.meta.url);
+const DIRNAME = path.dirname(FILENAME);
 
-const rootDir = path.resolve(__dirname, '..');
+const rootDir = path.resolve(DIRNAME, '..');
 
 function copyFiles(packageName, filesToCopy) {
   const packageDir = path.resolve(rootDir, 'packages', packageName);

@@ -144,7 +144,7 @@ class AutonomousTaskManagementDeployment {
         } else {
           this.results.warnings.push({
             check: 'validateComponents',
-            warning: `Component ${component} may not have proper exports`,
+            warning: `Component ${component} may not have proper Exports`,
             component,
           });
         }
@@ -632,4 +632,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { AutonomousTaskManagementDeployment, DEPLOYMENT_CONFIG };
+module.Exports = { AutonomousTaskManagementDeployment, DEPLOYMENT_CONFIG };

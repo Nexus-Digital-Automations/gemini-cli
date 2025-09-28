@@ -22,8 +22,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { globSync } from 'glob';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = join(__dirname, '..');
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const root = join(DIRNAME, '..');
 
 // remove npm install/build artifacts
 rmSync(join(root, 'node_modules'), { recursive: true, force: true });

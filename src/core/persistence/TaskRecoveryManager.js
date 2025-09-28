@@ -1075,7 +1075,7 @@ class TaskRecoveryManager extends EventEmitter {
   }
 }
 
-module.exports = {
+module.Exports = {
   TaskRecoveryManager,
   RECOVERY_STRATEGIES,
   RECOVERY_STATUS,

@@ -33,12 +33,12 @@ export {
 export { makeFakeConfig } from './src/test-utils/config.js';
 export * from './src/utils/pathReader.js';
 export { ClearcutLogger } from './src/telemetry/clearcut-logger/clearcut-logger.js';
-// Persona management exports
+// Persona management Exports
 export {
   PersonaManager,
   personaManager,
 } from './src/persona/PersonaManager.js';
-// Budget tracking exports
+// Budget tracking Exports
 export {
   BudgetTracker,
   createBudgetTracker,
@@ -53,13 +53,13 @@ export {
   BudgetContentGenerator,
   createBudgetContentGenerator,
 } from './src/core/budgetContentGenerator.js';
-// Progress tracking exports
+// Progress tracking Exports
 export {
   ProgressTracker,
   globalProgressTracker,
   OperationDetector,
 } from './src/progress/index.js';
-// Knowledge base management exports
+// Knowledge base management Exports
 export {
   KnowledgeBaseManager,
   knowledgeBaseManager,

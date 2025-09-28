@@ -37,7 +37,7 @@ import { join } from 'node:path';
  * ```
  */
 
-// Core validation system exports
+// Core validation system Exports
 export {
   AutomaticValidationSystem,
   TaskType,
@@ -53,7 +53,7 @@ export {
   ValidationLogger,
 } from './AutomaticValidationSystem.js';
 
-// Integration utilities exports
+// Integration utilities Exports
 export {
   ValidationIntegration,
   ValidationCLI,

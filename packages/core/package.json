@@ -55,6 +55,8 @@
     "chardet": "^2.1.0",
     "diff": "^7.0.0",
     "dotenv": "^17.1.0",
+    "eventsource": "^3.0.7",
+    "eventsource-parser": "^3.0.6",
     "fast-levenshtein": "^2.0.6",
     "fast-uri": "^3.0.6",
     "fdir": "^6.5.0",

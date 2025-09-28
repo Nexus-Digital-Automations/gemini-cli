@@ -44,7 +44,7 @@ async function main() {
     external: ['vscode'],
     logLevel: 'silent',
     banner: {
-      js: `const import_meta = { url: require('url').pathToFileURL(__filename).href };`,
+      js: `const import_meta = { url: require('url').pathToFileURL(FILENAME).href };`,
     },
     define: {
       'import.meta.url': 'import_meta.url',

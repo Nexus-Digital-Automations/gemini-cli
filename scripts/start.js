@@ -22,8 +22,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = join(__dirname, '..');
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const root = join(DIRNAME, '..');
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
 
 // check build status, write warnings to file for app to display if needed

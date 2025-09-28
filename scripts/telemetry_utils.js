@@ -14,10 +14,10 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const FILENAME = fileURLToPath(import.meta.url);
+const DIRNAME = path.dirname(FILENAME);
 
-const projectRoot = path.resolve(__dirname, '..');
+const projectRoot = path.resolve(DIRNAME, '..');
 const projectHash = crypto
   .createHash('sha256')
   .update(projectRoot)

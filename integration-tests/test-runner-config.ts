@@ -8,7 +8,7 @@ import { defineConfig } from 'vitest/config';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
 
 /**
  * Comprehensive Test Runner Configuration for Autonomous Task Management
@@ -156,10 +156,10 @@ export default defineConfig({
   // Resolve configuration for test modules
   resolve: {
     alias: {
-      '@': join(__dirname, '..'),
-      '@tests': __dirname,
-      '@helpers': join(__dirname, 'helpers'),
-      '@fixtures': join(__dirname, 'fixtures'),
+      '@': join(DIRNAME, '..'),
+      '@tests': DIRNAME,
+      '@helpers': join(DIRNAME, 'helpers'),
+      '@fixtures': join(DIRNAME, 'fixtures'),
     },
   },
 

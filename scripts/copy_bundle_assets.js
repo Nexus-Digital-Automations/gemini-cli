@@ -22,8 +22,8 @@ import { dirname, join, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'glob';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = join(__dirname, '..');
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const root = join(DIRNAME, '..');
 const bundleDir = join(root, 'bundle');
 
 // Create the bundle directory if it doesn't exist

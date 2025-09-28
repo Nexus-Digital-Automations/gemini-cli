@@ -20,8 +20,8 @@ import {
   waitForPort,
 } from './telemetry_utils.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const FILENAME = fileURLToPath(import.meta.url);
+const DIRNAME = path.dirname(FILENAME);
 
 const OTEL_CONFIG_FILE = path.join(OTEL_DIR, 'collector-local.yaml');
 const OTEL_LOG_FILE = path.join(OTEL_DIR, 'collector.log');
@@ -29,7 +29,7 @@ const JAEGER_LOG_FILE = path.join(OTEL_DIR, 'jaeger.log');
 const JAEGER_PORT = 16686;
 
 // This configuration is for the primary otelcol-contrib instance.
-// It receives from the CLI on 4317, exports traces to Jaeger on 14317,
+// It receives from the CLI on 4317, Exports traces to Jaeger on 14317,
 // and sends metrics/logs to the debug log.
 const OTEL_CONFIG_CONTENT = `
 receivers:

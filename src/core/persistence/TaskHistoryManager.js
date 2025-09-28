@@ -640,6 +640,7 @@ class TaskHistoryManager extends EventEmitter {
           const endTime = new Date(metrics.completedAt || metrics.failedAt);
           metrics.duration = endTime.getTime() - startTime.getTime();
         }
+      }
 
       const completedTasks = Array.from(taskMetrics.values()).filter(
         (m) => m.status === 'completed',
@@ -714,12 +715,11 @@ class TaskHistoryManager extends EventEmitter {
           case 'task_failed':
             metrics.tasksFailed++;
             break;
-        default:
-          // Handle unexpected values
-          break;
-      
-
+          default:
+            // Handle unexpected values
+            break;
         }
+      }
 
       // Calculate productivity scores
       Array.from(agentMetrics.values()).forEach((metrics) => {
@@ -1254,4 +1254,4 @@ class TaskHistoryManager extends EventEmitter {
   }
 }
 
-module.exports = TaskHistoryManager;
+module.Exports = TaskHistoryManager;

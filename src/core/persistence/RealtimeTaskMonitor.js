@@ -949,4 +949,4 @@ class RealtimeTaskMonitor extends EventEmitter {
   }
 }
 
-module.exports = RealtimeTaskMonitor;
+module.Exports = RealtimeTaskMonitor;

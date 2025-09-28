@@ -1039,4 +1039,4 @@ class TaskPersistenceEngine extends EventEmitter {
   }
 }
 
-module.exports = TaskPersistenceEngine;
+module.Exports = TaskPersistenceEngine;

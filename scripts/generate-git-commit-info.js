@@ -23,8 +23,8 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readPackageUp } from 'read-package-up';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = join(__dirname, '..');
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const root = join(DIRNAME, '..');
 const scriptPath = relative(root, fileURLToPath(import.meta.url));
 const generatedCliDir = join(root, 'packages/cli/src/generated');
 const cliGitCommitFile = join(generatedCliDir, 'git-commit.ts');

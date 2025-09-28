@@ -22,8 +22,8 @@ import { existsSync, chmodSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = join(__dirname, '..');
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const root = join(DIRNAME, '..');
 
 // npm install if node_modules was removed (e.g. via npm run clean or scripts/clean.js)
 if (!existsSync(join(root, 'node_modules'))) {

@@ -834,6 +834,7 @@ async function main() {
         const tokenValidation = hardening.validateToken(token);
         console.log('Token validation test:', tokenValidation);
         break;
+      }
 
       default:
         console.log('Usage: node security-hardening.js [apply|audit|test]');
@@ -847,7 +848,7 @@ async function main() {
 }
 
 // Export for programmatic use
-module.exports = SecurityHardening;
+module.Exports = SecurityHardening;
 
 // Run CLI if called directly
 if (require.main === module) {

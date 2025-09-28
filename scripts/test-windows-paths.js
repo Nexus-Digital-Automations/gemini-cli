@@ -43,9 +43,9 @@ function testPathNormalization() {
   );
 
   // Test path resolution
-  const __filename = fileURLToPath(import.meta.url);
-  console.log('\nCurrent file path:', __filename);
-  console.log('Directory name:', path.dirname(__filename));
+  const FILENAME = fileURLToPath(import.meta.url);
+  console.log('\nCurrent file path:', FILENAME);
+  console.log('Directory name:', path.dirname(FILENAME));
 }
 
 testPathNormalization();

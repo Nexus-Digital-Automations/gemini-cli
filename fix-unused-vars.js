@@ -66,7 +66,7 @@ function fixUnusedVar(content, line, column, varName) {
       regex: new RegExp(`\\b${varName}\\b(?=\\s*[,)])`, 'g'),
       replacement: `_${varName}`,
     },
-    // Variable declarations
+    // Variable Declarations
     {
       regex: new RegExp(`\\b${varName}\\b(?=\\s*=)`, 'g'),
       replacement: `_${varName}`,

@@ -611,7 +611,7 @@ async function main() {
 }
 
 // Export for programmatic use
-module.exports = SecurityPerformanceMonitor;
+module.Exports = SecurityPerformanceMonitor;
 
 // Run CLI if called directly
 if (require.main === module) {

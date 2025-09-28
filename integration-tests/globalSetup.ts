@@ -26,8 +26,8 @@ import {
   DEFAULT_CONTEXT_FILENAME,
 } from '../packages/core/src/tools/memoryTool.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const rootDir = join(__dirname, '..');
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const rootDir = join(DIRNAME, '..');
 const integrationTestsDir = join(rootDir, '.integration-tests');
 let runDir = ''; // Make runDir accessible in teardown
 

@@ -34,9 +34,9 @@ import { join } from 'node:path';
  * const isReady = await isProjectReadyForCompletion('/path/to/project');
  * ```
  */
-// Core validation system exports
+// Core validation system Exports
 export { AutomaticValidationSystem, TaskType, ValidationStatus, GateType, GateSeverity, ValidationContext, ValidationConfig, ValidationResult, ValidationReport, ValidationEvidence, EvidenceType, ValidationLogger, } from './AutomaticValidationSystem.js';
-// Integration utilities exports
+// Integration utilities Exports
 export { ValidationIntegration, ValidationCLI, ValidationCommand, ValidationCommandArgs, CICDReport, StopAuthorizationRecommendation, createValidationIntegration, createValidationCLI, validateTaskCompletion, isProjectReadyForCompletion, getStopAuthorizationStatus, } from './ValidationIntegration.js';
 // Re-export examples for documentation and testing
 export { examples } from './examples.js';

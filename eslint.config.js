@@ -16,13 +16,13 @@ import licenseHeader from 'eslint-plugin-license-header';
 import path from 'node:path';
 import url from 'node:url';
 
-// --- ESM way to get __dirname ---
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// --- ESM way to get DIRNAME ---
+const FILENAME = url.fileURLToPath(import.meta.url);
+const DIRNAME = path.dirname(FILENAME);
 // --- ---
 
 // Determine the monorepo root (assuming eslint.config.js is at the root)
-const _projectRoot = __dirname;
+const PROJECT_ROOT = DIRNAME;
 
 export default tseslint.config(
   {
@@ -490,8 +490,8 @@ export default tseslint.config(
         console: 'readonly',
         require: 'readonly',
         module: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
+        DIRNAME: 'readonly',
+        FILENAME: 'readonly',
       },
     },
     rules: {
@@ -517,8 +517,8 @@ export default tseslint.config(
         console: 'readonly',
         require: 'readonly',
         module: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
+        DIRNAME: 'readonly',
+        FILENAME: 'readonly',
       },
     },
     rules: {

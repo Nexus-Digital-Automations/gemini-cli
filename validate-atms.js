@@ -107,7 +107,7 @@ async function validateATMSImplementation() {
       throw new Error('initializeATMS function not found');
     }
 
-    return 'Main entry point properly exports core components';
+    return 'Main entry point properly Exports core components';
   });
 
   // Test 6: Verify package.json configuration
@@ -203,9 +203,9 @@ async function validateATMSImplementation() {
         throw new Error(`${file} missing license header`);
       }
 
-      // Check for class declarations
+      // Check for class Declarations
       if (!content.includes('export class')) {
-        throw new Error(`${file} missing class exports`);
+        throw new Error(`${file} missing class Exports`);
       }
 
       // Check for TypeScript types
@@ -296,4 +296,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { validateATMSImplementation };
+module.Exports = { validateATMSImplementation };
