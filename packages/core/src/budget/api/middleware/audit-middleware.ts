@@ -558,7 +558,7 @@ function generateAuditTags(req: AuditRequest): string[] {
   return tags;
 }
 
-function determineEventType(req: AuditRequest, res: Response): AuditEventType {
+function determineEventType(req: AuditRequest, _res: Response): AuditEventType {
   if (req.path.includes('/export')) {
     return AuditEventType.EXPORT_EVENT;
   }

@@ -86,8 +86,8 @@ export interface BehaviorScenario {
   id: string;
   description: string;
   setup?: () => Promise<void>;
-  execute: () => Promise<any>;
-  validate: (result: any) => Promise<boolean>;
+  execute: () => Promise<unknown>;
+  validate: (result: unknown) => Promise<boolean>;
   cleanup?: () => Promise<void>;
 }
 

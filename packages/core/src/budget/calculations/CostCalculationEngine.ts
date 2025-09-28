@@ -15,7 +15,7 @@
 import { getComponentLogger } from '../../utils/logger.js';
 import type {
   CostCalculationParams,
-  BudgetCalculationContext,
+  BudgetCalculationContext as _BudgetCalculationContext,
   TokenUsageData,
   ModelUsageData,
 } from '../types.js';
@@ -67,7 +67,7 @@ export interface CostCalculationResult {
   /** Currency */
   currency: string;
   /** Calculation metadata */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -324,9 +324,14 @@ export class CostCalculationEngine {
 
     // Filter recent calculations
     const recentCalculations = this.calculationHistory.filter(
-      (calc) =>
-        calc.metadata?.timestamp &&
-        new Date(calc.metadata.timestamp).getTime() > cutoffTime,
+      (calc) => {
+        const timestamp = calc.metadata?.timestamp;
+        return (
+          timestamp &&
+          typeof timestamp === 'string' &&
+          new Date(timestamp).getTime() > cutoffTime
+        );
+      },
     );
 
     // Aggregate token usage
@@ -361,9 +366,14 @@ export class CostCalculationEngine {
 
     // Filter and group by model
     const recentCalculations = this.calculationHistory.filter(
-      (calc) =>
-        calc.metadata?.timestamp &&
-        new Date(calc.metadata.timestamp).getTime() > cutoffTime,
+      (calc) => {
+        const timestamp = calc.metadata?.timestamp;
+        return (
+          timestamp &&
+          typeof timestamp === 'string' &&
+          new Date(timestamp).getTime() > cutoffTime
+        );
+      },
     );
 
     for (const calc of recentCalculations) {
@@ -385,9 +395,11 @@ export class CostCalculationEngine {
 
       // Calculate average response time if available
       if (calc.metadata?.executionTime) {
-        const totalTime = (usage.avgResponseTime || 0) * (usage.requests - 1);
-        usage.avgResponseTime =
-          (totalTime + calc.metadata.executionTime) / usage.requests;
+        const executionTime = calc.metadata.executionTime;
+        if (typeof executionTime === 'number') {
+          const totalTime = (usage.avgResponseTime || 0) * (usage.requests - 1);
+          usage.avgResponseTime = (totalTime + executionTime) / usage.requests;
+        }
       }
     }
 

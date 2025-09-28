@@ -14,6 +14,7 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
+import type { AuthenticatedRequest } from './auth-middleware.js';
 import { getComponentLogger } from '../../../utils/logger.js';
 
 const logger = getComponentLogger('RateLimitMiddleware');
@@ -292,7 +293,7 @@ export function rateLimitMiddleware(
 export function userRateLimit(config: Partial<RateLimitConfig> = {}) {
   return rateLimitMiddleware({
     ...config,
-    keyGenerator: (req: any) => {
+    keyGenerator: (req: AuthenticatedRequest) => {
       const userId = req.user?.id || req.ip;
       return `user:${userId}`;
     },
@@ -315,8 +316,8 @@ export function ipRateLimit(config: Partial<RateLimitConfig> = {}) {
 export function endpointRateLimit(config: Partial<RateLimitConfig> = {}) {
   return rateLimitMiddleware({
     ...config,
-    keyGenerator: (req: Request) => {
-      const userId = (req as any).user?.id || req.ip;
+    keyGenerator: (req: AuthenticatedRequest) => {
+      const userId = req.user?.id || req.ip;
       return `endpoint:${req.method}:${req.path}:${userId}`;
     },
   });
@@ -340,8 +341,8 @@ export function burstProtection() {
     windowMs: 1000, // 1 second
     maxRequests: 10, // 10 requests per second
     strategy: 'fixed',
-    keyGenerator: (req: Request) => {
-      const userId = (req as any).user?.id || req.ip;
+    keyGenerator: (req: AuthenticatedRequest) => {
+      const userId = req.user?.id || req.ip;
       return `burst:${userId}`;
     },
   });
@@ -350,8 +351,8 @@ export function burstProtection() {
 /**
  * Generate default rate limit key
  */
-function generateDefaultKey(req: Request): string {
-  const userId = (req as any).user?.id;
+function generateDefaultKey(req: AuthenticatedRequest): string {
+  const userId = req.user?.id;
   const ip = req.ip;
 
   if (userId) {

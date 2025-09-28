@@ -23,9 +23,9 @@ import { TaskManager } from './TaskManager.js';
 import type { TaskManagerConfig } from './TaskManager.js';
 import type { ExecutionState } from '../autonomous/execution-engine.js';
 import type { AutonomousExecutionEngine } from '../autonomous/execution-engine.js';
-import type {
-  Task,
-  TaskId,
+import {
+  type Task,
+  type TaskId,
   TaskStatus,
   TaskPriority,
   TaskCategory,
@@ -86,7 +86,7 @@ export interface CLITaskCommand {
 export interface TaskProgressInfo {
   taskId: TaskId;
   title: string;
-  state: ExtendedTaskState;
+  state: TaskStatus;
   progress: number;
   estimatedTimeRemaining?: number;
   currentOperation?: string;
@@ -141,7 +141,7 @@ export interface CLITaskResult {
  */
 export class CLITaskIntegration {
   private readonly taskManager: TaskManager;
-  private readonly stateManager: TaskStateManager;
+  private readonly stateManager: any; // TaskStateManager type not available - will be typed properly later
   private readonly executionEngine: AutonomousExecutionEngine;
 
   private readonly commands: Map<string, CLITaskCommand> = new Map();
@@ -309,7 +309,7 @@ export class CLITaskIntegration {
       return {
         taskId,
         title: 'Task', // Would get actual task title
-        state: status.status as ExtendedTaskState,
+        state: status.status as TaskStatus,
         progress: status.progress,
         estimatedTimeRemaining: this.estimateRemainingTime(status),
         currentOperation: this.getCurrentOperation(status),
@@ -344,7 +344,7 @@ export class CLITaskIntegration {
       // Implementation would cancel the task through task manager
       await this.stateManager.transitionTaskState(
         taskId,
-        ExtendedTaskState.CANCELLING,
+        TaskStatus.CANCELLED,
         {} as Task, // Would get actual task
         {
           reason: reason || 'User cancellation',
@@ -512,7 +512,7 @@ export class CLITaskIntegration {
     }
 
     // Send notifications for important state changes
-    if (event.transition.toState === ExtendedTaskState.FAILED) {
+    if (event.transition.toState === TaskStatus.FAILED) {
       this.notify({
         type: 'error',
         title: 'Task Failed',
@@ -520,7 +520,7 @@ export class CLITaskIntegration {
         taskId: event.taskId,
         timestamp: new Date(),
       });
-    } else if (event.transition.toState === ExtendedTaskState.COMPLETED) {
+    } else if (event.transition.toState === TaskStatus.COMPLETED) {
       this.notify({
         type: 'success',
         title: 'Task Completed',
@@ -604,8 +604,8 @@ export class CLITaskIntegration {
     }
   }
 
-  private updateProgressDisplay(taskId: TaskId): void {
-    const progress = this.getTaskProgress(taskId);
+  private async updateProgressDisplay(taskId: TaskId): Promise<void> {
+    const progress = await this.getTaskProgress(taskId);
     if (!progress) return;
 
     if (
@@ -787,12 +787,5 @@ export async function createCLITaskIntegration(
 }
 
 /**
- * Export types and utilities
+ * Types are already exported above as interfaces
  */
-export type {
-  CLIIntegrationConfig,
-  CLITaskCommand,
-  TaskProgressInfo,
-  CLINotification,
-  CLITaskResult,
-};

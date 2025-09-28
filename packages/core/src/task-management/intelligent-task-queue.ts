@@ -457,7 +457,7 @@ export class IntelligentTaskQueue {
   /**
    * Convert a Task to ToolCallRequest format (simplified conversion)
    */
-  private taskToToolCallRequest(task: Task): any {
+  private taskToToolCallRequest(task: Task): Record<string, unknown> {
     // This is a simplified conversion - in practice, you'd need more sophisticated mapping
     // based on the task category and parameters
     return {
@@ -531,7 +531,7 @@ export class IntelligentTaskQueue {
    */
   private async handleTaskCompletion(
     context: TaskExecutionContext,
-    result: { success: boolean; output?: any },
+    result: { success: boolean; output?: unknown },
   ): Promise<void> {
     const endTime = new Date();
     const duration = endTime.getTime() - context.startTime.getTime();

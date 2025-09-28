@@ -1272,6 +1272,7 @@ export class CrossSessionPersistenceEngine extends EventEmitter {
   ): Promise<TransactionContext> {
     const transactionId = randomUUID();
     const transaction: TransactionContext = {
+      id: transactionId,
       transactionId,
       isolationLevel,
       operations: [],
@@ -2062,7 +2063,7 @@ class DataIntegrityManager {
           affectedData: missingFields,
         };
       },
-      repair: async (data: unknown, detection: Record<string, unknown>) => {
+      repair: async (data: unknown, detection: CorruptionDetectionResult) => {
         const task = safeSpreadAsTask(data);
         const missingFields = detection.affectedData as string[];
 
@@ -2136,7 +2137,7 @@ class DataIntegrityManager {
           affectedData: invalidFields,
         };
       },
-      repair: async (data: unknown, detection: Record<string, unknown>) => {
+      repair: async (data: unknown, detection: CorruptionDetectionResult) => {
         const task = safeSpreadAsTask(data);
         const invalidFields = detection.affectedData as string[];
         const now = new Date();
@@ -2562,19 +2563,21 @@ class SchemaMigrationManager {
         if (!storage.metadata) {
           storage.metadata = {};
         }
-        if (!storage.metadata.compressionEnabled) {
-          storage.metadata.compressionEnabled = false;
+        const metadata = storage.metadata as Record<string, unknown>;
+        if (!metadata.compressionEnabled) {
+          metadata.compressionEnabled = false;
         }
-        if (!storage.metadata.encryptionEnabled) {
-          storage.metadata.encryptionEnabled = false;
+        if (!metadata.encryptionEnabled) {
+          metadata.encryptionEnabled = false;
         }
 
         // Enhance indexes
         if (!storage.indexes) {
           storage.indexes = {};
         }
-        if (!storage.indexes.byCreationDate) {
-          storage.indexes.byCreationDate = [];
+        const indexes = storage.indexes as Record<string, unknown>;
+        if (!indexes.byCreationDate) {
+          indexes.byCreationDate = [];
         }
 
         // Add tombstones if not present
@@ -2592,12 +2595,14 @@ class SchemaMigrationManager {
 
         // Remove v1.2.0 features
         if (storage.metadata) {
-          delete storage.metadata.compressionEnabled;
-          delete storage.metadata.encryptionEnabled;
+          const metadata = storage.metadata as Record<string, unknown>;
+          delete metadata.compressionEnabled;
+          delete metadata.encryptionEnabled;
         }
 
         if (storage.indexes) {
-          delete storage.indexes.byCreationDate;
+          const indexes = storage.indexes as Record<string, unknown>;
+          delete indexes.byCreationDate;
         }
 
         delete storage.tombstones;

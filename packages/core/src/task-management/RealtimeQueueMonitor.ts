@@ -293,8 +293,8 @@ export class RealtimeQueueMonitor extends EventEmitter {
   private dashboardInterval: NodeJS.Timeout | null;
 
   // WebSocket server for live updates
-  private webSocketServer: any | null;
-  private connectedClients: Set<any>;
+  private webSocketServer: unknown | null;
+  private connectedClients: Set<unknown>;
 
   // Performance tracking
   private performanceMetrics: Map<string, number[]>;
@@ -511,7 +511,7 @@ export class RealtimeQueueMonitor extends EventEmitter {
       this.webSocketServer = {
         port: this.config.webSocketPort,
         clients: this.connectedClients,
-        broadcast: (data: any) => {
+        broadcast: (data: unknown) => {
           // Broadcast to all connected clients
           this.connectedClients.forEach((client) => {
             try {

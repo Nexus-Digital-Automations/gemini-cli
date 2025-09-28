@@ -44,7 +44,7 @@ interface UserAuthData {
   roles: string[];
   isActive: boolean;
   lastLoginAt?: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -539,7 +539,7 @@ export function logAuthEvents(
   // Log authentication events for audit trail
   const originalSend = res.send;
 
-  res.send = function (body: any) {
+  res.send = function (body: unknown) {
     const statusCode = res.statusCode;
 
     if (statusCode === 401 || statusCode === 403) {

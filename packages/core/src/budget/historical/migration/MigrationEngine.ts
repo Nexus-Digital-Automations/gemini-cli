@@ -433,7 +433,7 @@ export class MigrationEngineImpl implements MigrationEngine {
    * Validate data against schema version
    */
   async validateData(
-    data: any[],
+    data: unknown[],
     version: SchemaVersion
   ): Promise<{
     valid: boolean;
@@ -441,7 +441,7 @@ export class MigrationEngineImpl implements MigrationEngine {
       record: number;
       field: string;
       error: string;
-      value: any;
+      value: unknown;
     }>;
   }> {
     this.logger.info('Starting data validation', {
@@ -459,7 +459,7 @@ export class MigrationEngineImpl implements MigrationEngine {
         record: number;
         field: string;
         error: string;
-        value: any;
+        value: unknown;
       }> = [];
 
       // Validate each record
@@ -1199,7 +1199,7 @@ export class MigrationEngineImpl implements MigrationEngine {
   /**
    * Save data based on data source type
    */
-  private async saveData(data: any): Promise<void> {
+  private async saveData(data: unknown): Promise<void> {
     switch (this.dataSource.type) {
       case 'file':
         await this.saveFileData(data);
@@ -1218,7 +1218,7 @@ export class MigrationEngineImpl implements MigrationEngine {
   /**
    * Restore data based on data source type
    */
-  private async restoreData(data: any): Promise<void> {
+  private async restoreData(data: unknown): Promise<void> {
     await this.saveData(data);
   }
 
@@ -1245,7 +1245,7 @@ export class MigrationEngineImpl implements MigrationEngine {
   /**
    * Save data to file
    */
-  private async saveFileData(data: any): Promise<void> {
+  private async saveFileData(data: unknown): Promise<void> {
     const filePath = this.dataSource.config.location;
     if (!filePath) {
       throw new Error('File data source requires location config');
@@ -1266,7 +1266,7 @@ export class MigrationEngineImpl implements MigrationEngine {
   /**
    * Save data to database (placeholder)
    */
-  private async saveDatabaseData(data: any): Promise<void> {
+  private async saveDatabaseData(data: unknown): Promise<void> {
     // This would implement actual database saving
     throw new Error('Database data source not yet implemented');
   }
@@ -1290,7 +1290,7 @@ export class MigrationEngineImpl implements MigrationEngine {
   /**
    * Validate field type (basic validation)
    */
-  private validateFieldType(value: any, expectedType: string): boolean {
+  private validateFieldType(value: unknown, expectedType: string): boolean {
     switch (expectedType.toLowerCase()) {
       case 'string':
         return typeof value === 'string';

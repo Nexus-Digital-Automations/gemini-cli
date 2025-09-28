@@ -645,7 +645,7 @@ export class BudgetEventManager extends EventEmitter {
 
     // Navigate nested object path
     const parts = field.split('.');
-    let value: any = event;
+    let value: unknown = event;
 
     for (const part of parts) {
       if (value && typeof value === 'object' && part in value) {

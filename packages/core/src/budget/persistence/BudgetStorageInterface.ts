@@ -299,14 +299,14 @@ export interface StorageMigration {
    * @param data - Data to migrate
    * @returns Migrated data
    */
-  up(data: any): Promise<any>;
+  up(data: unknown): Promise<unknown>;
 
   /**
    * Rollback migration from data
    * @param data - Data to rollback
    * @returns Rollback data
    */
-  down(data: any): Promise<any>;
+  down(data: unknown): Promise<unknown>;
 }
 
 /**

@@ -57,8 +57,8 @@ describe('EditTool', () => {
   let tempDir: string;
   let rootDir: string;
   let mockConfig: Config;
-  let geminiClient: any;
-  let baseLlmClient: any;
+  let geminiClient: MockGeminiClient;
+  let baseLlmClient: MockBaseLlmClient;
 
   beforeEach(() => {
     vi.restoreAllMocks();

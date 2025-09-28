@@ -61,6 +61,8 @@ export interface TaskContext {
     sequenceOrder: number;
     isSubtask: boolean;
   };
+  /** Index signature to allow TaskContext to be assignable to Record<string, unknown> */
+  [key: string]: unknown;
 }
 
 /**

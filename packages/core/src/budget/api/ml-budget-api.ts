@@ -7,14 +7,15 @@
 import type { Request, Response, NextFunction } from 'express';
 import type {
   BudgetSettings,
-  ForecastPoint,
+  ForecastPoint as _ForecastPoint,
   MLBudgetRecommendation,
-  MLRiskAssessment,
+  MLRiskAssessment as _MLRiskAssessment,
   PredictionConfidence,
   ExtendedMLRiskAssessment,
   ExtendedForecastPoint,
-  ModelMetrics,
-  AnomalyDetectionResult,
+  ModelMetrics as _ModelMetrics,
+  AnomalyDetectionResult as _AnomalyDetectionResult,
+  BudgetRiskCategory,
 } from '../types.js';
 import type { MLEnhancedBudgetTracker } from '../ml-enhanced-tracker.js';
 import { createMLEnhancedBudgetTracker } from '../ml-enhanced-tracker.js';
@@ -264,7 +265,14 @@ export class MLBudgetAPI {
           potentialSavings: {
             percentage: potentialSavings,
             estimatedRequests: Math.round(potentialSavings * 100),
-            confidence: 'medium' as any,
+            confidence: {
+              overall: 0.7,
+              dataQuality: 0.8,
+              modelAccuracy: 0.7,
+              historicalPerformance: 0.6,
+              sampleSize: 0.8,
+              lastUpdated: new Date().toISOString(),
+            },
           },
           generatedAt: new Date().toISOString(),
         },
@@ -289,17 +297,52 @@ export class MLBudgetAPI {
       const anomalies = await tracker.detectAnomalies();
 
       // Convert anomalies to expected format
-      const formattedAnomalies = anomalies.anomalies.map((anomaly: any) => ({
-        timestamp: Date.parse(anomaly.timestamp) || Date.now(),
-        value: anomaly.value || 0,
-        severity: anomaly.severity || 'medium',
-        reason: anomaly.description || 'Anomaly detected',
-        impact: 'Usage pattern deviation',
-        suggestedAction: 'Monitor and investigate cause',
-      }));
+      const formattedAnomalies = anomalies.anomalies.map((anomaly: unknown) => {
+        // Type guard for anomaly object
+        const anomalyData = anomaly as Record<string, unknown>;
+        const timestamp = typeof anomalyData.timestamp === 'string'
+          ? Date.parse(anomalyData.timestamp)
+          : Date.now();
+        const value = typeof anomalyData.value === 'number'
+          ? anomalyData.value
+          : 0;
+        const severity = typeof anomalyData.severity === 'string'
+          ? (anomalyData.severity as 'low' | 'medium' | 'high')
+          : 'medium';
+        const description = typeof anomalyData.description === 'string'
+          ? anomalyData.description
+          : 'Anomaly detected';
+
+        return {
+          timestamp,
+          value,
+          severity,
+          reason: description,
+          impact: 'Usage pattern deviation',
+          suggestedAction: 'Monitor and investigate cause',
+        };
+      });
 
       // Create mock patterns if they don't exist (handle case where patterns might not exist)
-      const patterns = (anomalies as any).patterns || {
+      const patternsData = (anomalies as Record<string, unknown>).patterns;
+      const patterns: {
+        seasonality: {
+          detected: boolean;
+          period?: number;
+          strength?: number;
+          description: string;
+        };
+        trends: {
+          direction: 'increasing' | 'decreasing' | 'stable';
+          confidence: number;
+          description: string;
+        };
+        volatility: {
+          level: 'low' | 'medium' | 'high';
+          coefficient: number;
+          description: string;
+        };
+      } = patternsData || {
         seasonality: {
           detected: false,
           description: 'No seasonal patterns detected',
@@ -424,7 +467,7 @@ export class MLBudgetAPI {
             recommendations: [],
             riskAssessment: {
               overallRisk: 0.3,
-              category: 'LOW' as any,
+              category: BudgetRiskCategory.LOW,
               factors: [],
               trend: 'stable',
               mitigations: [],
@@ -583,7 +626,7 @@ export const mlBudgetHandlers = {
    * POST /api/budget/ml/forecast
    * Generate ML-based budget forecast
    */
-  generateForecast: async (req: any, res: any, next?: any) => {
+  generateForecast: async (req: Request, res: Response, next?: NextFunction) => {
     try {
       const { projectRoot, settings, forecastHours = 24 } = req.body;
 
@@ -619,7 +662,7 @@ export const mlBudgetHandlers = {
    * POST /api/budget/ml/optimize
    * Get optimization suggestions
    */
-  getOptimizationSuggestions: async (req: any, res: any, next?: any) => {
+  getOptimizationSuggestions: async (req: Request, res: Response, next?: NextFunction) => {
     try {
       const { projectRoot, settings } = req.body;
 
@@ -654,7 +697,7 @@ export const mlBudgetHandlers = {
    * POST /api/budget/ml/anomalies
    * Detect usage anomalies and patterns
    */
-  detectAnomalies: async (req: any, res: any, next?: any) => {
+  detectAnomalies: async (req: Request, res: Response, next?: NextFunction) => {
     try {
       const { projectRoot, settings } = req.body;
 
@@ -689,7 +732,7 @@ export const mlBudgetHandlers = {
    * POST /api/budget/ml/metrics
    * Get ML model performance metrics
    */
-  getModelMetrics: async (req: any, res: any, next?: any) => {
+  getModelMetrics: async (req: Request, res: Response, next?: NextFunction) => {
     try {
       const { projectRoot, settings } = req.body;
 
@@ -724,7 +767,7 @@ export const mlBudgetHandlers = {
    * POST /api/budget/ml/stats
    * Get enhanced usage statistics with ML predictions
    */
-  getUsageStats: async (req: any, res: any, next?: any) => {
+  getUsageStats: async (req: Request, res: Response, next?: NextFunction) => {
     try {
       const { projectRoot, settings } = req.body;
 
@@ -759,7 +802,7 @@ export const mlBudgetHandlers = {
    * POST /api/budget/ml/record
    * Record a new request
    */
-  recordRequest: async (req: any, res: any, next?: any) => {
+  recordRequest: async (req: Request, res: Response, next?: NextFunction) => {
     try {
       const { projectRoot, settings } = req.body;
 
@@ -791,7 +834,7 @@ export const mlBudgetHandlers = {
    * GET /api/budget/ml/health
    * Health check for ML system
    */
-  healthCheck: async (req: any, res: any, next?: any) => {
+  healthCheck: async (req: Request, res: Response, next?: NextFunction) => {
     try {
       const { projectRoot, settings } = req.query;
 

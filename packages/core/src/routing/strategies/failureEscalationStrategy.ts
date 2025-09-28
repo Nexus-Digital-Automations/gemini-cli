@@ -140,11 +140,8 @@ export class FailureEscalationStrategy implements RoutingStrategy {
         // Log telemetry for Flash escalation
         const escalationEvent = new FlashEscalationEvent(
           requestHash,
-          pattern.failureCount,
+          pattern.failureCount.toString(),
           'threshold_reached',
-          true,
-          this.config.enableSessionMemory,
-          Date.now() - pattern.lastFailure,
         );
         logFlashEscalation(_config, escalationEvent);
 

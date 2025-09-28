@@ -127,10 +127,10 @@ export interface ValidationIssue {
   recordIndex: number;
 
   /** Current value that caused issue */
-  currentValue?: any;
+  currentValue?: unknown;
 
   /** Expected value or format */
-  expectedValue?: any;
+  expectedValue?: unknown;
 
   /** Issue context */
   context: {
@@ -143,7 +143,7 @@ export interface ValidationIssue {
   suggestion?: {
     action: 'fix' | 'remove' | 'transform' | 'ignore';
     description: string;
-    implementation?: any;
+    implementation?: unknown;
   };
 
   /** Issue location information */
@@ -363,8 +363,8 @@ export interface ValidationEngine {
     appliedFixes: Array<{
       issueId: string;
       action: string;
-      oldValue: any;
-      newValue: any;
+      oldValue: unknown;
+      newValue: unknown;
       success: boolean;
     }>;
   }>;

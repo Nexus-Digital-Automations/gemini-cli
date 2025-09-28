@@ -452,7 +452,7 @@ export class RealTimeStreamingService extends EventEmitter {
   async sendUpdate(
     subscriptionId: string,
     streamType: StreamType,
-    data: any,
+    data: unknown,
   ): Promise<void> {
     const subscription = this.subscriptions.get(subscriptionId);
     if (!subscription || !subscription.active) return;
@@ -487,7 +487,7 @@ export class RealTimeStreamingService extends EventEmitter {
    */
   async broadcastUpdate(
     streamType: StreamType,
-    data: any,
+    data: unknown,
     filters?: {
       subscriptionIds?: string[];
       eventTypes?: BudgetEventType[];
@@ -676,7 +676,7 @@ export class RealTimeStreamingService extends EventEmitter {
   private async createStreamUpdate(
     subscriptionId: string,
     streamType: StreamType,
-    data: any,
+    data: unknown,
   ): Promise<StreamUpdate> {
     const sequence = this.getNextSequence(subscriptionId);
     let updateData = data;
@@ -830,7 +830,7 @@ export class RealTimeStreamingService extends EventEmitter {
    */
   private passesSubscriptionFilters(
     subscription: StreamSubscription,
-    context: { streamType: StreamType; data: any },
+    context: { streamType: StreamType; data: unknown },
   ): boolean {
     const filters = subscription.filters;
     if (!filters) return true;
@@ -843,14 +843,14 @@ export class RealTimeStreamingService extends EventEmitter {
   /**
    * Calculate delta between old and new data
    */
-  private calculateDelta(oldData: any, newData: any): any {
+  private calculateDelta(oldData: unknown, newData: unknown): unknown {
     // Simplified delta calculation
     // This would be more sophisticated in a real implementation
     if (typeof newData !== 'object' || newData === null) {
       return newData;
     }
 
-    const delta: any = {};
+    const delta: Record<string, unknown> = {};
     for (const key in newData) {
       if (newData[key] !== oldData?.[key]) {
         delta[key] = newData[key];
@@ -863,7 +863,7 @@ export class RealTimeStreamingService extends EventEmitter {
   /**
    * Check if data should be compressed
    */
-  private shouldCompress(data: any): boolean {
+  private shouldCompress(data: unknown): boolean {
     const dataSize = JSON.stringify(data).length;
     return dataSize > 1024; // Compress if larger than 1KB
   }

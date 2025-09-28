@@ -50,7 +50,7 @@ export type MigrationStatus =
 /**
  * Data transformation function type
  */
-export type DataTransformer<TFrom = any, TTo = any> = (data: TFrom) => TTo | Promise<TTo>;
+export type DataTransformer<TFrom = unknown, TTo = unknown> = (data: TFrom) => TTo | Promise<TTo>;
 
 /**
  * Migration step definition
@@ -72,7 +72,7 @@ export interface MigrationStep {
   down: DataTransformer;
 
   /** Validation function to verify transformation */
-  validate?: (originalData: any, transformedData: any) => boolean | Promise<boolean>;
+  validate?: (originalData: unknown, transformedData: unknown) => boolean | Promise<boolean>;
 
   /** Whether this step is reversible */
   reversible: boolean;
@@ -237,7 +237,7 @@ export interface MigrationResult {
     performed: boolean;
     reason: string;
     timestamp: number;
-    originalData?: any;
+    originalData?: unknown;
   };
 }
 
@@ -257,8 +257,8 @@ export interface SchemaVersionInfo {
       type: string;
       required: boolean;
       description: string;
-      default?: any;
-      validation?: any;
+      default?: unknown;
+      validation?: unknown;
     }>;
     indexes: Array<{
       name: string;
@@ -391,7 +391,7 @@ export interface MigrationEngine {
    * Validate data against schema version
    */
   validateData(
-    data: any[],
+    data: unknown[],
     version: SchemaVersion
   ): Promise<{
     valid: boolean;
@@ -399,7 +399,7 @@ export interface MigrationEngine {
       record: number;
       field: string;
       error: string;
-      value: any;
+      value: unknown;
     }>;
   }>;
 
@@ -498,7 +498,7 @@ export interface CompatibilityChecker {
    * Analyze data for migration readiness
    */
   analyzeDataReadiness(
-    data: any[],
+    data: unknown[],
     targetVersion: SchemaVersion
   ): Promise<{
     ready: boolean;
@@ -520,11 +520,11 @@ export interface CompatibilityChecker {
    * Generate data transformation preview
    */
   previewTransformation(
-    sampleData: any[],
+    sampleData: unknown[],
     migration: SchemaMigration
   ): Promise<{
-    originalSample: any[];
-    transformedSample: any[];
+    originalSample: unknown[];
+    transformedSample: unknown[];
     transformationSummary: {
       fieldsAdded: string[];
       fieldsRemoved: string[];

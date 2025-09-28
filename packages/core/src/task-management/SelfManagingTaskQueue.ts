@@ -134,11 +134,11 @@ export interface QueueStateSnapshot {
   metrics: RealTimeQueueMetrics;
   config: SelfManagingQueueConfig;
   learningData: {
-    executionHistory: any[];
-    adaptationHistory: any[];
+    executionHistory: unknown[];
+    adaptationHistory: unknown[];
     performanceBaselines: Map<string, number>;
   };
-  resourceState: Map<string, any>;
+  resourceState: Map<string, unknown>;
 }
 
 /**
@@ -162,10 +162,10 @@ export class SelfManagingTaskQueue extends EventEmitter {
 
   // Machine learning components
   private mlModel: {
-    taskComplexityPredictor: any;
-    executionTimePredictor: any;
-    resourceUsagePredictor: any;
-    failurePredictionModel: any;
+    taskComplexityPredictor: unknown;
+    executionTimePredictor: unknown;
+    resourceUsagePredictor: unknown;
+    failurePredictionModel: unknown;
   } | null = null;
 
   // State management
@@ -909,7 +909,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
 
   // Private helper methods for advanced functionality
 
-  private async predictTaskComplexity(taskDefinition: any): Promise<any> {
+  private async predictTaskComplexity(taskDefinition: unknown): Promise<unknown> {
     // Placeholder for ML-based complexity prediction
     // In real implementation, would use trained model
     return {
@@ -919,7 +919,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     };
   }
 
-  private async predictExecutionTime(taskDefinition: any): Promise<any> {
+  private async predictExecutionTime(taskDefinition: unknown): Promise<unknown> {
     // Placeholder for ML-based duration prediction
     return {
       duration: taskDefinition.estimatedDuration || 60000,
@@ -928,7 +928,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     };
   }
 
-  private async predictResourceUsage(taskDefinition: any): Promise<any> {
+  private async predictResourceUsage(taskDefinition: unknown): Promise<unknown> {
     // Placeholder for ML-based resource prediction
     return {
       resources: taskDefinition.requiredResources || ['cpu'],
@@ -941,8 +941,8 @@ export class SelfManagingTaskQueue extends EventEmitter {
   }
 
   private async predictTaskFailureProbability(
-    taskDefinition: any,
-  ): Promise<any> {
+    taskDefinition: unknown,
+  ): Promise<unknown> {
     // Placeholder for ML-based failure prediction
     return {
       probability: 0.1,
@@ -968,7 +968,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
   }
 
   private estimateResourceRequirement(
-    taskDefinition: any,
+    taskDefinition: unknown,
     resourceType: string,
   ): number {
     // Simple estimation based on task complexity and category
@@ -1052,7 +1052,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return multipliers[category || TaskCategory.FEATURE]?.[resourceType] || 1.0;
   }
 
-  private calculateQueuePosition(taskDefinition: any): number {
+  private calculateQueuePosition(taskDefinition: unknown): number {
     // Estimate queue position based on priority and current queue state
     const metrics = this.baseQueue.getAutonomousQueueStatus();
     const priority = taskDefinition.priority || TaskPriority.MEDIUM;
@@ -1061,7 +1061,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return Math.max(0, metrics.pendingTasks * (1 - priority / 1000));
   }
 
-  private async calculateDependencyDelay(taskDefinition: any): Promise<number> {
+  private async calculateDependencyDelay(taskDefinition: unknown): Promise<number> {
     const dependencies = taskDefinition.dependencies || [];
     if (dependencies.length === 0) return 0;
 
@@ -1077,7 +1077,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return Math.max(0, maxDependencyDelay);
   }
 
-  private calculatePredictionConfidence(taskDefinition: any): number {
+  private calculatePredictionConfidence(taskDefinition: unknown): number {
     let confidence = 0.5; // Base confidence
 
     // Increase confidence based on available data
@@ -1091,7 +1091,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return Math.min(1.0, confidence);
   }
 
-  private identifyTaskRiskFactors(taskDefinition: any): string[] {
+  private identifyTaskRiskFactors(taskDefinition: unknown): string[] {
     const riskFactors: string[] = [];
 
     if ((taskDefinition.estimatedDuration || 0) > 300000) {
@@ -1114,7 +1114,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
   }
 
   private calculateResourceRequirements(
-    taskDefinition: any,
+    taskDefinition: unknown,
   ): Map<string, number> {
     const requirements = new Map<string, number>();
     const resources = taskDefinition.requiredResources || ['cpu'];
@@ -1130,7 +1130,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return requirements;
   }
 
-  private updateRealTimeMetrics(event: string, data: any): void {
+  private updateRealTimeMetrics(event: string, data: unknown): void {
     // Update various metrics based on events
     switch (event) {
       case 'taskAdded':
@@ -1160,7 +1160,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
         : 0;
   }
 
-  private handleTaskCompletion(task: Task, record: any, result: any): void {
+  private handleTaskCompletion(task: Task, record: unknown, result: unknown): void {
     // Release reserved resources
     this.releaseTaskResources(task);
 
@@ -1174,7 +1174,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
     this.executionPredictions.delete(task.id);
   }
 
-  private handleTaskFailure(task: Task, record: any, error: any): void {
+  private handleTaskFailure(task: Task, record: unknown, error: unknown): void {
     // Release reserved resources
     this.releaseTaskResources(task);
 
@@ -1183,17 +1183,17 @@ export class SelfManagingTaskQueue extends EventEmitter {
     this.executionPredictions.delete(task.id);
   }
 
-  private handleTaskBreakdown(originalTask: Task, breakdown: any): void {
+  private handleTaskBreakdown(originalTask: Task, breakdown: unknown): void {
     // Update breakdown-related metrics
     this.realTimeMetrics.tasksBrokenDown++;
   }
 
-  private handleSchedulingAlgorithmChange(change: any): void {
+  private handleSchedulingAlgorithmChange(change: unknown): void {
     // Log algorithm changes for monitoring
     logger.info('Scheduling algorithm adapted', change);
   }
 
-  private handleOptimizationCompleted(optimization: any): void {
+  private handleOptimizationCompleted(optimization: unknown): void {
     // Track optimization effectiveness
     this.realTimeMetrics.optimizationImpact += optimization.impact || 0;
   }

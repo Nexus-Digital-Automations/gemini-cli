@@ -629,7 +629,7 @@ export class TokenUsageCache extends EventEmitter {
   /**
    * Estimate entry size in bytes
    */
-  private estimateSize(value: any): number {
+  private estimateSize(value: unknown): number {
     try {
       return Buffer.byteLength(JSON.stringify(value), 'utf8');
     } catch {
@@ -641,7 +641,7 @@ export class TokenUsageCache extends EventEmitter {
   /**
    * Compress data (simple implementation)
    */
-  private compress(data: any): Buffer {
+  private compress(data: unknown): Buffer {
     // In a real implementation, you'd use a proper compression library
     const jsonString = JSON.stringify(data);
     return Buffer.from(jsonString, 'utf8');
@@ -650,7 +650,7 @@ export class TokenUsageCache extends EventEmitter {
   /**
    * Decompress data
    */
-  private decompress(buffer: Buffer): any {
+  private decompress(buffer: Buffer): unknown {
     // In a real implementation, you'd use a proper decompression library
     const jsonString = buffer.toString('utf8');
     return JSON.parse(jsonString);

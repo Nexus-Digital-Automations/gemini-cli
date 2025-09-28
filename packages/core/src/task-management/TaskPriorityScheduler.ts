@@ -152,7 +152,7 @@ export class TaskPriorityScheduler extends EventEmitter {
   private batchAdjustmentQueue: string[] = [];
 
   // Machine learning model for priority optimization
-  private mlModel?: any;
+  private mlModel?: unknown;
   private trainingData: Array<{
     features: number[];
     optimalPriority: number;

@@ -291,6 +291,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
   ): Promise<Task> {
     const baseTask: Task = {
       id: taskDefinition.id ?? uuidv4(),
+      name: taskDefinition.title, // Use title as name for backward compatibility
       title: taskDefinition.title,
       description: taskDefinition.description,
       category: taskDefinition.category ?? TaskCategory.FEATURE,
@@ -443,6 +444,7 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
         // Convert SubTask to Task format
         const enhancedSubtask: Task = {
           id: subtask.id,
+          name: subtask.title, // Use title as name for backward compatibility
           title: subtask.title,
           description: subtask.description,
           category: subtask.category,
@@ -631,8 +633,8 @@ export class EnhancedAutonomousTaskQueue extends EventEmitter {
     this.executionResults.set(task.id, result);
 
     // If this was a breakdown subtask, record for learning
-    if (task.metadata?.isSubtask && task.context?.subtask?.parentTaskId) {
-      const parentId = task.context.subtask.parentTaskId as string;
+    if (task.metadata?.isSubtask && (task.context?.subtask as any)?.parentTaskId) {
+      const parentId = (task.context?.subtask as any)?.parentTaskId as string;
       const breakdown = this.breakdownHistory.get(parentId);
 
       if (breakdown) {

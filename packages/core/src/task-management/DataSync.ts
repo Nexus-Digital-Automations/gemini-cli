@@ -819,7 +819,15 @@ export class DataSync extends EventEmitter {
       const task = queueState.tasks.get(taskId);
       if (task) {
         // Force save entire queue state to trigger synchronization
-        await this.persistence.saveQueueState(queueState);
+        await this.persistence.saveQueueState(
+          queueState.tasks,
+          queueState.dependencies,
+          queueState.completedTasks,
+          queueState.failedTasks,
+          queueState.runningTasks,
+          queueState.metrics,
+          queueState.sessionId || 'default',
+        );
       }
     }
   }

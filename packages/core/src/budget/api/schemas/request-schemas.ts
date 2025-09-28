@@ -24,18 +24,18 @@ const logger = getComponentLogger('BudgetRequestSchemas');
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
-  data?: any;
+  data?: unknown;
 }
 
 /**
  * Base validator function type
  */
-export type SchemaValidator = (data: any) => ValidationResult;
+export type SchemaValidator = (data: unknown) => ValidationResult;
 
 /**
  * Utility function to validate required fields
  */
-function validateRequired(data: any, requiredFields: string[]): string[] {
+function validateRequired(data: Record<string, unknown>, requiredFields: string[]): string[] {
   const errors: string[] = [];
 
   for (const field of requiredFields) {
@@ -51,7 +51,7 @@ function validateRequired(data: any, requiredFields: string[]): string[] {
  * Utility function to validate field types
  */
 function validateTypes(
-  data: any,
+  data: Record<string, unknown>,
   fieldTypes: Record<string, string>,
 ): string[] {
   const errors: string[] = [];
@@ -74,7 +74,7 @@ function validateTypes(
  * Utility function to validate enum values
  */
 function validateEnum(
-  data: any,
+  data: Record<string, unknown>,
   field: string,
   enumValues: string[],
 ): string[] {
@@ -91,14 +91,14 @@ function validateEnum(
  * Usage request schema validator
  */
 export const usageRequestSchema: SchemaValidator = (
-  data: any,
+  data: unknown,
 ): ValidationResult => {
   logger.debug('Validating usage request', { data });
 
   const errors: string[] = [];
 
   // Optional fields with type validation
-  const typeValidation = validateTypes(data, {
+  const typeValidation = validateTypes(data as Record<string, unknown>, {
     projectRoot: 'string',
     startDate: 'string',
     endDate: 'string',
@@ -139,14 +139,14 @@ export const usageRequestSchema: SchemaValidator = (
  * Configuration request schema validator
  */
 export const configurationRequestSchema: SchemaValidator = (
-  data: any,
+  data: unknown,
 ): ValidationResult => {
   logger.debug('Validating configuration request', { data });
 
   const errors: string[] = [];
 
   // Type validation for optional fields
-  const typeValidation = validateTypes(data, {
+  const typeValidation = validateTypes(data as Record<string, unknown>, {
     enabled: 'boolean',
     dailyLimit: 'number',
     weeklyLimit: 'number',
@@ -219,14 +219,14 @@ export const configurationRequestSchema: SchemaValidator = (
  * Analytics request schema validator
  */
 export const analyticsRequestSchema: SchemaValidator = (
-  data: any,
+  data: unknown,
 ): ValidationResult => {
   logger.debug('Validating analytics request', { data });
 
   const errors: string[] = [];
 
   // Type validation
-  const typeValidation = validateTypes(data, {
+  const typeValidation = validateTypes(data as Record<string, unknown>, {
     startDate: 'string',
     endDate: 'string',
     granularity: 'string',
@@ -273,18 +273,18 @@ export const analyticsRequestSchema: SchemaValidator = (
  * Export request schema validator
  */
 export const exportRequestSchema: SchemaValidator = (
-  data: any,
+  data: unknown,
 ): ValidationResult => {
   logger.debug('Validating export request', { data });
 
   const errors: string[] = [];
 
   // Required fields
-  const requiredValidation = validateRequired(data, ['format']);
+  const requiredValidation = validateRequired(data as Record<string, unknown>, ['format']);
   errors.push(...requiredValidation);
 
   // Type validation
-  const typeValidation = validateTypes(data, {
+  const typeValidation = validateTypes(data as Record<string, unknown>, {
     format: 'string',
     startDate: 'string',
     endDate: 'string',
@@ -323,14 +323,14 @@ export const exportRequestSchema: SchemaValidator = (
  * Notification request schema validator
  */
 export const notificationRequestSchema: SchemaValidator = (
-  data: any,
+  data: unknown,
 ): ValidationResult => {
   logger.debug('Validating notification request', { data });
 
   const errors: string[] = [];
 
   // Type validation
-  const typeValidation = validateTypes(data, {
+  const typeValidation = validateTypes(data as Record<string, unknown>, {
     type: 'string',
     threshold: 'number',
     enabled: 'boolean',
@@ -370,7 +370,7 @@ export const notificationRequestSchema: SchemaValidator = (
 /**
  * Helper function to validate notification settings
  */
-function validateNotificationSettings(notifications: any): string[] {
+function validateNotificationSettings(notifications: Record<string, unknown>): string[] {
   const errors: string[] = [];
 
   // Type validation

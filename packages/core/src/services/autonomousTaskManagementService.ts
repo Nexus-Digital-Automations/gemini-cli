@@ -18,7 +18,7 @@
 
 import { EventEmitter } from 'node:events';
 import type { Config } from '../index.js';
-import { TaskType, TaskPriority } from '../task-management/types.js';
+import type { TaskType, TaskPriority } from '../task-management/types.js';
 import {
   AutonomousTaskIntegrator,
   type AutonomousTask,
@@ -272,7 +272,11 @@ export class AutonomousTaskManagementService extends EventEmitter {
 
     console.log(`📝 Creating autonomous task: ${taskConfig.title}`);
 
-    const task = await this.taskIntegrator.createTask(taskConfig);
+    const task = await this.taskIntegrator.createTask({
+      ...taskConfig,
+      type: taskConfig.type as any, // Cast TaskType enum to union type
+      priority: taskConfig.priority as any, // Cast TaskPriority enum to union type
+    });
     this.emit('task_created', { task, timestamp: new Date() });
 
     return task;
