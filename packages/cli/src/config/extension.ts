@@ -15,12 +15,10 @@ import {
   Config,
   ExtensionInstallEvent,
   ExtensionUninstallEvent,
-  ExtensionDisableEvent,
   ExtensionEnableEvent,
   logExtensionEnable,
   logExtensionInstallEvent,
   logExtensionUninstall,
-  logExtensionDisable,
 } from '@google/gemini-cli-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';

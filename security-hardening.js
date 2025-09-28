@@ -63,9 +63,9 @@ class SecurityHardening {
         maxObjectDepth: 10,
         allowedFileExtensions: ['.json', '.js', '.ts', '.md'],
         forbiddenPatterns: [
-          /\<script\>/gi,
-          /javascript\:/gi,
-          /data\:/gi,
+          /<script>/gi,
+          /javascript:/gi,
+          /data:/gi,
           /\$\{.*\}/gi,
           /__proto__/gi,
           /constructor/gi,
@@ -226,15 +226,13 @@ class SecurityHardening {
 
       // Check for dangerous patterns
       const dataString = JSON.stringify(data);
-      this.securityPolicies.input.forbiddenPatterns.forEach(
-        (pattern, index) => {
-          if (pattern.test(dataString)) {
-            result.securityWarnings.push(
-              `Dangerous pattern detected: ${pattern.source}`,
-            );
-          }
-        },
-      );
+      this.securityPolicies.input.forbiddenPatterns.forEach((pattern) => {
+        if (pattern.test(dataString)) {
+          result.securityWarnings.push(
+            `Dangerous pattern detected: ${pattern.source}`,
+          );
+        }
+      });
 
       // Sanitize based on type
       if (typeof data === 'string') {

@@ -20,7 +20,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { promisify } from 'node:util';
 
 /**
  * SecurityPerformanceMonitor - Real-time monitoring and alerting system
@@ -475,7 +474,6 @@ class SecurityPerformanceMonitor {
    */
   generateRecommendations() {
     const recommendations = [];
-    const healthStatus = this.getHealthStatus();
     const memoryTrend = this.analyzeMemoryTrend();
     const securityEvents = this.calculateSeverityDistribution();
 

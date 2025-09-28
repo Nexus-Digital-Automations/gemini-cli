@@ -13,16 +13,16 @@ import importPlugin from 'eslint-plugin-import';
 import vitest from '@vitest/eslint-plugin';
 import globals from 'globals';
 import licenseHeader from 'eslint-plugin-license-header';
-import path from 'node:path';
-import url from 'node:url';
+// import path from 'node:path';
+// import url from 'node:url';
 
 // --- ESM way to get DIRNAME ---
-const FILENAME = url.fileURLToPath(import.meta.url);
-const DIRNAME = path.dirname(FILENAME);
+// const FILENAME = url.fileURLToPath(import.meta.url);
+// const DIRNAME = path.dirname(FILENAME);
 // --- ---
 
 // Determine the monorepo root (assuming eslint.config.js is at the root)
-const PROJECT_ROOT = DIRNAME;
+// const PROJECT_ROOT = DIRNAME; // Currently unused but reserved for future use
 
 export default tseslint.config(
   {
@@ -30,7 +30,6 @@ export default tseslint.config(
     ignores: [
       'node_modules/*',
       '.integration-tests/**',
-      'eslint.config.js',
       'packages/**/dist/**',
       'packages/**/coverage/**',
       '**/coverage/**',
@@ -239,64 +238,6 @@ export default tseslint.config(
       radix: 'error',
       'default-case': 'error',
       'react/prop-types': 'off', // Compiled from TypeScript - types already validated
-      eqeqeq: ['error', 'always', { null: 'ignore' }],
-      '@typescript-eslint/consistent-type-assertions': [
-        'error',
-        { assertionStyle: 'as' },
-      ],
-      '@typescript-eslint/explicit-member-accessibility': [
-        'error',
-        { accessibility: 'no-public' },
-      ],
-      '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-inferrable-types': [
-        'error',
-        { ignoreParameters: true, ignoreProperties: true },
-      ],
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { disallowTypeAnnotations: false },
-      ],
-      '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-      'import/no-internal-modules': 'off', // Disabled for monorepo internal module access
-      'import/no-relative-packages': 'error',
-      'no-cond-assign': 'error',
-      'no-debugger': 'error',
-      'no-duplicate-case': 'error',
-      'no-restricted-syntax': [
-        'error',
-        {
-          selector: 'CallExpression[callee.name="require"]',
-          message: 'Avoid using require(). Use ES6 imports instead.',
-        },
-        {
-          selector: 'ThrowStatement > Literal:not([value=/^\\w+Error:/])',
-          message:
-            'Do not throw string literals or non-Error objects. Throw new Error("...") instead.',
-        },
-      ],
-      'no-unsafe-finally': 'error',
-      'no-unused-expressions': 'off', // Disable base rule
-      '@typescript-eslint/no-unused-expressions': [
-        // Enable TS version
-        'error',
-        { allowShortCircuit: true, allowTernary: true },
-      ],
-      'no-var': 'error',
-      'object-shorthand': 'error',
-      'one-var': ['error', 'never'],
-      'prefer-arrow-callback': 'error',
-      'prefer-const': ['error', { destructuring: 'all' }],
-      radix: 'error',
-      'default-case': 'error',
     },
   },
   {
@@ -328,6 +269,25 @@ export default tseslint.config(
     plugins: {
       'license-header': licenseHeader,
       import: importPlugin,
+    },
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+      },
     },
     rules: {
       'license-header/header': [
@@ -517,6 +477,38 @@ export default tseslint.config(
         console: 'readonly',
         require: 'readonly',
         module: 'readonly',
+        DIRNAME: 'readonly',
+        FILENAME: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+      'no-restricted-syntax': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+  // settings for security hardening and monitoring Node.js scripts
+  {
+    files: ['./security-hardening.js', './security-performance-monitor.js', './fix-unused-vars.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: 'readonly',
+        console: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        Buffer: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
         DIRNAME: 'readonly',
         FILENAME: 'readonly',
       },

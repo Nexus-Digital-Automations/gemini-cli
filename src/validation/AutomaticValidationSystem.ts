@@ -5,9 +5,8 @@
  */
 
 import { spawn, SpawnOptionsWithoutStdio } from 'node:child_process';
-import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
-import { promisify } from 'node:util';
+import { readFile, access } from 'node:fs/promises';
+import { join } from 'node:path';
 
 /**
  * Comprehensive automatic validation system for task completion quality assurance.
@@ -644,8 +643,6 @@ export class AutomaticValidationSystem {
    * Generate specific action items for failed quality gate.
    */
   private generateActionItemsForGate(gate: QualityGateResult): string[] {
-    const baseActions: string[] = [];
-
     switch (gate.gateType) {
       case GateType.LINTING:
         return [
@@ -892,7 +889,7 @@ export class AutomaticValidationSystem {
         warningGates: 0,
         totalExecutionTime: 0,
         averageGateTime: 0,
-        slowestGate: null as any,
+        slowestGate: null as QualityGateResult,
         failureRate: 100,
       },
       gateResults: [],
@@ -1178,7 +1175,7 @@ abstract class QualityGateExecutor {
 
   abstract execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult>;
 
   protected async executeCommand(
@@ -1236,7 +1233,7 @@ interface CommandResult {
 class LintingGateExecutor extends QualityGateExecutor {
   async execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult> {
     try {
       const result = await this.executeCommand('npm', ['run', 'lint'], {
@@ -1274,7 +1271,7 @@ class LintingGateExecutor extends QualityGateExecutor {
 class TypeCheckingGateExecutor extends QualityGateExecutor {
   async execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult> {
     try {
       const result = await this.executeCommand('npm', ['run', 'typecheck'], {
@@ -1312,7 +1309,7 @@ class TypeCheckingGateExecutor extends QualityGateExecutor {
 class BuildGateExecutor extends QualityGateExecutor {
   async execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult> {
     try {
       const result = await this.executeCommand('npm', ['run', 'build'], {
@@ -1350,7 +1347,7 @@ class BuildGateExecutor extends QualityGateExecutor {
 class UnitTestGateExecutor extends QualityGateExecutor {
   async execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult> {
     try {
       const result = await this.executeCommand('npm', ['test'], {
@@ -1388,7 +1385,7 @@ class UnitTestGateExecutor extends QualityGateExecutor {
 class IntegrationTestGateExecutor extends QualityGateExecutor {
   async execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult> {
     try {
       const result = await this.executeCommand(
@@ -1428,7 +1425,7 @@ class IntegrationTestGateExecutor extends QualityGateExecutor {
 class SecurityScanGateExecutor extends QualityGateExecutor {
   async execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult> {
     try {
       // Try semgrep first, then npm audit as fallback
@@ -1484,7 +1481,7 @@ class SecurityScanGateExecutor extends QualityGateExecutor {
             evidence: [auditResult.stdout],
           };
         }
-      } catch (auditError) {
+      } catch (_auditError) {
         return {
           passed: false,
           message: `Security scanning tools not available: ${(error as Error).message}`,
@@ -1498,7 +1495,7 @@ class SecurityScanGateExecutor extends QualityGateExecutor {
 class GitStatusGateExecutor extends QualityGateExecutor {
   async execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult> {
     try {
       const result = await this.executeCommand(
@@ -1561,7 +1558,7 @@ class GitStatusGateExecutor extends QualityGateExecutor {
 class FileIntegrityGateExecutor extends QualityGateExecutor {
   async execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult> {
     try {
       // Check for common file integrity issues
@@ -1619,7 +1616,7 @@ class FileIntegrityGateExecutor extends QualityGateExecutor {
 class PerformanceGateExecutor extends QualityGateExecutor {
   async execute(
     projectRoot: string,
-    context: ValidationContext,
+    _context: ValidationContext,
   ): Promise<GateExecutionResult> {
     try {
       // Run build and measure time as a basic performance check

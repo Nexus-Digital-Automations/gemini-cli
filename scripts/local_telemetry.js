@@ -9,7 +9,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { spawn, execSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import {
   BIN_DIR,
   OTEL_DIR,
@@ -19,9 +18,6 @@ import {
   registerCleanup,
   waitForPort,
 } from './telemetry_utils.js';
-
-const FILENAME = fileURLToPath(import.meta.url);
-const DIRNAME = path.dirname(FILENAME);
 
 const OTEL_CONFIG_FILE = path.join(OTEL_DIR, 'collector-local.yaml');
 const OTEL_LOG_FILE = path.join(OTEL_DIR, 'collector.log');
