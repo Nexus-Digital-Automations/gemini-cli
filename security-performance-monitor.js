@@ -609,7 +609,7 @@ async function main() {
 }
 
 // Export for programmatic use
-module.Exports = SecurityPerformanceMonitor;
+module.exports = SecurityPerformanceMonitor;
 
 // Run CLI if called directly
 if (require.main === module) {
