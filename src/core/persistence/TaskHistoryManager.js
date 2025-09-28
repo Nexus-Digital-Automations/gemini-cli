@@ -818,7 +818,7 @@ class TaskHistoryManager extends EventEmitter {
     }
   }
 
-  async _updateAnalyticsCache(eventType, taskData) {
+  async _updateAnalyticsCache(eventType, _taskData) {
     const cacheKey = `${eventType}-${new Date().toISOString().split('T')[0]}`;
 
     if (!this.state.analyticsCache[cacheKey]) {
@@ -1039,7 +1039,7 @@ class TaskHistoryManager extends EventEmitter {
     };
   }
 
-  async _analyzeSystemHealthTrends(timeRange) {
+  async _analyzeSystemHealthTrends(_timeRange) {
     // Placeholder for system health trend analysis
     return {
       overallHealth: 'healthy',
@@ -1048,7 +1048,7 @@ class TaskHistoryManager extends EventEmitter {
     };
   }
 
-  async _analyzeBottlenecks(timeRange) {
+  async _analyzeBottlenecks(_timeRange) {
     // Placeholder for bottleneck analysis
     return {
       identifiedBottlenecks: [],
@@ -1056,7 +1056,7 @@ class TaskHistoryManager extends EventEmitter {
     };
   }
 
-  async _analyzePatterns(timeRange) {
+  async _analyzePatterns(_timeRange) {
     // Placeholder for pattern analysis
     return {
       successPatterns: [],
@@ -1065,7 +1065,7 @@ class TaskHistoryManager extends EventEmitter {
     };
   }
 
-  async _generatePredictiveAnalytics(timeRange) {
+  async _generatePredictiveAnalytics(_timeRange) {
     // Placeholder for predictive analytics
     return {
       predictions: [],
@@ -1074,7 +1074,7 @@ class TaskHistoryManager extends EventEmitter {
     };
   }
 
-  async _generateRecommendations(sections) {
+  async _generateRecommendations(_sections) {
     // Placeholder for recommendation generation
     return {
       recommendations: [],
@@ -1202,7 +1202,7 @@ class TaskHistoryManager extends EventEmitter {
         .map((line) => JSON.parse(line));
 
       return events.reverse(); // Most recent first
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }
@@ -1225,7 +1225,7 @@ class TaskHistoryManager extends EventEmitter {
             size: stats.size,
             created: stats.ctime.toISOString(),
           });
-        } catch (error) {
+        } catch (_error) {
           // Skip invalid snapshots
         }
       }
@@ -1233,7 +1233,7 @@ class TaskHistoryManager extends EventEmitter {
       return snapshots.sort(
         (a, b) => new Date(b.created) - new Date(a.created),
       );
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }
@@ -1254,4 +1254,4 @@ class TaskHistoryManager extends EventEmitter {
   }
 }
 
-module.Exports = TaskHistoryManager;
+module.exports = TaskHistoryManager;
