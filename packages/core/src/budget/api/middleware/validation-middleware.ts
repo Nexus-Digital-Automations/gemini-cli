@@ -14,6 +14,8 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
+import type { ParsedQs } from 'qs';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import { getComponentLogger } from '../../../utils/logger.js';
 import type {
   SchemaValidator,
@@ -570,10 +572,10 @@ function setValidationData(
       req.body = data;
       break;
     case 'query':
-      req.query = data;
+      req.query = data as ParsedQs;
       break;
     case 'params':
-      req.params = data;
+      req.params = data as ParamsDictionary;
       break;
     case 'headers':
       // Headers are read-only, skip setting

@@ -5,7 +5,6 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { v4 as uuidv4 } from 'uuid';
 import { logger as getLogger } from '../utils/logger.js';
 
 const logger = getLogger();
@@ -15,7 +14,7 @@ import type {
   PriorityFactors,
 } from './TaskQueue.js';
 import type { TaskCategory } from './types.js';
-import { TaskPriority, TaskStatus } from './types.js';
+import { TaskPriority } from './types.js';
 
 /**
  * @fileoverview Advanced Task Priority Scheduler with Dynamic Adjustment
@@ -318,7 +317,8 @@ export class TaskPriorityScheduler extends EventEmitter {
    * Update task execution result and adjust priorities
    */
   updateTaskResult(taskId: string, result: TaskExecutionResult): void {
-    const adjustmentHistory = this.adjustmentHistory.get(taskId) || [];
+    // Get adjustment history for potential future use
+    // const adjustmentHistory = this.adjustmentHistory.get(taskId) || [];
 
     // Record training data for ML model
     if (this.config.enablePredictiveAdjustment) {
@@ -442,7 +442,7 @@ export class TaskPriorityScheduler extends EventEmitter {
     let adjustmentCount = 0;
 
     this.adjustmentHistory.forEach((events) => {
-      events.forEach((event) => {
+      events.forEach((_event) => {
         adjustmentCount++;
       });
     });
@@ -461,7 +461,8 @@ export class TaskPriorityScheduler extends EventEmitter {
 
     // Add ML accuracy if available
     if (this.config.enablePredictiveAdjustment && this.mlModel) {
-      (metrics as any).mlAccuracy = this.calculateMLAccuracy();
+      (metrics as typeof metrics & { mlAccuracy: number }).mlAccuracy =
+        this.calculateMLAccuracy();
     }
 
     return metrics;
@@ -547,7 +548,7 @@ export class TaskPriorityScheduler extends EventEmitter {
    */
   private calculateDependencyAwarePriority(
     task: Task,
-    context: PriorityAdjustmentContext,
+    _context: PriorityAdjustmentContext,
   ): number {
     // Calculate dependency chain impact
     const dependentTasks = task.dependents.length;
@@ -898,17 +899,17 @@ export class TaskPriorityScheduler extends EventEmitter {
     return Math.min(1.0, totalTasks / 100); // Normalize to 0-1 scale
   }
 
-  private calculateExecutionRate(priority: TaskPriority): number {
+  private calculateExecutionRate(_priority: TaskPriority): number {
     // Would be calculated from actual execution history
     return 0.85; // Placeholder
   }
 
-  private calculatePriorityFairness(priority: TaskPriority): number {
+  private calculatePriorityFairness(_priority: TaskPriority): number {
     // Would be calculated based on actual execution fairness
     return 0.8; // Placeholder
   }
 
-  private calculateResourceUsage(priority: TaskPriority): number {
+  private calculateResourceUsage(_priority: TaskPriority): number {
     // Would be calculated from actual resource usage
     return 0.6; // Placeholder
   }
@@ -970,14 +971,14 @@ export class TaskPriorityScheduler extends EventEmitter {
     return 0.85; // Placeholder
   }
 
-  private updateExecutionQuotas(result: TaskExecutionResult): void {
+  private updateExecutionQuotas(_result: TaskExecutionResult): void {
     // Update execution quotas based on results
     // This would be implemented with actual quota management logic
   }
 
   private scheduleRelatedAdjustments(
     taskId: string,
-    result: TaskExecutionResult,
+    _result: TaskExecutionResult,
   ): void {
     // Schedule priority adjustments for related tasks
     if (this.config.enableBatchAdjustment) {
