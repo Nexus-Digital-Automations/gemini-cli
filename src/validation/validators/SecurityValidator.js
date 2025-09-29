@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Security Validator for comprehensive security vulnerability scanning
  * Performs security analysis using multiple scanning tools and techniques

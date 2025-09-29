@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Performance monitoring system for validation processes
  * Tracks validation performance, identifies bottlenecks, and provides optimization insights

@@ -703,6 +703,70 @@ function processData(userId, data) {
 
 ## 🎯 TASK MANAGEMENT & GIT WORKFLOW
 
+### 🚨 PROJECT-SPECIFIC TASKS.json & TASKMANAGER API PROTOCOL
+
+**MANDATORY TASKS.json INTERACTION FRAMEWORK:**
+
+**ABSOLUTE REQUIREMENTS:**
+
+- **✅ PROJECT-SPECIFIC TASKS.json**: Every project MUST have its own TASKS.json file for task management
+- **✅ TASKMANAGER API ONLY**: ALL interactions with TASKS.json MUST go through the taskmanager API
+- **✅ NO DIRECT FILE EDITING**: NEVER directly edit TASKS.json files - use API exclusively
+- **✅ 10 SECOND TIMEOUT**: ALL TaskManager API calls MUST use exactly 10 seconds timeout
+
+**PROJECT TASK FILE LOCATION:**
+```
+/project-root/TASKS.json
+```
+
+**MANDATORY API COMMANDS:**
+
+```bash
+# Initialize project TASKS.json (if doesn't exist)
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" init-project-tasks
+
+# Create task in project TASKS.json
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" create-project-task '{"title":"Task Title", "description":"Detailed description", "type":"error|feature|test|audit", "priority":"low|normal|high|urgent"}'
+
+# Get all tasks from project TASKS.json
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-project-tasks
+
+# Update task in project TASKS.json
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" update-project-task <taskId> '{"status":"in-progress|completed|blocked", "progress_percentage":50}'
+
+# Get project tasks by status
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-project-tasks-by-status pending
+
+# Get project tasks by type
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-project-tasks-by-type error
+```
+
+**TODOWRITE + TASKS.json INTEGRATION:**
+
+- Use TodoWrite for immediate task planning and tracking
+- Sync completed TodoWrite tasks to project TASKS.json via API
+- Use TASKS.json as persistent project task storage
+- TodoWrite for active work, TASKS.json for project history
+
+**AGENT WORKFLOW INTEGRATION:**
+
+- Before starting work: Check project TASKS.json for existing tasks
+- During work: Update task progress via API
+- After completion: Mark tasks complete and store lessons learned
+- Use project TASKS.json for task prioritization and dependency tracking
+
+**MANDATORY USAGE TRIGGERS:**
+
+- **ALWAYS USE PROJECT TASKS.json FOR**: Error tracking and resolution, feature implementation planning, test coverage requirements, security audit findings, performance optimization tasks, code quality improvements
+
+**API INTERACTION PROTOCOL:**
+
+1. **INITIALIZATION**: Check if project TASKS.json exists, create if needed
+2. **TASK CREATION**: All new tasks go through API, never direct file creation
+3. **STATUS UPDATES**: Real-time progress updates via API calls
+4. **COMPLETION**: Mark complete through API with lessons learned storage
+5. **REPORTING**: Generate project task reports via API queries
+
 ### TASK WORKFLOW
 
 **COMPLETE TASKS ONE AT A TIME**

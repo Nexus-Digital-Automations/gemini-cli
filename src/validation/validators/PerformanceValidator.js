@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 /**
  * @fileoverview Performance Validator for comprehensive performance benchmarking
  * Validates application performance, bundle size, and runtime efficiency

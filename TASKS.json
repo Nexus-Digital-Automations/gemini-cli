@@ -69,18 +69,20 @@
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
-    "required_fields": ["title", "description", "business_value", "category"]
+    "allowed_statuses": [
+      "suggested",
+      "approved",
+      "rejected",
+      "implemented"
+    ],
+    "required_fields": [
+      "title",
+      "description",
+      "business_value",
+      "category"
+    ]
   },
-  "agents": {
-    "claude-agent-main": {
-      "lastHeartbeat": "2025-09-28T04:17:35.088Z",
-      "status": "active",
-      "reinitialized": "2025-09-28T04:17:35.088Z",
-      "sessionId": "c3a24b52aa569fb2",
-      "previousSessions": []
-    }
-  },
+  "agents": {},
   "tasks": [],
   "completed_tasks": []
 }
