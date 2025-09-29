@@ -442,7 +442,16 @@ export function getDisplayValue(
     value = getDefaultValue(key);
   }
 
-  let valueString = String(value);
+  let valueString: string;
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    // For object values, convert to JSON string for display
+    valueString = JSON.stringify(value);
+  } else if (Array.isArray(value)) {
+    // For array values, join with commas
+    valueString = value.join(', ');
+  } else {
+    valueString = String(value);
+  }
 
   if (definition?.type === 'enum' && definition.options) {
     const option = definition.options?.find((option) => option.value === value);
