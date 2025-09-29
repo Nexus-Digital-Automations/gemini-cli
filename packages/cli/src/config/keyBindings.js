@@ -7,52 +7,51 @@
 /**
  * Command enum for all available keyboard shortcuts
  */
-export var Command;
-(function (Command) {
+export const Command = {
   // Basic bindings
-  Command['RETURN'] = 'return';
-  Command['ESCAPE'] = 'escape';
+  RETURN: 'return',
+  ESCAPE: 'escape',
   // Cursor movement
-  Command['HOME'] = 'home';
-  Command['END'] = 'end';
+  HOME: 'home',
+  END: 'end',
   // Text deletion
-  Command['KILL_LINE_RIGHT'] = 'killLineRight';
-  Command['KILL_LINE_LEFT'] = 'killLineLeft';
-  Command['CLEAR_INPUT'] = 'clearInput';
-  Command['DELETE_WORD_BACKWARD'] = 'deleteWordBackward';
+  KILL_LINE_RIGHT: 'killLineRight',
+  KILL_LINE_LEFT: 'killLineLeft',
+  CLEAR_INPUT: 'clearInput',
+  DELETE_WORD_BACKWARD: 'deleteWordBackward',
   // Screen control
-  Command['CLEAR_SCREEN'] = 'clearScreen';
+  CLEAR_SCREEN: 'clearScreen',
   // History navigation
-  Command['HISTORY_UP'] = 'historyUp';
-  Command['HISTORY_DOWN'] = 'historyDown';
-  Command['NAVIGATION_UP'] = 'navigationUp';
-  Command['NAVIGATION_DOWN'] = 'navigationDown';
+  HISTORY_UP: 'historyUp',
+  HISTORY_DOWN: 'historyDown',
+  NAVIGATION_UP: 'navigationUp',
+  NAVIGATION_DOWN: 'navigationDown',
   // Auto-completion
-  Command['ACCEPT_SUGGESTION'] = 'acceptSuggestion';
-  Command['COMPLETION_UP'] = 'completionUp';
-  Command['COMPLETION_DOWN'] = 'completionDown';
+  ACCEPT_SUGGESTION: 'acceptSuggestion',
+  COMPLETION_UP: 'completionUp',
+  COMPLETION_DOWN: 'completionDown',
   // Text input
-  Command['SUBMIT'] = 'submit';
-  Command['NEWLINE'] = 'newline';
+  SUBMIT: 'submit',
+  NEWLINE: 'newline',
   // External tools
-  Command['OPEN_EXTERNAL_EDITOR'] = 'openExternalEditor';
-  Command['PASTE_CLIPBOARD_IMAGE'] = 'pasteClipboardImage';
+  OPEN_EXTERNAL_EDITOR: 'openExternalEditor',
+  PASTE_CLIPBOARD_IMAGE: 'pasteClipboardImage',
   // App level bindings
-  Command['SHOW_ERROR_DETAILS'] = 'showErrorDetails';
-  Command['TOGGLE_TOOL_DESCRIPTIONS'] = 'toggleToolDescriptions';
-  Command['TOGGLE_IDE_CONTEXT_DETAIL'] = 'toggleIDEContextDetail';
-  Command['QUIT'] = 'quit';
-  Command['EXIT'] = 'exit';
-  Command['SHOW_MORE_LINES'] = 'showMoreLines';
+  SHOW_ERROR_DETAILS: 'showErrorDetails',
+  TOGGLE_TOOL_DESCRIPTIONS: 'toggleToolDescriptions',
+  TOGGLE_IDE_CONTEXT_DETAIL: 'toggleIDEContextDetail',
+  QUIT: 'quit',
+  EXIT: 'exit',
+  SHOW_MORE_LINES: 'showMoreLines',
   // Shell commands
-  Command['REVERSE_SEARCH'] = 'reverseSearch';
-  Command['SUBMIT_REVERSE_SEARCH'] = 'submitReverseSearch';
-  Command['ACCEPT_SUGGESTION_REVERSE_SEARCH'] = 'acceptSuggestionReverseSearch';
-  Command['TOGGLE_SHELL_INPUT_FOCUS'] = 'toggleShellInputFocus';
+  REVERSE_SEARCH: 'reverseSearch',
+  SUBMIT_REVERSE_SEARCH: 'submitReverseSearch',
+  ACCEPT_SUGGESTION_REVERSE_SEARCH: 'acceptSuggestionReverseSearch',
+  TOGGLE_SHELL_INPUT_FOCUS: 'toggleShellInputFocus',
   // Suggestion expansion
-  Command['EXPAND_SUGGESTION'] = 'expandSuggestion';
-  Command['COLLAPSE_SUGGESTION'] = 'collapseSuggestion';
-})(Command || (Command = {}));
+  EXPAND_SUGGESTION: 'expandSuggestion',
+  COLLAPSE_SUGGESTION: 'collapseSuggestion',
+};
 /**
  * Default key binding configuration
  * Matches the original hard-coded logic exactly

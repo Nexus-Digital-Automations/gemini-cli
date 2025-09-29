@@ -51,15 +51,14 @@ export function getTrustedFoldersPath() {
  * };
  * ```
  */
-export var TrustLevel;
-(function (TrustLevel) {
+export const TrustLevel = {
   /** Trust the exact folder path specified */
-  TrustLevel['TRUST_FOLDER'] = 'TRUST_FOLDER';
+  TRUST_FOLDER: 'TRUST_FOLDER',
   /** Trust the parent directory of the specified path */
-  TrustLevel['TRUST_PARENT'] = 'TRUST_PARENT';
+  TRUST_PARENT: 'TRUST_PARENT',
   /** Explicitly mark the folder as untrusted */
-  TrustLevel['DO_NOT_TRUST'] = 'DO_NOT_TRUST';
-})(TrustLevel || (TrustLevel = {}));
+  DO_NOT_TRUST: 'DO_NOT_TRUST',
+};
 /**
  * Manages loaded trusted folders configuration with trust evaluation capabilities.
  * Provides methods to check folder trust status and modify trust rules.

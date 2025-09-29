@@ -6,7 +6,10 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { BudgetSettings, BudgetUsageData as _BudgetUsageData } from './types.js';
+import type {
+  BudgetSettings,
+  BudgetUsageData as _BudgetUsageData,
+} from './types.js';
 import type { BudgetTracker } from './budget-tracker.js';
 import { createBudgetTracker } from './budget-tracker.js';
 import type { HistoricalBudgetAnalyzer } from './historical-analysis.js';
@@ -816,7 +819,7 @@ export class HistoricalBudgetService {
       return;
     }
 
-    for (const key of keys) {
+    for (const _key of keys) {
       // Clear all cache entries that start with any of the specified keys
       for (const cacheKey of this.cache.keys()) {
         if (keys.some((k) => cacheKey.startsWith(k))) {
@@ -836,7 +839,7 @@ export class HistoricalBudgetService {
           fs.unlink(path.join(this.cacheDir, file)).catch(() => {}),
         ),
       );
-    } catch (error) {
+    } catch (_error) {
       // Directory might not exist
     }
   }
@@ -902,7 +905,7 @@ export class HistoricalBudgetService {
       }
 
       return schedules;
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }
@@ -936,10 +939,11 @@ export class HistoricalBudgetService {
         });
         break;
 
-      case 'report_generation':
+      case 'report_generation': {
         const results = await this.performAnalysis();
         await this.generateReports(results);
         break;
+      }
 
       default:
         throw new Error(`Unknown scheduled job type: ${schedule.type}`);
@@ -965,11 +969,11 @@ export class HistoricalBudgetService {
           if (stats.mtime < cutoffDate) {
             await fs.unlink(filePath);
           }
-        } catch (error) {
+        } catch (_error) {
           // File might have been deleted already
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Directory might not exist
     }
   }

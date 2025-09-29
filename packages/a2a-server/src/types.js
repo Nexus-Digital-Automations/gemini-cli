@@ -5,33 +5,32 @@
  */
 
 // Interfaces and enums for the CoderAgent protocol.
-export var CoderAgentEvent;
-(function (CoderAgentEvent) {
+export const CoderAgentEvent = {
   /**
    * An event requesting one or more tool call confirmations.
    */
-  CoderAgentEvent['ToolCallConfirmationEvent'] = 'tool-call-confirmation';
+  ToolCallConfirmationEvent: 'tool-call-confirmation',
   /**
    * An event updating on the status of one or more tool calls.
    */
-  CoderAgentEvent['ToolCallUpdateEvent'] = 'tool-call-update';
+  ToolCallUpdateEvent: 'tool-call-update',
   /**
    * An event providing text updates on the task.
    */
-  CoderAgentEvent['TextContentEvent'] = 'text-content';
+  TextContentEvent: 'text-content',
   /**
    * An event that indicates a change in the task's execution state.
    */
-  CoderAgentEvent['StateChangeEvent'] = 'state-change';
+  StateChangeEvent: 'state-change',
   /**
    * An user-sent event to initiate the agent.
    */
-  CoderAgentEvent['StateAgentSettingsEvent'] = 'agent-settings';
+  StateAgentSettingsEvent: 'agent-settings',
   /**
    * An event that contains a thought from the agent.
    */
-  CoderAgentEvent['ThoughtEvent'] = 'thought';
-})(CoderAgentEvent || (CoderAgentEvent = {}));
+  ThoughtEvent: 'thought',
+};
 export const METADATA_KEY = '__persistedState';
 export function getPersistedState(metadata) {
   return metadata?.[METADATA_KEY];

@@ -12,41 +12,39 @@ import { logger } from '../utils/logger.js';
 /**
  * Conflict types for task access scenarios
  */
-export var ConflictType;
-(function (ConflictType) {
+export const ConflictType = {
   /** Multiple sessions accessing the same task simultaneously */
-  ConflictType['CONCURRENT_ACCESS'] = 'concurrent_access';
+  CONCURRENT_ACCESS: 'concurrent_access',
   /** Task ownership disputed between sessions */
-  ConflictType['OWNERSHIP_CONFLICT'] = 'ownership_conflict';
+  OWNERSHIP_CONFLICT: 'ownership_conflict',
   /** Resource lock contention */
-  ConflictType['RESOURCE_LOCK'] = 'resource_lock';
+  RESOURCE_LOCK: 'resource_lock',
   /** Data integrity issues from concurrent modifications */
-  ConflictType['DATA_INTEGRITY'] = 'data_integrity';
+  DATA_INTEGRITY: 'data_integrity',
   /** Session timeout or abandonment issues */
-  ConflictType['SESSION_TIMEOUT'] = 'session_timeout';
+  SESSION_TIMEOUT: 'session_timeout',
   /** Version conflicts from parallel task execution */
-  ConflictType['VERSION_CONFLICT'] = 'version_conflict';
-})(ConflictType || (ConflictType = {}));
+  VERSION_CONFLICT: 'version_conflict',
+};
 /**
  * Conflict resolution strategies
  */
-export var ResolutionStrategy;
-(function (ResolutionStrategy) {
+export const ResolutionStrategy = {
   /** Transfer task to the most recent session */
-  ResolutionStrategy['TRANSFER_TO_LATEST'] = 'transfer_to_latest';
+  TRANSFER_TO_LATEST: 'transfer_to_latest',
   /** Create duplicate tasks for parallel execution */
-  ResolutionStrategy['DUPLICATE_TASK'] = 'duplicate_task';
+  DUPLICATE_TASK: 'duplicate_task',
   /** Merge changes from multiple sessions */
-  ResolutionStrategy['MERGE_CHANGES'] = 'merge_changes';
+  MERGE_CHANGES: 'merge_changes',
   /** Abort conflicting session and maintain current */
-  ResolutionStrategy['ABORT_CONFLICT'] = 'abort_conflict';
+  ABORT_CONFLICT: 'abort_conflict',
   /** Queue task for sequential execution */
-  ResolutionStrategy['QUEUE_SEQUENTIAL'] = 'queue_sequential';
+  QUEUE_SEQUENTIAL: 'queue_sequential',
   /** Manual intervention required */
-  ResolutionStrategy['MANUAL_RESOLUTION'] = 'manual_resolution';
+  MANUAL_RESOLUTION: 'manual_resolution',
   /** Rollback to last known good state */
-  ResolutionStrategy['ROLLBACK_STATE'] = 'rollback_state';
-})(ResolutionStrategy || (ResolutionStrategy = {}));
+  ROLLBACK_STATE: 'rollback_state',
+};
 /**
  * Advanced conflict resolution system for concurrent task access
  *

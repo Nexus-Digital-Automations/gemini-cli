@@ -174,17 +174,16 @@ export function getSystemDefaultsPath() {
  * 3. Workspace
  * 4. System (highest - administrative overrides)
  */
-export var SettingScope;
-(function (SettingScope) {
+export const SettingScope = {
   /** User-specific settings stored in home directory */
-  SettingScope['User'] = 'User';
+  User: 'User',
   /** Project/workspace-specific settings (only loaded in trusted workspaces) */
-  SettingScope['Workspace'] = 'Workspace';
+  Workspace: 'Workspace',
   /** System-wide administrative settings with highest precedence */
-  SettingScope['System'] = 'System';
+  System: 'System',
   /** Default baseline settings for the system */
-  SettingScope['SystemDefaults'] = 'SystemDefaults';
-})(SettingScope || (SettingScope = {}));
+  SystemDefaults: 'SystemDefaults',
+};
 /**
  * Sets a value at a nested object path, creating intermediate objects as needed.
  * Used for applying configuration values to deeply nested settings structures.
