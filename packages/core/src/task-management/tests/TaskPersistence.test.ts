@@ -22,9 +22,13 @@ import { tmpdir } from 'node:os';
 import type { PersistedQueueState } from '../TaskPersistence.js';
 import { TaskPersistence } from '../TaskPersistence.js';
 import type { Task, PriorityFactors } from '../TaskQueue.js';
-import { TaskStatus, TaskPriority, TaskCategory } from '../TaskQueue.js';
+import {
+  TaskStatus,
+  TaskPriority,
+  TaskCategory,
+  DependencyType,
+} from '../TaskQueue.js';
 import type { TaskDependency } from '../DependencyResolver.js';
-import { DependencyType } from '../DependencyResolver.js';
 
 // Mock filesystem operations
 vi.mock('node:fs', () => ({
