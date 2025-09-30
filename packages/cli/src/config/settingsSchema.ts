@@ -1501,6 +1501,36 @@ const SETTINGS_SCHEMA = {
       },
     },
   },
+
+  hooks: {
+    type: 'object',
+    label: 'Hooks',
+    category: 'Advanced',
+    requiresRestart: false,
+    default: Object.create(null) as Record<string, unknown>,
+    description:
+      'Lifecycle hooks system for custom automation and workflow integration. Execute shell commands at key events like PreToolUse, PostToolUse, Notification, and Stop.',
+    showInDialog: false,
+    properties: {
+      hooks: {
+        type: 'array',
+        label: 'Hook Configurations',
+        category: 'Advanced',
+        requiresRestart: false,
+        default: [] as Array<{
+          event: string;
+          matcher?: string;
+          command: string;
+          enabled?: boolean;
+          description?: string;
+        }>,
+        description:
+          'Array of hook configurations. Each hook defines an event (PreToolUse, PostToolUse, Notification, Stop), optional tool matcher, and command to execute.',
+        showInDialog: false,
+        mergeStrategy: MergeStrategy.CONCAT,
+      },
+    },
+  },
 } as const satisfies SettingsSchema;
 
 /**

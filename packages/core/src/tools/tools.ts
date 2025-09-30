@@ -17,6 +17,7 @@ import {
   type ToolConfirmationRequest,
   type ToolConfirmationResponse,
 } from '../confirmation-bus/types.js';
+import { HooksManager, HookEvent } from '../hooks/index.js';
 
 /**
  * Represents a validated and ready-to-execute tool call.
@@ -76,10 +77,18 @@ export abstract class BaseToolInvocation<
   constructor(
     readonly params: TParams,
     protected readonly messageBus?: MessageBus,
+    protected readonly hooksManager?: HooksManager,
+    protected readonly sessionId?: string,
+    protected readonly workspaceDir?: string,
   ) {
     if (this.messageBus) {
       console.log(
         `[DEBUG] Tool ${this.constructor.name} created with messageBus: YES`,
+      );
+    }
+    if (this.hooksManager) {
+      console.log(
+        `[DEBUG] Tool ${this.constructor.name} created with hooksManager: YES`,
       );
     }
   }
@@ -203,6 +212,58 @@ export abstract class BaseToolInvocation<
     );
   }
 
+  /**
+   * Executes PreToolUse hooks for this tool invocation.
+   * Should be called at the beginning of the execute() method.
+   *
+   * @returns Object containing blocked status and optional modified input
+   */
+  protected async executePreToolUseHooks(): Promise<{
+    blocked: boolean;
+    message?: string;
+    modifiedInput?: unknown;
+  }> {
+    if (!this.hooksManager || !this.sessionId || !this.workspaceDir) {
+      return { blocked: false };
+    }
+
+    const results = await this.hooksManager.executeHooks(HookEvent.PreToolUse, {
+      sessionId: this.sessionId,
+      workspaceDir: this.workspaceDir,
+      toolName: this.constructor.name.replace(/ToolInvocation$/, ''),
+      toolInput: this.params,
+    });
+
+    const blockInfo = HooksManager.isBlocked(results);
+    const modifiedInput = HooksManager.getModifiedInput(results);
+
+    return {
+      blocked: blockInfo.blocked,
+      message: blockInfo.message,
+      modifiedInput,
+    };
+  }
+
+  /**
+   * Executes PostToolUse hooks for this tool invocation.
+   * Should be called at the end of the execute() method with the result.
+   *
+   * @param result The result returned by the tool
+   */
+  protected async executePostToolUseHooks(result: TResult): Promise<void> {
+    if (!this.hooksManager || !this.sessionId || !this.workspaceDir) {
+      return;
+    }
+
+    await this.hooksManager.executeHooks(HookEvent.PostToolUse, {
+      sessionId: this.sessionId,
+      workspaceDir: this.workspaceDir,
+      toolName: this.constructor.name.replace(/ToolInvocation$/, ''),
+      toolInput: this.params,
+      toolOutput: result,
+    });
+  }
+
   abstract execute(
     signal: AbortSignal,
     updateOutput?: (output: string | AnsiOutput) => void,
@@ -283,6 +344,9 @@ export abstract class DeclarativeTool<
     readonly isOutputMarkdown: boolean = true,
     readonly canUpdateOutput: boolean = false,
     readonly messageBus?: MessageBus,
+    readonly hooksManager?: HooksManager,
+    readonly sessionId?: string,
+    readonly workspaceDir?: string,
   ) {}
 
   get schema(): FunctionDeclaration {
@@ -406,7 +470,13 @@ export abstract class BaseDeclarativeTool<
     if (validationError) {
       throw new Error(validationError);
     }
-    return this.createInvocation(params, this.messageBus);
+    return this.createInvocation(
+      params,
+      this.messageBus,
+      this.hooksManager,
+      this.sessionId,
+      this.workspaceDir,
+    );
   }
 
   override validateToolParams(params: TParams): string | null {
@@ -429,6 +499,9 @@ export abstract class BaseDeclarativeTool<
   protected abstract createInvocation(
     params: TParams,
     messageBus?: MessageBus,
+    hooksManager?: HooksManager,
+    sessionId?: string,
+    workspaceDir?: string,
   ): ToolInvocation<TParams, TResult>;
 }
 
