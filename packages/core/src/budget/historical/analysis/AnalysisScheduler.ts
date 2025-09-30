@@ -18,10 +18,10 @@ import type { QueryBuilder } from '../querying/types.js';
 import type {
   AnalysisScheduler,
   AnalysisJob,
-  AnalysisConfig,
   TrendAnalysisEngine,
   InsightsReport,
   TrendAnalysis,
+  TrendPeriod,
   AnomalyDetection,
 } from './types.js';
 
@@ -540,7 +540,7 @@ export class AnalysisSchedulerImpl implements AnalysisScheduler {
     // Convert seasonal patterns to trend analysis format for consistency
     const trends: TrendAnalysis[] = seasonalPatterns.map((pattern) => ({
       metric: 'cost',
-      period: pattern.patternType as any,
+      period: pattern.patternType as TrendPeriod,
       startTime: context.job.dataQuery.startTime,
       endTime: context.job.dataQuery.endTime,
       direction: 'stable',
