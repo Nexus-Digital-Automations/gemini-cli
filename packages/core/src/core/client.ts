@@ -37,7 +37,6 @@ import {
   getEffectiveModel,
 } from '../config/models.js';
 import { LoopDetectionService } from '../services/loopDetectionService.js';
-import { getComponentLogger } from '../utils/logger.js';
 import { ideContextStore } from '../ide/ideContext.js';
 import {
   logChatCompression,
@@ -125,46 +124,6 @@ const COMPRESSION_TOKEN_THRESHOLD = 0.7;
  */
 const COMPRESSION_PRESERVE_THRESHOLD = 0.3;
 
-/**
- * Central client for managing Gemini chat sessions and model interactions.
- *
- * This class serves as the primary interface for interacting with Google's Gemini
- * language models, providing comprehensive session management, conversation handling,
- * and intelligent routing capabilities. It orchestrates complex conversational AI
- * workflows including chat compression, loop detection, model routing, and tool execution.
- *
- * Key Features:
- * - Intelligent model routing and selection
- * - Automatic chat history compression when approaching token limits
- * - Loop detection and prevention for infinite conversation cycles
- * - Tool registry integration for function calling
- * - IDE context integration for development scenarios
- * - Comprehensive error handling and fallback mechanisms
- * - Session recording and replay capabilities
- *
- * @example
- * ```typescript
- * const client = new GeminiClient(config);
- * await client.initialize();
- *
- * // Send a message and stream responses
- * for await (const event of client.sendMessageStream(
- *   [{ text: "Explain quantum computing" }],
- *   abortSignal,
- *   promptId
- * )) {
- *   if (event.type === GeminiEventType.Text) {
- *     console.log(event.value);
- *   }
- * }
- * ```
- *
- * @remarks
- * This client manages stateful conversation sessions and automatically handles
- * complex scenarios like context window management, model fallbacks, and
- * conversation compression. It's designed for production use in developer tools
- * and enterprise applications requiring reliable AI assistance.
- */
 export class GeminiClient {
   private chat?: GeminiChat;
   private readonly generateContentConfig: GenerateContentConfig = {
@@ -185,33 +144,11 @@ export class GeminiClient {
    */
   private hasFailedCompressionAttempt = false;
 
-  /**
-   * Creates a new GeminiClient instance with the provided configuration.
-   *
-   * @param config - Configuration object containing model settings, API credentials,
-   *                and service dependencies
-   *
-   * @remarks
-   * The constructor initializes essential services including loop detection,
-   * session management, and sets up initial conversation state. The client
-   * requires explicit initialization via the initialize() method before use.
-   */
   constructor(private readonly config: Config) {
     this.loopDetector = new LoopDetectionService(config);
     this.lastPromptId = this.config.getSessionId();
   }
 
-  /**
-   * Initializes the client by creating a new chat session.
-   *
-   * @returns A promise that resolves when initialization is complete
-   * @throws Error if chat initialization fails
-   *
-   * @remarks
-   * This method must be called before using other client methods.
-   * It establishes the initial chat session with system context,
-   * environment information, and tool registry setup.
-   */
   async initialize() {
     this.chat = await this.startChat();
   }
@@ -350,7 +287,7 @@ export class GeminiClient {
       const activeFile = openFiles.find((f) => f.isActive);
       const otherOpenFiles = openFiles
         .filter((f) => !f.isActive)
-        .map((f: { path: string; isActive: boolean }) => f.path);
+        .map((f) => f.path);
 
       const contextData: Record<string, unknown> = {};
 
@@ -384,8 +321,7 @@ export class GeminiClient {
       ];
 
       if (this.config.getDebugMode()) {
-        const logger = getComponentLogger('Client');
-        logger.debug('IDE context', { contextParts: contextParts.join('\n') });
+        console.log(contextParts.join('\n'));
       }
       return {
         contextParts,
@@ -495,8 +431,7 @@ export class GeminiClient {
       ];
 
       if (this.config.getDebugMode()) {
-        const logger = getComponentLogger('Client');
-        logger.debug('IDE context', { contextParts: contextParts.join('\n') });
+        console.log(contextParts.join('\n'));
       }
       return {
         contextParts,
@@ -505,51 +440,6 @@ export class GeminiClient {
     }
   }
 
-  /**
-   * Sends a message to the model and streams back responses with advanced conversation management.
-   *
-   * @param request - The message content to send (text, images, files, etc.)
-   * @param signal - AbortSignal for canceling the operation
-   * @param prompt_id - Unique identifier for this conversation sequence
-   * @param turns - Maximum number of conversation turns (default: 100)
-   * @returns An async generator yielding streaming events and returning the final Turn
-   *
-   * @throws Error if the chat is not initialized or if the operation fails
-   *
-   * @remarks
-   * This method orchestrates complex conversational AI workflows including:
-   * - Automatic chat compression when approaching token limits
-   * - Loop detection and prevention
-   * - Model routing and selection
-   * - IDE context integration
-   * - Tool execution and function calling
-   * - Next speaker determination for multi-turn conversations
-   *
-   * The method yields various event types during execution:
-   * - Text chunks from model responses
-   * - Tool call events and results
-   * - Compression notifications
-   * - Loop detection warnings
-   * - Error conditions
-   *
-   * @example
-   * ```typescript
-   * for await (const event of client.sendMessageStream(
-   *   [{ text: "Write a Python function to sort a list" }],
-   *   abortController.signal,
-   *   "unique-prompt-id"
-   * )) {
-   *   switch (event.type) {
-   *     case GeminiEventType.Text:
-   *       console.log(event.value);
-   *       break;
-   *     case GeminiEventType.ToolCall:
-   *       console.log('Tool called:', event.value);
-   *       break;
-   *   }
-   * }
-   * ```
-   */
   async *sendMessageStream(
     request: PartListUnion,
     signal: AbortSignal,
@@ -759,37 +649,6 @@ export class GeminiClient {
     }
   }
 
-  /**
-   * Attempts to compress the chat history when approaching token limits.
-   *
-   * @param prompt_id - Unique identifier for this conversation sequence
-   * @param force - Whether to force compression regardless of token count
-   * @returns Information about the compression operation including token counts
-   *
-   * @throws Error if compression fails due to token counting issues
-   *
-   * @remarks
-   * This method implements intelligent chat history compression to maintain
-   * conversation context while staying within model token limits. It:
-   *
-   * 1. Analyzes current token usage against model limits
-   * 2. Identifies safe compression points (typically user messages)
-   * 3. Generates a concise summary of older conversation history
-   * 4. Replaces old history with the summary while preserving recent context
-   * 5. Validates that compression actually reduced token count
-   *
-   * Compression is triggered when chat history exceeds 70% of the model's
-   * token limit, preserving the most recent 30% of the conversation.
-   * Failed compression attempts are tracked to prevent infinite retry loops.
-   *
-   * @example
-   * ```typescript
-   * const compressionResult = await client.tryCompressChat(promptId, false);
-   * if (compressionResult.compressionStatus === CompressionStatus.COMPRESSED) {
-   *   console.log(`Reduced from ${compressionResult.originalTokenCount} to ${compressionResult.newTokenCount} tokens`);
-   * }
-   * ```
-   */
   async tryCompressChat(
     prompt_id: string,
     force: boolean = false,
@@ -820,24 +679,7 @@ export class GeminiClient {
       };
     }
 
-    const { totalTokens: originalTokenCount } =
-      await this.getContentGeneratorOrFail().countTokens({
-        model,
-        contents: curatedHistory,
-      });
-    if (originalTokenCount === undefined) {
-      const logger = getComponentLogger('Client');
-      logger.warn(`Could not determine token count for model ${model}.`, {
-        model,
-      });
-      this.hasFailedCompressionAttempt = !force && true;
-      return {
-        originalTokenCount: 0,
-        newTokenCount: 0,
-        compressionStatus:
-          CompressionStatus.COMPRESSION_FAILED_TOKEN_COUNT_ERROR,
-      };
-    }
+    const originalTokenCount = uiTelemetryService.getLastPromptTokenCount();
 
     const contextPercentageThreshold =
       this.config.getChatCompression()?.contextPercentageThreshold;
@@ -900,24 +742,13 @@ export class GeminiClient {
     ]);
     this.forceFullIdeContext = true;
 
-    const { totalTokens: newTokenCount } =
-      await this.getContentGeneratorOrFail().countTokens({
-        model,
-        contents: chat.getHistory(),
-      });
-    if (newTokenCount === undefined) {
-      const logger = getComponentLogger('Client');
-      logger.warn('Could not determine compressed history token count.');
-      this.hasFailedCompressionAttempt = !force && true;
-      return {
-        originalTokenCount,
-        newTokenCount: originalTokenCount,
-        compressionStatus:
-          CompressionStatus.COMPRESSION_FAILED_TOKEN_COUNT_ERROR,
-      };
-    }
-
-    uiTelemetryService.setLastPromptTokenCount(newTokenCount);
+    // Estimate token count 1 token ≈ 4 characters
+    const newTokenCount = Math.floor(
+      chat
+        .getHistory()
+        .reduce((total, content) => total + JSON.stringify(content).length, 0) /
+        4,
+    );
 
     logChatCompression(
       this.config,
@@ -928,7 +759,6 @@ export class GeminiClient {
     );
 
     if (newTokenCount > originalTokenCount) {
-      this.getChat().setHistory(curatedHistory);
       this.hasFailedCompressionAttempt = !force && true;
       return {
         originalTokenCount,
@@ -938,6 +768,7 @@ export class GeminiClient {
       };
     } else {
       this.chat = chat; // Chat compression successful, set new state.
+      uiTelemetryService.setLastPromptTokenCount(newTokenCount);
     }
 
     return {
