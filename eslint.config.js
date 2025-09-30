@@ -37,6 +37,10 @@ export default tseslint.config(
       'package/bundle/**',
       '.integration-tests/**',
       'dist/**',
+      // Ignore generated JavaScript files from TypeScript compilation
+      'packages/*/src/**/*.js',
+      '!packages/cli/src/commands/autonomous/**/*.js', // Re-include autonomous JS files (source, not generated)
+      '!packages/cli/src/config/**/*.js', // Re-include config JS files (source, not generated)
     ],
   },
   eslint.configs.recommended,

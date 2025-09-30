@@ -28,17 +28,17 @@ export class CompatibilityValidator {
       name: 'cli-command-registration',
       description: 'Verify autonomous commands are properly registered',
       critical: true,
-      check: async () => {
-        try {
-          // Check if commands are importable and exportable
-          // TODO: Re-enable when ./index.js is available
-          // const autonomousModule = await import('./index.js').catch(() => null);
-          // return autonomousModule !== null;
-          return false; // Temporary: return false until index.js is implemented
-        } catch {
-          return false;
-        }
-      },
+      check: async () => 
+        // Check if commands are importable and exportable
+        // TODO: Re-enable when ./index.js is available
+        // try {
+        //   const autonomousModule = await import('./index.js').catch(() => null);
+        //   return autonomousModule !== null;
+        // } catch {
+        //   return false;
+        // }
+         false // Temporary: return false until index.js is implemented
+      ,
       remediation:
         'Ensure autonomous commands are properly exported and imported in config.ts',
     });

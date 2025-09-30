@@ -53,3 +53,10 @@ gha-creds-*.json
 
 # Log files
 patch_output.log
+development/logs/
+
+# Generated test files (compiled from TypeScript)
+tests/**/*.js
+tests/**/*.d.ts
+tests/**/*.js.map
+!tests/**/*.test.ts

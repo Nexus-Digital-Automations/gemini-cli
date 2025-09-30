@@ -31,8 +31,8 @@ import {
 import {
   PriorityScheduler,
   SchedulingAlgorithm,
-  type SchedulingDecision,
-  type SchedulingContext,
+  type SchedulingDecision as _SchedulingDecision,
+  type SchedulingContext as _SchedulingContext,
 } from './PriorityScheduler.js';
 import {
   QueueOptimizer,
@@ -43,17 +43,17 @@ import {
   AutonomousTaskBreakdown,
   BreakdownStrategy,
 } from './AutonomousTaskBreakdown.js';
+import type { TaskStatus } from './TaskQueue.js';
 import {
-  TaskQueue,
+  TaskQueue as _TaskQueue,
   type Task,
   TaskPriority,
-  TaskStatus,
   TaskCategory,
   type TaskContext,
-  type QueueMetrics,
+  type QueueMetrics as _QueueMetrics,
   type PriorityFactors,
 } from './TaskQueue.js';
-import type { TaskId, TaskMetadata } from './types.js';
+import type { TaskId as _TaskId, TaskMetadata } from './types.js';
 
 /**
  * Advanced self-management configuration
@@ -159,7 +159,11 @@ export interface TaskDefinitionWithML {
   id?: string;
   title: string;
   description: string;
-  executeFunction: () => Promise<{ success: boolean; result: unknown; duration: number }>;
+  executeFunction: () => Promise<{
+    success: boolean;
+    result: unknown;
+    duration: number;
+  }>;
   estimatedDuration?: number;
   requiredResources?: string[];
   category?: TaskCategory;
@@ -216,10 +220,13 @@ export interface QueueStateSnapshot {
   config: SelfManagingQueueConfig;
   learningData: {
     executionHistory: ExecutionRecord[];
-    adaptationHistory: Record<string, unknown>[];
+    adaptationHistory: Array<Record<string, unknown>>;
     performanceBaselines: Map<string, number>;
   };
-  resourceState: Map<string, { allocated: number; available: number; reserved: number }>;
+  resourceState: Map<
+    string,
+    { allocated: number; available: number; reserved: number }
+  >;
 }
 
 /**
@@ -446,9 +453,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
   /**
    * Add task with advanced intelligence and prediction
    */
-  async addTask(
-    taskDefinition: TaskDefinitionWithML,
-  ): Promise<string> {
+  async addTask(taskDefinition: TaskDefinitionWithML): Promise<string> {
     const startTime = Date.now();
 
     logger.debug('Adding task with advanced intelligence', {
@@ -621,7 +626,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
 
     for (const resourceType of requiredResources) {
       const allocation = this.resourceAllocation.get(resourceType);
-      const poolSize = this.config.resourcePools.get(resourceType) || 1;
+      const _poolSize = this.config.resourcePools.get(resourceType) || 1;
 
       if (!allocation) {
         return {
@@ -1030,7 +1035,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
 
   // Private helper methods for advanced functionality
 
-  private async predictTaskComplexity(taskDefinition: TaskDefinitionWithML): Promise<ComplexityPrediction> {
+  private async predictTaskComplexity(
+    _taskDefinition: TaskDefinitionWithML,
+  ): Promise<ComplexityPrediction> {
     // Placeholder for ML-based complexity prediction
     // In real implementation, would use trained model
     return {
@@ -1040,7 +1047,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
     };
   }
 
-  private async predictExecutionTime(taskDefinition: TaskDefinitionWithML): Promise<DurationPrediction> {
+  private async predictExecutionTime(
+    taskDefinition: TaskDefinitionWithML,
+  ): Promise<DurationPrediction> {
     // Placeholder for ML-based duration prediction
     return {
       duration: taskDefinition.estimatedDuration || 60000,
@@ -1049,7 +1058,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
     };
   }
 
-  private async predictResourceUsage(taskDefinition: TaskDefinitionWithML): Promise<ResourcePrediction> {
+  private async predictResourceUsage(
+    taskDefinition: TaskDefinitionWithML,
+  ): Promise<ResourcePrediction> {
     // Placeholder for ML-based resource prediction
     return {
       resources: taskDefinition.requiredResources || ['cpu'],
@@ -1062,7 +1073,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
   }
 
   private async predictTaskFailureProbability(
-    taskDefinition: TaskDefinitionWithML,
+    _taskDefinition: TaskDefinitionWithML,
   ): Promise<FailurePrediction> {
     // Placeholder for ML-based failure prediction
     return {
@@ -1182,7 +1193,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return Math.max(0, metrics.pendingTasks * (1 - priority / 1000));
   }
 
-  private async calculateDependencyDelay(taskDefinition: TaskDefinitionWithML): Promise<number> {
+  private async calculateDependencyDelay(
+    taskDefinition: TaskDefinitionWithML,
+  ): Promise<number> {
     const dependencies = taskDefinition.dependencies || [];
     if (dependencies.length === 0) return 0;
 
@@ -1198,7 +1211,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return Math.max(0, maxDependencyDelay);
   }
 
-  private calculatePredictionConfidence(taskDefinition: TaskDefinitionWithML): number {
+  private calculatePredictionConfidence(
+    taskDefinition: TaskDefinitionWithML,
+  ): number {
     let confidence = 0.5; // Base confidence
 
     // Increase confidence based on available data
@@ -1212,7 +1227,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return Math.min(1.0, confidence);
   }
 
-  private identifyTaskRiskFactors(taskDefinition: TaskDefinitionWithML): string[] {
+  private identifyTaskRiskFactors(
+    taskDefinition: TaskDefinitionWithML,
+  ): string[] {
     const riskFactors: string[] = [];
 
     if ((taskDefinition.estimatedDuration || 0) > 300000) {
@@ -1251,7 +1268,10 @@ export class SelfManagingTaskQueue extends EventEmitter {
     return requirements;
   }
 
-  private updateRealTimeMetrics(event: string, data: Record<string, unknown>): void {
+  private updateRealTimeMetrics(
+    event: string,
+    _data: Record<string, unknown>,
+  ): void {
     // Update various metrics based on events
     switch (event) {
       case 'taskAdded':
@@ -1272,6 +1292,9 @@ export class SelfManagingTaskQueue extends EventEmitter {
           this.realTimeMetrics.pendingTasks - 1,
         );
         break;
+      default:
+        // Unknown event type - no metrics update needed
+        break;
     }
 
     // Recalculate derived metrics
@@ -1281,7 +1304,11 @@ export class SelfManagingTaskQueue extends EventEmitter {
         : 0;
   }
 
-  private handleTaskCompletion(task: Task, record: ExecutionRecord, result: unknown): void {
+  private handleTaskCompletion(
+    task: Task,
+    record: ExecutionRecord,
+    _result: unknown,
+  ): void {
     // Release reserved resources
     this.releaseTaskResources(task);
 
@@ -1295,7 +1322,11 @@ export class SelfManagingTaskQueue extends EventEmitter {
     this.executionPredictions.delete(task.id);
   }
 
-  private handleTaskFailure(task: Task, record: ExecutionRecord, error: Error): void {
+  private handleTaskFailure(
+    task: Task,
+    _record: ExecutionRecord,
+    _error: Error,
+  ): void {
     // Release reserved resources
     this.releaseTaskResources(task);
 
@@ -1304,12 +1335,14 @@ export class SelfManagingTaskQueue extends EventEmitter {
     this.executionPredictions.delete(task.id);
   }
 
-  private handleTaskBreakdown(originalTask: Task, breakdown: Task[]): void {
+  private handleTaskBreakdown(_originalTask: Task, _breakdown: Task[]): void {
     // Update breakdown-related metrics
     this.realTimeMetrics.tasksBrokenDown++;
   }
 
-  private handleSchedulingAlgorithmChange(change: Record<string, unknown>): void {
+  private handleSchedulingAlgorithmChange(
+    change: Record<string, unknown>,
+  ): void {
     // Log algorithm changes for monitoring
     logger.info('Scheduling algorithm adapted', change);
   }
@@ -1349,7 +1382,7 @@ export class SelfManagingTaskQueue extends EventEmitter {
   }
 
   private async performIntelligentOptimization(
-    strategy?: OptimizationStrategy,
+    _strategy?: OptimizationStrategy,
   ): Promise<OptimizationRecommendation[]> {
     // Implementation would perform sophisticated optimization
     // This is a placeholder for the actual intelligent optimization logic
