@@ -9,7 +9,7 @@
     "approval_history": [],
     "initialization_stats": {
       "total_initializations": 0,
-      "total_reinitializations": 15,
+      "total_reinitializations": 17,
       "current_day": "2025-09-30",
       "time_buckets": {
         "13:00-17:59": {
@@ -18,7 +18,7 @@
         },
         "18:00-22:59": {
           "init": 0,
-          "reinit": 8
+          "reinit": 10
         },
         "23:00-03:59": {
           "init": 0,
@@ -63,7 +63,7 @@
         }
       ],
       "last_reset": "2025-09-30T01:32:55.638Z",
-      "last_updated": "2025-09-30T01:40:21.631Z"
+      "last_updated": "2025-09-30T01:44:16.948Z"
     }
   },
   "workflow_config": {
@@ -74,10 +74,10 @@
   },
   "agents": {
     "test-agent": {
-      "lastHeartbeat": "2025-09-30T01:40:21.621Z",
+      "lastHeartbeat": "2025-09-30T01:44:16.943Z",
       "status": "active",
-      "reinitialized": "2025-09-30T01:40:21.621Z",
-      "sessionId": "f954fad71473cb5e",
+      "reinitialized": "2025-09-30T01:44:16.943Z",
+      "sessionId": "6efcb01b83d342c9",
       "previousSessions": [
         "a5f138c5fd87f107",
         "e22b921c82704b20",
@@ -87,7 +87,9 @@
         "f7def531cf7c9866",
         "ace31a0e81f63f80",
         "8e1fc717af77e569",
-        "e0c7b1c0d63431ec"
+        "e0c7b1c0d63431ec",
+        "f954fad71473cb5e",
+        "ee9ca18df537e94c"
       ]
     },
     "TASK_EXECUTION_ENGINE": {

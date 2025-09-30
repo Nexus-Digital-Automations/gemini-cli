@@ -17,9 +17,26 @@ import {
 import * as path from 'node:path';
 import * as fse from 'fs-extra';
 import { tmpdir } from 'node:os';
-import Database from 'better-sqlite3';
 import type { TaskPersistence } from '../TaskPersistence.js';
 import type { Task, TaskStatus, TaskDependency } from '../types.js';
+
+// Mock better-sqlite3 as it's not installed
+const mockDatabase = vi.fn(() => ({
+  prepare: vi.fn(() => ({
+    run: vi.fn(),
+    get: vi.fn(),
+    all: vi.fn(() => []),
+  })),
+  close: vi.fn(),
+}));
+
+vi.mock('better-sqlite3', () => ({
+  default: mockDatabase,
+}));
+
+// Import mocked Database
+// @ts-expect-error - mocked module
+import Database from 'better-sqlite3';
 
 // Mock logger to avoid console output during tests
 vi.mock('../utils/logger.js', () => ({
@@ -94,9 +111,12 @@ describe('TaskPersistence', () => {
         'execution_plans',
       ];
       for (const expectedTable of expectedTables) {
-        expect(tables.some((table: any) => table.name === expectedTable)).toBe(
-          true,
-        );
+        expect(
+          tables.some(
+            (table: unknown) =>
+              (table as { name: string }).name === expectedTable,
+          ),
+        ).toBe(true);
       }
 
       db.close();
@@ -139,7 +159,7 @@ describe('TaskPersistence', () => {
 
     it('should update session heartbeat', async () => {
       const session = await persistence.createSession('test-agent');
-      const originalHeartbeat = session.lastHeartbeat;
+      const _originalHeartbeat = session.lastHeartbeat;
 
       // Wait a bit to ensure timestamp difference
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -318,7 +338,7 @@ describe('TaskPersistence', () => {
     it('should allow shared locks', async () => {
       const task = createTestTask();
       const session1 = await persistence.createSession('agent-1');
-      const session2 = await persistence.createSession('agent-2');
+      const _session2 = await persistence.createSession('agent-2');
 
       await persistence.saveTask(task, session1.sessionId);
 
@@ -614,8 +634,8 @@ describe('TaskPersistence', () => {
         title: '', // Invalid: empty title
         description: 'test',
         status: 'invalid-status' as TaskStatus, // Invalid status
-        priority: 'invalid-priority' as any, // Invalid priority
-        category: 'invalid-category' as any, // Invalid category
+        priority: 'invalid-priority' as unknown, // Invalid priority
+        category: 'invalid-category' as unknown, // Invalid category
         metadata: {
           createdAt: new Date(),
           updatedAt: new Date(),
