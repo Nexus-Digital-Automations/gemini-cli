@@ -135,6 +135,16 @@ All work must be committed and pushed before a task is marked as complete.
 - **❌ NEVER SUGGEST**: Automatic improvements or enhancements without user request
 - **✅ IMPLEMENT EXACTLY**: Only what user specifically requested - nothing more, nothing less
 
+## 🚨 CODEBASE ORGANIZATION MANDATE
+
+**MANDATORY CLEAN ROOT AND ORGANIZED STRUCTURE:**
+
+- **✅ CLEAN ROOT**: Keep project root minimal - only essential config files
+- **✅ ORGANIZED STRUCTURE**: All code in appropriate directories (lib/, test/, src/, etc.)
+- **✅ PROPER CATEGORIZATION**: Group related files logically by feature/function
+- **❌ NEVER CLUTTER**: Root directory with temporary files, logs, or unnecessary files
+- **❌ NEVER SCATTER**: Related files across multiple unrelated directories
+
 ## 🚨 PROACTIVE TASK DECOMPOSITION
 
 **MANDATORY TASK BREAKDOWN FOR COMPLEX REQUESTS:**
@@ -521,7 +531,7 @@ timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-ap
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-task-stats
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-tasks-by-status approved
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-tasks-by-priority high
-timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-available-tasks
+timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-available-tasks [AGENT_ID]
 
 # Create Tasks
 timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" create-task '{"title":"Task Title", "description":"Detailed description", "type":"error|feature|test|audit", "priority":"low|normal|high|urgent"}'

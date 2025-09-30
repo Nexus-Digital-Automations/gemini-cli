@@ -137,7 +137,7 @@ describe('TaskPersistence', () => {
           id: 'dep-1',
           dependentTaskId: 'task-2',
           dependsOnTaskId: 'task-1',
-          type: DependencyType.SEQUENTIAL,
+          type: DependencyType.BLOCKS,
           strength: 1.0,
           description: 'Task 2 depends on Task 1',
           createdAt: new Date('2024-01-01T00:00:00Z'),
