@@ -160,6 +160,8 @@ export type DnsResolutionOrder = 'ipv4first' | 'verbatim';
  * const budget: BudgetSettings = {
  *   enabled: true,
  *   dailyLimit: 100,
+ *   dailyBudgetDollars: 10.50,
+ *   projectBudgetDollars: 100.00,
  *   resetTime: '00:00',
  *   warningThresholds: [50, 75, 90]
  * };
@@ -170,6 +172,10 @@ export interface BudgetSettings {
   enabled?: boolean;
   /** Maximum number of API requests allowed per day */
   dailyLimit?: number;
+  /** Maximum dollar amount allowed for API costs per day */
+  dailyBudgetDollars?: number;
+  /** Maximum dollar amount allowed for API costs for this project */
+  projectBudgetDollars?: number;
   /** Time when daily budget resets in HH:MM format (24-hour time) */
   resetTime?: string;
   /** Percentage thresholds at which to show usage warnings (e.g., [50, 75, 90]) */
@@ -1204,6 +1210,25 @@ const SETTINGS_SCHEMA = {
         requiresRestart: false,
         default: 100,
         description: 'Maximum number of API requests allowed per day.',
+        showInDialog: true,
+      },
+      dailyBudgetDollars: {
+        type: 'number',
+        label: 'Daily Budget ($)',
+        category: 'Budget',
+        requiresRestart: false,
+        default: 0,
+        description: 'Maximum dollar amount allowed for API costs per day.',
+        showInDialog: true,
+      },
+      projectBudgetDollars: {
+        type: 'number',
+        label: 'Project Budget ($)',
+        category: 'Budget',
+        requiresRestart: false,
+        default: 0,
+        description:
+          'Maximum dollar amount allowed for API costs for this project.',
         showInDialog: true,
       },
       resetTime: {
