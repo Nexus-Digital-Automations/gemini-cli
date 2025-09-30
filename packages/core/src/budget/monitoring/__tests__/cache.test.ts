@@ -12,13 +12,7 @@
  * @version 1.0.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-} from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TokenUsageCache, CachePriority, CachePresets } from '../cache.js';
 import type { CacheConfig } from '../cache.js';
 
@@ -164,7 +158,7 @@ describe('TokenUsageCache', () => {
       }
     });
 
-    it('should update access time on get operations', () => {
+    it('should update access time on get operations', async () => {
       cache.set('key1', 'value1');
       cache.set('key2', 'value2');
 
@@ -172,14 +166,14 @@ describe('TokenUsageCache', () => {
       cache.get('key1');
 
       // Wait a bit
-      setTimeout(() => {
-        // Access key2
-        cache.get('key2');
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
-        const stats = cache.getStats();
-        // Both entries should still be there
-        expect(stats.entryCount).toBe(2);
-      }, 10);
+      // Access key2
+      cache.get('key2');
+
+      const stats = cache.getStats();
+      // Both entries should still be there
+      expect(stats.entryCount).toBe(2);
     });
   });
 

@@ -217,16 +217,16 @@ export class TaskLifecycle extends EventEmitter {
         released: [],
       },
       dependencies: {
-        blocking: [...task.dependencies],
-        blocked: [...task.dependents],
+        blocking: [...(task.dependencies || [])],
+        blocked: [...(task.dependents || [])],
         satisfied: [],
       },
       validation: {
-        preConditions: task.preConditions.map((condition) => ({
+        preConditions: (task.preConditions || []).map((condition) => ({
           condition,
           status: 'pending' as const,
         })),
-        postConditions: task.postConditions.map((condition) => ({
+        postConditions: (task.postConditions || []).map((condition) => ({
           condition,
           status: 'pending' as const,
         })),
