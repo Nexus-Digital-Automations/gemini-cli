@@ -122,9 +122,11 @@ export class HooksManager {
     const startTime = Date.now();
 
     return new Promise((resolve) => {
+      let childProcess: ReturnType<typeof spawn> | null = null;
+
       const timeoutId = setTimeout(() => {
-        if (!process.killed) {
-          process.kill();
+        if (childProcess && !childProcess.killed) {
+          childProcess.kill();
         }
         resolve({
           success: false,
@@ -138,7 +140,7 @@ export class HooksManager {
       const [command, ...args] = hook.command.split(/\s+/);
 
       // Spawn the hook command
-      const process = spawn(command, args, {
+      childProcess = spawn(command, args, {
         shell: true,
         stdio: ['pipe', 'pipe', 'pipe'],
         env: {
@@ -152,17 +154,17 @@ export class HooksManager {
       let stderr = '';
 
       // Collect stdout
-      process.stdout?.on('data', (data: Buffer) => {
+      childProcess.stdout?.on('data', (data: Buffer) => {
         stdout += data.toString();
       });
 
       // Collect stderr
-      process.stderr?.on('data', (data: Buffer) => {
+      childProcess.stderr?.on('data', (data: Buffer) => {
         stderr += data.toString();
       });
 
       // Handle process completion
-      process.on('close', (code) => {
+      childProcess.on('close', (code) => {
         clearTimeout(timeoutId);
         const duration = Date.now() - startTime;
 
@@ -203,7 +205,7 @@ export class HooksManager {
       });
 
       // Handle process error
-      process.on('error', (err) => {
+      childProcess.on('error', (err) => {
         clearTimeout(timeoutId);
         resolve({
           success: false,
@@ -215,8 +217,8 @@ export class HooksManager {
 
       // Write payload to stdin and close
       try {
-        process.stdin?.write(JSON.stringify(payload, null, 2));
-        process.stdin?.end();
+        childProcess.stdin?.write(JSON.stringify(payload, null, 2));
+        childProcess.stdin?.end();
       } catch (err) {
         clearTimeout(timeoutId);
         resolve({
