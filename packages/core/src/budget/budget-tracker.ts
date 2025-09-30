@@ -7,15 +7,36 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type { BudgetSettings, BudgetUsageData } from './types.js';
+import { createCostCalculationEngine } from './calculations/CostCalculationEngine.js';
+import type { CostCalculationEngine } from './calculations/CostCalculationEngine.js';
+import { getComponentLogger } from '../utils/logger.js';
+import type { StructuredLogger } from '../utils/logger.js';
 
 /**
- * Core budget tracking functionality for managing daily API request limits.
+ * Project-level budget data tracking costs across entire project lifecycle
+ */
+interface ProjectBudgetData {
+  /** Total cost since project start */
+  totalCost: number;
+  /** Total requests since project start */
+  totalRequests: number;
+  /** Project start timestamp */
+  projectStart: string;
+  /** Last updated timestamp */
+  lastUpdated: string;
+}
+
+/**
+ * Core budget tracking functionality for managing daily API request and cost limits.
  * Handles tracking usage, checking limits, and managing budget resets.
  */
 export class BudgetTracker {
   private projectRoot: string;
   private settings: BudgetSettings;
   private usageFilePath: string;
+  private projectBudgetFilePath: string;
+  private costEngine: CostCalculationEngine;
+  private logger: StructuredLogger;
 
   constructor(projectRoot: string, settings: BudgetSettings) {
     this.projectRoot = projectRoot;
@@ -25,14 +46,26 @@ export class BudgetTracker {
       '.gemini',
       'budget-usage.json',
     );
+    this.projectBudgetFilePath = path.join(
+      this.projectRoot,
+      '.gemini',
+      'project-budget.json',
+    );
+    this.costEngine = createCostCalculationEngine();
+    this.logger = getComponentLogger('BudgetTracker');
   }
 
   /**
-   * Check if budget tracking is enabled
+   * Check if budget tracking is enabled (request or dollar-based)
    */
   isEnabled(): boolean {
+    const hasRequestLimit = (this.settings.dailyLimit ?? 0) > 0;
+    const hasDailyDollarLimit = (this.settings.dailyBudgetDollars ?? 0) > 0;
+    const hasProjectDollarLimit = (this.settings.projectBudgetDollars ?? 0) > 0;
+
     return (
-      this.settings.enabled === true && (this.settings.dailyLimit ?? 0) > 0
+      this.settings.enabled === true &&
+      (hasRequestLimit || hasDailyDollarLimit || hasProjectDollarLimit)
     );
   }
 
@@ -75,7 +108,7 @@ export class BudgetTracker {
   }
 
   /**
-   * Check if the current usage exceeds the daily limit
+   * Check if the current usage exceeds any budget limits (requests or dollars)
    */
   async isOverBudget(): Promise<boolean> {
     if (!this.isEnabled()) {
@@ -83,9 +116,42 @@ export class BudgetTracker {
     }
 
     const usageData = await this.getCurrentUsageData();
-    const dailyLimit = this.settings.dailyLimit ?? 0;
+    const projectData = await this.getProjectBudgetData();
 
-    return usageData.requestCount >= dailyLimit;
+    // Check daily request limit
+    const dailyLimit = this.settings.dailyLimit ?? 0;
+    if (dailyLimit > 0 && usageData.requestCount >= dailyLimit) {
+      this.logger.warn('Daily request limit exceeded', {
+        function: 'isOverBudget',
+        requestCount: usageData.requestCount,
+        dailyLimit,
+      });
+      return true;
+    }
+
+    // Check daily dollar limit
+    const dailyDollarLimit = this.settings.dailyBudgetDollars ?? 0;
+    if (dailyDollarLimit > 0 && usageData.totalCost >= dailyDollarLimit) {
+      this.logger.warn('Daily dollar budget exceeded', {
+        function: 'isOverBudget',
+        totalCost: usageData.totalCost,
+        dailyDollarLimit,
+      });
+      return true;
+    }
+
+    // Check project dollar limit
+    const projectDollarLimit = this.settings.projectBudgetDollars ?? 0;
+    if (projectDollarLimit > 0 && projectData.totalCost >= projectDollarLimit) {
+      this.logger.warn('Project dollar budget exceeded', {
+        function: 'isOverBudget',
+        projectCost: projectData.totalCost,
+        projectDollarLimit,
+      });
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -117,7 +183,7 @@ export class BudgetTracker {
   }
 
   /**
-   * Get current usage statistics
+   * Get current usage statistics including cost data
    */
   async getUsageStats(): Promise<{
     requestCount: number;
@@ -125,13 +191,44 @@ export class BudgetTracker {
     remainingRequests: number;
     usagePercentage: number;
     timeUntilReset: string;
+    totalCost: number;
+    dailyBudgetDollars: number;
+    remainingDailyBudget: number;
+    dailyCostPercentage: number;
+    projectTotalCost: number;
+    projectBudgetDollars: number;
+    remainingProjectBudget: number;
+    projectCostPercentage: number;
   }> {
     const usageData = await this.getCurrentUsageData();
+    const projectData = await this.getProjectBudgetData();
     const dailyLimit = this.settings.dailyLimit ?? 0;
     const remainingRequests = Math.max(0, dailyLimit - usageData.requestCount);
     const usagePercentage =
       dailyLimit > 0 ? (usageData.requestCount / dailyLimit) * 100 : 0;
     const timeUntilReset = this.getTimeUntilReset();
+
+    // Daily dollar budget calculations
+    const dailyBudgetDollars = this.settings.dailyBudgetDollars ?? 0;
+    const remainingDailyBudget = Math.max(
+      0,
+      dailyBudgetDollars - usageData.totalCost,
+    );
+    const dailyCostPercentage =
+      dailyBudgetDollars > 0
+        ? (usageData.totalCost / dailyBudgetDollars) * 100
+        : 0;
+
+    // Project dollar budget calculations
+    const projectBudgetDollars = this.settings.projectBudgetDollars ?? 0;
+    const remainingProjectBudget = Math.max(
+      0,
+      projectBudgetDollars - projectData.totalCost,
+    );
+    const projectCostPercentage =
+      projectBudgetDollars > 0
+        ? (projectData.totalCost / projectBudgetDollars) * 100
+        : 0;
 
     return {
       requestCount: usageData.requestCount,
@@ -139,6 +236,14 @@ export class BudgetTracker {
       remainingRequests,
       usagePercentage,
       timeUntilReset,
+      totalCost: usageData.totalCost,
+      dailyBudgetDollars,
+      remainingDailyBudget,
+      dailyCostPercentage,
+      projectTotalCost: projectData.totalCost,
+      projectBudgetDollars,
+      remainingProjectBudget,
+      projectCostPercentage,
     };
   }
 
@@ -334,6 +439,112 @@ export class BudgetTracker {
       usageData.totalCost = (usageData.totalCost || 0) + cost;
       await this.saveUsageData(usageData);
     }
+
+    // Update project budget
+    await this.updateProjectBudget(cost);
+  }
+
+  /**
+   * Record API cost with token usage data
+   */
+  async recordCost(params: {
+    model: string;
+    inputTokens: number;
+    outputTokens: number;
+  }): Promise<void> {
+    const startTime = Date.now();
+    this.logger.info('Recording API cost', {
+      function: 'recordCost',
+      model: params.model,
+      inputTokens: params.inputTokens,
+      outputTokens: params.outputTokens,
+    });
+
+    try {
+      // Calculate cost using the cost calculation engine
+      const costResult = await this.costEngine.calculateCost({
+        model: params.model,
+        inputTokens: params.inputTokens,
+        outputTokens: params.outputTokens,
+        timestamp: new Date(),
+      });
+
+      // Record the cost
+      await this.recordRequestWithCost(costResult.totalCost);
+
+      // Update token usage in daily data
+      const usageData = await this.getCurrentUsageData();
+      usageData.tokenUsage.inputTokens += params.inputTokens;
+      usageData.tokenUsage.outputTokens += params.outputTokens;
+      usageData.tokenUsage.totalTokens +=
+        params.inputTokens + params.outputTokens;
+      usageData.tokenUsage.tokenCosts.input += costResult.inputCost;
+      usageData.tokenUsage.tokenCosts.output += costResult.outputCost;
+      await this.saveUsageData(usageData);
+
+      this.logger.info('API cost recorded successfully', {
+        function: 'recordCost',
+        totalCost: costResult.totalCost,
+        duration: Date.now() - startTime,
+      });
+    } catch (error) {
+      this.logger.error('Failed to record API cost', {
+        function: 'recordCost',
+        error: error as Error,
+        duration: Date.now() - startTime,
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Get project-level budget data
+   */
+  private async getProjectBudgetData(): Promise<ProjectBudgetData> {
+    try {
+      const data = await fs.readFile(this.projectBudgetFilePath, 'utf-8');
+      return JSON.parse(data) as ProjectBudgetData;
+    } catch (_error) {
+      // File doesn't exist, create default
+      return this.createDefaultProjectBudgetData();
+    }
+  }
+
+  /**
+   * Update project-level budget with new cost
+   */
+  private async updateProjectBudget(cost: number): Promise<void> {
+    const projectData = await this.getProjectBudgetData();
+    projectData.totalCost += cost;
+    projectData.totalRequests += 1;
+    projectData.lastUpdated = new Date().toISOString();
+
+    try {
+      const dir = path.dirname(this.projectBudgetFilePath);
+      await fs.mkdir(dir, { recursive: true });
+      await fs.writeFile(
+        this.projectBudgetFilePath,
+        JSON.stringify(projectData, null, 2),
+      );
+    } catch (error) {
+      this.logger.warn('Failed to save project budget data', {
+        function: 'updateProjectBudget',
+        error: error as Error,
+      });
+    }
+  }
+
+  /**
+   * Create default project budget data
+   */
+  private createDefaultProjectBudgetData(): ProjectBudgetData {
+    const now = new Date().toISOString();
+    return {
+      totalCost: 0,
+      totalRequests: 0,
+      projectStart: now,
+      lastUpdated: now,
+    };
   }
 }
 

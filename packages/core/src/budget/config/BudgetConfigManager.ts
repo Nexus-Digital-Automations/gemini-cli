@@ -57,6 +57,8 @@ export class BudgetConfigAccessError extends Error {
 export const DEFAULT_BUDGET_SETTINGS: Required<BudgetSettings> = {
   enabled: false,
   dailyLimit: 10.0,
+  dailyBudgetDollars: 0,
+  projectBudgetDollars: 0,
   weeklyLimit: 50.0,
   monthlyLimit: 200.0,
   resetTime: '00:00',

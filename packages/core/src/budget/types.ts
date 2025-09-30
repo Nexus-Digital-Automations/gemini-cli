@@ -18,8 +18,12 @@
 export interface BudgetSettings {
   /** Whether budget tracking is enabled */
   enabled?: boolean;
-  /** Daily spending limit in dollars */
+  /** Daily request limit (number of API calls) */
   dailyLimit?: number;
+  /** Daily budget limit in dollars */
+  dailyBudgetDollars?: number;
+  /** Project budget limit in dollars (total across project lifecycle) */
+  projectBudgetDollars?: number;
   /** Weekly spending limit in dollars */
   weeklyLimit?: number;
   /** Monthly spending limit in dollars */
@@ -194,7 +198,7 @@ export interface BudgetCalculationContext {
   /** User identifier */
   userId?: string;
   /** Additional metadata */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -264,7 +268,7 @@ export interface BudgetEvent {
   /** Event timestamp */
   timestamp: Date;
   /** Event payload */
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   /** Event source */
   source: string;
   /** Event severity level */
@@ -393,7 +397,7 @@ export interface MLBudgetRecommendation {
   /** Expiration timestamp */
   expiresAt?: string;
   /** Metadata */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
