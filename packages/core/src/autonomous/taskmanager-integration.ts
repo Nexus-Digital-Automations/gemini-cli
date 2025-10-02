@@ -189,7 +189,30 @@ export class TaskManagerAPIClient implements TaskManagerClient {
       child.on('close', (code) => {
         try {
           if (code === 0 && stdout.trim()) {
-            const response = JSON.parse(stdout.trim());
+            // Filter out non-JSON lines (like dotenv logs) and get the last valid JSON line
+            const lines = stdout.trim().split('\n');
+            let jsonLine = '';
+
+            // Find the last line that looks like JSON (starts with { or [)
+            for (let i = lines.length - 1; i >= 0; i--) {
+              const trimmedLine = lines[i].trim();
+              if (trimmedLine.startsWith('{') || trimmedLine.startsWith('[')) {
+                jsonLine = trimmedLine;
+                break;
+              }
+            }
+
+            if (!jsonLine) {
+              // No JSON found, treat as error
+              resolve({
+                success: false,
+                error: 'No valid JSON response found',
+                message: stdout,
+              });
+              return;
+            }
+
+            const response = JSON.parse(jsonLine);
             resolve(response);
           } else {
             resolve({
