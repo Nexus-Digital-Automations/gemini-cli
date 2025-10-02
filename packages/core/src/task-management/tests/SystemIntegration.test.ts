@@ -18,14 +18,14 @@ import type { Config } from '../../config/config.js';
 import {
   TaskManagementSystemIntegrator,
   SystemConfigFactory,
-  createIntegratedTaskManagementSystem,
-  type IntegratedSystemConfig,
-  type SystemHealth,
+  createIntegratedTaskManagementSystem as _createIntegratedTaskManagementSystem,
+  type IntegratedSystemConfig as _IntegratedSystemConfig,
+  type SystemHealth as _SystemHealth,
 } from '../TaskManagementSystemIntegrator.js';
 import {
   TaskManagementConfigManager,
   ConfigUtils,
-  type TaskManagementConfiguration,
+  type TaskManagementConfiguration as _TaskManagementConfiguration,
 } from '../TaskManagementConfig.js';
 
 describe('Task Management System Integration Tests', () => {
@@ -47,14 +47,23 @@ describe('Task Management System Integration Tests', () => {
     );
     await fs.mkdir(testDir, { recursive: true });
 
-    // Mock core configuration
+    // Mock core configuration with required methods
     coreConfig = {
       projectPath: testDir,
       apiKey: 'test-api-key',
       model: 'gemini-pro',
       debug: true,
-      // Add other required Config properties as needed
-    } as Config;
+      getToolRegistry: () => ({
+        getAllTools: () => [],
+        getTool: () => undefined,
+        registerTool: () => {},
+      }),
+      storage: {
+        getProjectTempDir: () => testDir,
+        getGeminiDir: () => join(testDir, '.gemini'),
+        ensureGeminiDir: async () => {},
+      },
+    } as unknown as Config;
 
     // Setup clean environment
     vi.clearAllMocks();
@@ -84,6 +93,10 @@ describe('Task Management System Integration Tests', () => {
       integrator = new TaskManagementSystemIntegrator(config);
 
       const result = await integrator.initialize();
+      console.log(
+        'Minimal config initialization result:',
+        JSON.stringify(result, null, 2),
+      );
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('successfully');
@@ -568,7 +581,7 @@ describe('Task Management System Integration Tests', () => {
 });
 
 // Helper functions for testing
-function createMockConfig(): Config {
+function _createMockConfig(): Config {
   return {
     projectPath: __dirname,
     apiKey: 'test-key',
@@ -577,7 +590,7 @@ function createMockConfig(): Config {
   } as Config;
 }
 
-async function waitFor(
+async function _waitFor(
   condition: () => boolean,
   timeoutMs: number = 5000,
 ): Promise<void> {
