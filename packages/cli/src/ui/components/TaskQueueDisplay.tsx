@@ -45,10 +45,23 @@ export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
 
     const fetchTaskData = async () => {
       try {
+        // Helper function to find valid JSON line (filters out dotenv logs)
+        const findJsonLine = (output: string): string => {
+          const lines = output.trim().split('\n');
+          // Find the last line that looks like JSON (starts with { or [)
+          for (let i = lines.length - 1; i >= 0; i--) {
+            const trimmedLine = lines[i].trim();
+            if (trimmedLine.startsWith('{') || trimmedLine.startsWith('[')) {
+              return trimmedLine;
+            }
+          }
+          throw new Error('No valid JSON found in output');
+        };
+
         // Fetch task statistics
         const statsCmd = `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-task-stats 2>/dev/null`;
         const { stdout: statsOutput } = await execAsync(statsCmd);
-        const statsData = JSON.parse(statsOutput.split('\n')[0]);
+        const statsData = JSON.parse(findJsonLine(statsOutput));
 
         if (statsData.success) {
           setStats(statsData.statistics);
@@ -57,7 +70,7 @@ export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
         // Fetch approved tasks
         const tasksCmd = `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-tasks-by-status approved 2>/dev/null`;
         const { stdout: tasksOutput } = await execAsync(tasksCmd);
-        const tasksData = JSON.parse(tasksOutput.split('\n')[0]);
+        const tasksData = JSON.parse(findJsonLine(tasksOutput));
 
         if (tasksData.success) {
           setTasks(tasksData.tasks || []);
