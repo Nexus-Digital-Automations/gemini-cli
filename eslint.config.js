@@ -41,6 +41,13 @@ export default tseslint.config(
       'packages/*/src/**/*.js',
       '!packages/cli/src/commands/autonomous/**/*.js', // Re-include autonomous JS files (source, not generated)
       '!packages/cli/src/config/**/*.js', // Re-include config JS files (source, not generated)
+      // Ignore compiled test files
+      'tests/**/*.js',
+      'tests/**/*.d.ts',
+      'tests/**/*.js.map',
+      'integration-tests/**/*.js',
+      'integration-tests/**/*.d.ts',
+      'integration-tests/**/*.js.map',
     ],
   },
   eslint.configs.recommended,

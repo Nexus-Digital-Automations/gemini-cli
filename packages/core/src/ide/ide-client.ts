@@ -364,8 +364,8 @@ export class IdeClient {
           );
         }
       }
-    } catch (err) {
-      logger.debug(`Request for closeDiff ${filePath} failed:`, err);
+    } catch (_err) {
+      logger.debug(`Request for closeDiff ${filePath} failed:`, _err);
     }
     return undefined;
   }
@@ -449,14 +449,14 @@ export class IdeClient {
           'IDE supports tool discovery, but no tools are available.',
         );
       }
-    } catch (error) {
+    } catch (_error) {
       // It's okay if this fails, the IDE might not support it.
       // Don't log an error if the method is not found, which is a common case.
       if (
-        error instanceof Error &&
-        !error.message?.includes('Method not found')
+        _error instanceof Error &&
+        !_error.message?.includes('Method not found')
       ) {
-        logger.error(`Error discovering tools from IDE: ${error.message}`);
+        logger.error(`Error discovering tools from IDE: ${_error.message}`);
       } else {
         logger.debug('IDE does not support tool discovery.');
       }
@@ -558,8 +558,8 @@ export class IdeClient {
             'GEMINI_CLI_IDE_SERVER_STDIO_ARGS must be a JSON array string.',
           );
         }
-      } catch (e) {
-        logger.error('Failed to parse GEMINI_CLI_IDE_SERVER_STDIO_ARGS:', e);
+      } catch (_e) {
+        logger.error('Failed to parse GEMINI_CLI_IDE_SERVER_STDIO_ARGS:', _e);
       }
     }
 
@@ -593,8 +593,8 @@ export class IdeClient {
     let portFiles;
     try {
       portFiles = await fs.promises.readdir(portFileDir);
-    } catch (e) {
-      logger.debug('Failed to read IDE connection directory:', e);
+    } catch (_e) {
+      logger.debug('Failed to read IDE connection directory:', _e);
       return undefined;
     }
 
@@ -619,15 +619,15 @@ export class IdeClient {
           fs.promises.readFile(path.join(portFileDir, file), 'utf8'),
         ),
       );
-    } catch (e) {
-      logger.debug('Failed to read IDE connection config file(s):', e);
+    } catch (_e) {
+      logger.debug('Failed to read IDE connection config file(s):', _e);
       return undefined;
     }
     const parsedContents = fileContents.map((content) => {
       try {
         return JSON.parse(content);
-      } catch (e) {
-        logger.debug('Failed to parse JSON from config file: ', e);
+      } catch (_e) {
+        logger.debug('Failed to parse JSON from config file: ', _e);
         return undefined;
       }
     });
@@ -793,8 +793,8 @@ export class IdeClient {
       if (transport) {
         try {
           await transport.close();
-        } catch (closeError) {
-          logger.debug('Failed to close transport:', closeError);
+        } catch (_closeError) {
+          logger.debug('Failed to close transport:', _closeError);
         }
       }
       return false;
@@ -827,8 +827,8 @@ export class IdeClient {
       if (transport) {
         try {
           await transport.close();
-        } catch (closeError) {
-          logger.debug('Failed to close transport:', closeError);
+        } catch (_closeError) {
+          logger.debug('Failed to close transport:', _closeError);
         }
       }
       return false;

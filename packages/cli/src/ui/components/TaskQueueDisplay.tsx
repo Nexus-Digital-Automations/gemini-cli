@@ -117,9 +117,9 @@ export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
             if (tasksData.success && tasksData.tasks) {
               fetchedTasks.push(...tasksData.tasks);
             }
-          } catch (err) {
+          } catch (_err) {
             // Silently continue if a particular status fetch fails
-            console.error(`Failed to fetch ${status} tasks:`, err);
+            console.error(`Failed to fetch ${status} tasks:`, _err);
           }
         }
 
@@ -127,9 +127,9 @@ export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
 
         setLoading(false);
         setError(null);
-      } catch (err) {
+      } catch (_err) {
         setError(
-          err instanceof Error ? err.message : 'Failed to fetch task data',
+          _err instanceof Error ? _err.message : 'Failed to fetch task data',
         );
         setLoading(false);
       }
