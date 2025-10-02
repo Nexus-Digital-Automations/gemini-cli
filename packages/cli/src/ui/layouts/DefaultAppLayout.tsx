@@ -11,6 +11,7 @@ import { MainContent } from '../components/MainContent.js';
 import { DialogManager } from '../components/DialogManager.js';
 import { Composer } from '../components/Composer.js';
 import { ExitWarning } from '../components/ExitWarning.js';
+import { TaskQueueDisplay } from '../components/TaskQueueDisplay.js';
 import { useUIState } from '../contexts/UIStateContext.js';
 
 export const DefaultAppLayout: React.FC<{ width?: string }> = ({
@@ -23,6 +24,8 @@ export const DefaultAppLayout: React.FC<{ width?: string }> = ({
       <MainContent />
 
       <Box flexDirection="column" ref={uiState.mainControlsRef}>
+        <TaskQueueDisplay visible={true} />
+
         <Notifications />
 
         {uiState.dialogsVisible ? (

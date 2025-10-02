@@ -115,8 +115,9 @@ const MAX_TURNS = 100;
 /**
  * Threshold for compression token count as a fraction of the model's token limit.
  * If the chat history exceeds this threshold, it will be compressed.
+ * Set to 0.82 (82%) to prevent hitting the hard API limit at 1,048,576 tokens
  */
-const COMPRESSION_TOKEN_THRESHOLD = 0.7;
+const COMPRESSION_TOKEN_THRESHOLD = 0.82;
 
 /**
  * The fraction of the latest chat history to keep. A value of 0.3
@@ -679,7 +680,14 @@ export class GeminiClient {
       };
     }
 
-    const originalTokenCount = uiTelemetryService.getLastPromptTokenCount();
+    // FIX: Calculate ACTUAL current token count instead of using cached value
+    // Estimate: 1 token ≈ 4 characters (same formula used for newTokenCount calculation)
+    const originalTokenCount = Math.floor(
+      curatedHistory.reduce(
+        (total, content) => total + JSON.stringify(content).length,
+        0,
+      ) / 4,
+    );
 
     const contextPercentageThreshold =
       this.config.getChatCompression()?.contextPercentageThreshold;
