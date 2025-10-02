@@ -6,7 +6,7 @@
 
 import type React from 'react';
 import { useState, useEffect } from 'react';
-import { Box, Text } from 'ink';
+import { Box, Text, useInput } from 'ink';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -26,19 +26,31 @@ interface TaskData {
   status: string;
   priority: string;
   type: string;
+  description?: string;
 }
 
 /**
  * Task Queue Display Component
  * Shows real-time task queue status from the TaskManager API
+ *
+ * Keyboard shortcuts:
+ * - 't' or 'T': Toggle between compact and detailed view
  */
 export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
   visible = true,
 }) => {
   const [stats, setStats] = useState<TaskStats | null>(null);
-  const [tasks, setTasks] = useState<TaskData[]>([]);
+  const [allTasks, setAllTasks] = useState<TaskData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [detailedView, setDetailedView] = useState(false);
+
+  // Handle keyboard shortcuts
+  useInput((input, _key) => {
+    if (input === 't' || input === 'T') {
+      setDetailedView((prev) => !prev);
+    }
+  });
 
   useEffect(() => {
     if (!visible) return;
@@ -86,14 +98,32 @@ export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
           setStats(statsData.statistics);
         }
 
-        // Fetch approved tasks
-        const tasksCmd = `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-tasks-by-status approved 2>/dev/null`;
-        const { stdout: tasksOutput } = await execAsync(tasksCmd);
-        const tasksData = JSON.parse(findJsonLine(tasksOutput));
+        // Fetch tasks from all relevant statuses
+        const statuses = [
+          'in-progress',
+          'queued',
+          'approved',
+          'blocked',
+          'suggested',
+        ];
+        const fetchedTasks: TaskData[] = [];
 
-        if (tasksData.success) {
-          setTasks(tasksData.tasks || []);
+        for (const status of statuses) {
+          try {
+            const tasksCmd = `timeout 10s node "/Users/jeremyparker/infinite-continue-stop-hook/taskmanager-api.js" get-tasks-by-status ${status} 2>/dev/null`;
+            const { stdout: tasksOutput } = await execAsync(tasksCmd);
+            const tasksData = JSON.parse(findJsonLine(tasksOutput));
+
+            if (tasksData.success && tasksData.tasks) {
+              fetchedTasks.push(...tasksData.tasks);
+            }
+          } catch (err) {
+            // Silently continue if a particular status fetch fails
+            console.error(`Failed to fetch ${status} tasks:`, err);
+          }
         }
+
+        setAllTasks(fetchedTasks);
 
         setLoading(false);
         setError(null);
@@ -168,6 +198,27 @@ export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
     }
   };
 
+  // Group tasks by status
+  const tasksByStatus = allTasks.reduce(
+    (acc, task) => {
+      if (!acc[task.status]) {
+        acc[task.status] = [];
+      }
+      acc[task.status].push(task);
+      return acc;
+    },
+    {} as Record<string, TaskData[]>,
+  );
+
+  // Status priority order for display
+  const statusOrder = [
+    'in-progress',
+    'blocked',
+    'queued',
+    'approved',
+    'suggested',
+  ];
+
   return (
     <Box
       flexDirection="column"
@@ -180,6 +231,10 @@ export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
           📋 Task Queue
         </Text>
         <Text color="gray"> ({stats.total_tasks} total)</Text>
+        <Text color="dim">
+          {' '}
+          [Press &apos;t&apos; for {detailedView ? 'compact' : 'detailed'} view]
+        </Text>
       </Box>
 
       {/* Task Statistics */}
@@ -215,25 +270,40 @@ export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
         </Box>
       </Box>
 
-      {/* Active/Approved Tasks */}
-      {tasks.length > 0 && (
+      {/* Tasks grouped by status */}
+      {allTasks.length > 0 && (
         <Box flexDirection="column" marginTop={1}>
-          <Text bold color="yellow">
-            Approved Tasks:
-          </Text>
-          {tasks.slice(0, 5).map((task) => (
-            <Box key={task.id} paddingLeft={1}>
-              <Text color={getPriorityColor(task.priority)}>
-                [{task.priority}]
-              </Text>
-              <Text color="white"> {task.title}</Text>
-            </Box>
-          ))}
-          {tasks.length > 5 && (
-            <Box paddingLeft={1}>
-              <Text color="gray">... and {tasks.length - 5} more</Text>
-            </Box>
-          )}
+          {statusOrder.map((status) => {
+            const tasks = tasksByStatus[status] || [];
+            if (tasks.length === 0) return null;
+
+            return (
+              <Box key={status} flexDirection="column" marginTop={1}>
+                <Text bold color={getStatusColor(status)}>
+                  {status.charAt(0).toUpperCase() + status.slice(1)} (
+                  {tasks.length}):
+                </Text>
+                {tasks.map((task) => (
+                  <Box key={task.id} flexDirection="column" paddingLeft={1}>
+                    <Box>
+                      <Text color={getPriorityColor(task.priority)}>
+                        [{task.priority}]
+                      </Text>
+                      <Text color="white"> {task.title}</Text>
+                    </Box>
+                    {detailedView && task.description && (
+                      <Box paddingLeft={2} marginTop={0}>
+                        <Text color="gray" dimColor>
+                          {task.description.slice(0, 100)}
+                          {task.description.length > 100 ? '...' : ''}
+                        </Text>
+                      </Box>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            );
+          })}
         </Box>
       )}
     </Box>
