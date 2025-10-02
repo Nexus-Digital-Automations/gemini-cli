@@ -49,6 +49,7 @@ export interface IntegratedSystemConfig {
     enabled?: boolean;
     realTimeUpdates?: boolean;
     metricsRetentionHours?: number;
+    enableAlerts?: boolean;
     alertThresholds?: {
       taskFailureRate?: number;
       averageExecutionTime?: number;
@@ -77,6 +78,12 @@ export interface IntegratedSystemConfig {
     enableResolution?: boolean;
     maxResolutionDepth?: number;
     allowCircularDependencies?: boolean;
+  };
+
+  security?: {
+    enableValidation?: boolean;
+    enforcePermissions?: boolean;
+    auditLogging?: boolean;
   };
 }
 
@@ -149,23 +156,33 @@ export class TaskManagementSystemIntegrator {
       // Initialize persistence engine first (if enabled)
       if (this.config.persistence?.enabled !== false) {
         console.log('💾 Initializing persistence engine...');
-        this.persistence = new CrossSessionPersistenceEngine({
-          storageDir:
-            this.config.persistence?.storageLocation || '.task-management-data',
-          enableCompression:
-            this.config.persistence?.compressionEnabled ?? true,
-          enableMetrics: true,
-          maxBackupVersions: 5,
-        });
-        await this.persistence.initialize({
-          storageDir:
-            this.config.persistence?.storageLocation || '.task-management-data',
-          enableCompression:
-            this.config.persistence?.compressionEnabled ?? true,
-          enableMetrics: true,
-          maxBackupVersions: 5,
-        });
-        this.shutdownHandlers.push(() => this.persistence!.shutdown());
+        try {
+          this.persistence = new CrossSessionPersistenceEngine({
+            storageDir:
+              this.config.persistence?.storageLocation ||
+              '.task-management-data',
+            enableCompression:
+              this.config.persistence?.compressionEnabled ?? true,
+            enableMetrics: true,
+            maxBackupVersions: 5,
+          });
+          await this.persistence.initialize({
+            storageDir:
+              this.config.persistence?.storageLocation ||
+              '.task-management-data',
+            enableCompression:
+              this.config.persistence?.compressionEnabled ?? true,
+            enableMetrics: true,
+            maxBackupVersions: 5,
+          });
+          this.shutdownHandlers.push(() => this.persistence!.shutdown());
+        } catch (error) {
+          console.warn(
+            '⚠️ Persistence engine initialization failed, continuing without it:',
+            error,
+          );
+          this.persistence = undefined;
+        }
       }
 
       // Initialize monitoring system (if enabled)
@@ -320,24 +337,49 @@ export class TaskManagementSystemIntegrator {
     const dependenciesHealth = this.dependencyResolver ? 'healthy' : 'disabled';
 
     // Calculate overall health
-    const healthyComponents = [
+    const allComponents = [
       taskEngineHealth,
       autonomousQueueHealth,
       monitoringHealth,
       persistenceHealth,
       hookIntegrationHealth,
       dependenciesHealth,
-    ].filter((status) => status === 'healthy').length;
+    ];
 
-    const _totalComponents = 6;
+    const enabledComponents = allComponents.filter(
+      (status) => status !== 'disabled',
+    );
+    const healthyComponents = enabledComponents.filter(
+      (status) => status === 'healthy',
+    ).length;
+    const criticalComponents = enabledComponents.filter(
+      (status) => status === 'critical',
+    ).length;
+    const warningComponents = enabledComponents.filter(
+      (status) => status === 'warning',
+    ).length;
+
     let overall: 'healthy' | 'warning' | 'critical';
 
-    if (healthyComponents >= 4) {
+    // Calculate overall health based on enabled components only
+    if (
+      healthyComponents === enabledComponents.length &&
+      healthyComponents > 0
+    ) {
+      // All enabled components are healthy
       overall = 'healthy';
-    } else if (healthyComponents >= 2) {
+    } else if (criticalComponents > 0) {
+      // Any critical component makes the whole system critical
+      overall = 'critical';
+    } else if (warningComponents > 0) {
+      // Any warning component makes the system show warning
+      overall = 'warning';
+    } else if (enabledComponents.length === 0) {
+      // No components enabled - this should not happen after initialization
       overall = 'warning';
     } else {
-      overall = 'critical';
+      // Default to warning if we can't determine
+      overall = 'warning';
     }
 
     return {
@@ -377,6 +419,26 @@ export class TaskManagementSystemIntegrator {
   ): Promise<SystemOperationResult> {
     if (!this.isInitialized) {
       throw new Error('System not initialized. Call initialize() first.');
+    }
+
+    // Validate required parameters
+    if (!title || title.trim().length === 0) {
+      return {
+        success: false,
+        message: 'Failed to queue task: Title is required and cannot be empty',
+        details: { error: 'Invalid title parameter' },
+        timestamp: new Date(),
+      };
+    }
+
+    if (!description || description.trim().length === 0) {
+      return {
+        success: false,
+        message:
+          'Failed to queue task: Description is required and cannot be empty',
+        details: { error: 'Invalid description parameter' },
+        timestamp: new Date(),
+      };
     }
 
     try {
@@ -650,6 +712,7 @@ export class SystemConfigFactory {
         enabled: true,
         realTimeUpdates: true,
         metricsRetentionHours: 24,
+        enableAlerts: true,
         alertThresholds: {
           taskFailureRate: 0.2,
           averageExecutionTime: 300000,
@@ -675,6 +738,11 @@ export class SystemConfigFactory {
         enableResolution: true,
         maxResolutionDepth: 10,
         allowCircularDependencies: false,
+      },
+      security: {
+        enableValidation: false,
+        enforcePermissions: false,
+        auditLogging: true,
       },
     };
   }
@@ -704,6 +772,7 @@ export class SystemConfigFactory {
         enabled: true,
         realTimeUpdates: true,
         metricsRetentionHours: 168, // 7 days
+        enableAlerts: true,
         alertThresholds: {
           taskFailureRate: 0.1,
           averageExecutionTime: 600000,
@@ -734,6 +803,11 @@ export class SystemConfigFactory {
         enableResolution: true,
         maxResolutionDepth: 15,
         allowCircularDependencies: false,
+      },
+      security: {
+        enableValidation: true,
+        enforcePermissions: true,
+        auditLogging: true,
       },
     };
   }

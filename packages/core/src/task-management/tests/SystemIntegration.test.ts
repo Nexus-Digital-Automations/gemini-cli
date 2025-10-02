@@ -190,7 +190,7 @@ describe('Task Management System Integration Tests', () => {
       expect(result.details.taskId).toBeTruthy();
 
       // Check system status
-      const status = integrator!.getSystemStatus();
+      const status = await integrator!.getSystemStatus();
       expect(status.health.metrics.tasksInQueue).toBeGreaterThanOrEqual(0);
     }, 15000);
 
@@ -210,7 +210,7 @@ describe('Task Management System Integration Tests', () => {
       expect(result.success).toBe(true);
       expect(result.details.useAutonomousQueue).toBe(true);
 
-      const status = integrator!.getSystemStatus();
+      const status = await integrator!.getSystemStatus();
       expect(status.autonomousQueueStatus).toBeTruthy();
     }, 15000);
 
@@ -355,7 +355,7 @@ describe('Task Management System Integration Tests', () => {
     });
 
     it('should provide detailed system status information', async () => {
-      const status = integrator!.getSystemStatus();
+      const status = await integrator!.getSystemStatus();
 
       expect(status.health).toBeTruthy();
       expect(status.components).toBeTruthy();
@@ -510,7 +510,7 @@ describe('Task Management System Integration Tests', () => {
       expect(queueResults.every((r) => r.success)).toBe(true);
 
       // 3. Monitor system status
-      const status = integrator.getSystemStatus();
+      const status = await integrator.getSystemStatus();
       expect(status.health.overall).toBe('healthy');
       expect(status.health.metrics.tasksInQueue).toBeGreaterThanOrEqual(0);
 
@@ -571,7 +571,7 @@ describe('Task Management System Integration Tests', () => {
       }
 
       // 4. Verify system handles enterprise load
-      const status = integrator.getSystemStatus();
+      const status = await integrator.getSystemStatus();
       expect(status.health.overall).toMatch(/^(healthy|warning)$/);
 
       const shutdownResult = await integrator.shutdown();
