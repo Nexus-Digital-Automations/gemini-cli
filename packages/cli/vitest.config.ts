@@ -13,10 +13,7 @@ export default defineConfig({
     exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**'],
     environment: 'node',
     globals: true,
-    reporters: [
-      'default',
-      ['junit', { outputFile: 'junit.xml' }]
-    ],
+    reporters: ['default', ['junit', { outputFile: 'junit.xml' }]],
     silent: true,
     setupFiles: ['./test-setup.ts'],
     coverage: {

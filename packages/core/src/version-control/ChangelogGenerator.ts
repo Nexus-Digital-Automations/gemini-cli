@@ -271,7 +271,11 @@ export class ChangelogGenerator {
     releaseNotes: ReleaseNotes,
     format: ChangelogFormat,
     templateName: string,
-    options: any,
+    options: {
+      groupByType?: boolean;
+      includeContributors?: boolean;
+      [key: string]: unknown;
+    },
   ): Promise<string> {
     const template =
       this.templates.get(templateName) || this.templates.get('default')!;
@@ -297,7 +301,11 @@ export class ChangelogGenerator {
     entries: ChangelogEntry[],
     releaseNotes: ReleaseNotes,
     template: ChangelogTemplate,
-    options: any,
+    options: {
+      groupByType?: boolean;
+      includeContributors?: boolean;
+      [key: string]: unknown;
+    },
   ): string {
     let content = template.header
       .replace('{{version}}', releaseNotes.version)
@@ -437,7 +445,7 @@ export class ChangelogGenerator {
   private renderJSON(
     entries: ChangelogEntry[],
     releaseNotes: ReleaseNotes,
-    _options: any,
+    _options: Record<string, unknown>,
   ): string {
     const data = {
       version: releaseNotes.version,
@@ -480,7 +488,11 @@ export class ChangelogGenerator {
     entries: ChangelogEntry[],
     releaseNotes: ReleaseNotes,
     template: ChangelogTemplate,
-    options: any,
+    options: {
+      groupByType?: boolean;
+      includeContributors?: boolean;
+      [key: string]: unknown;
+    },
   ): string {
     // Convert markdown to HTML (simplified implementation)
     const markdownContent = this.renderMarkdown(
@@ -524,7 +536,7 @@ export class ChangelogGenerator {
   private renderXML(
     entries: ChangelogEntry[],
     releaseNotes: ReleaseNotes,
-    _options: any,
+    _options: Record<string, unknown>,
   ): string {
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += `<changelog version="${releaseNotes.version}" date="${releaseNotes.releaseDate.toISOString()}">\n`;
@@ -629,7 +641,12 @@ export class ChangelogGenerator {
 
   private parseConventionalCommit(
     message: string,
-    metadata: any,
+    metadata: {
+      hash: string;
+      author: string;
+      email: string;
+      date: Date;
+    },
   ): CommitMessage {
     const lines = message.split('\n');
     const header = lines[0];
@@ -787,7 +804,9 @@ export class ChangelogGenerator {
     };
   }
 
-  private generateCodeExample(_change: BreakingChange): any {
+  private generateCodeExample(
+    _change: BreakingChange,
+  ): { language: string; before: string; after: string } | undefined {
     // Mock implementation - would analyze actual code changes
     return {
       language: 'typescript',
@@ -915,12 +934,19 @@ export class ChangelogGenerator {
       .slice(0, 5);
 
     for (const change of significantChanges) {
+      // Map change type to ReleaseSection type
+      const releaseType =
+        change.type === 'feat'
+          ? 'feature'
+          : change.type === 'fix'
+            ? 'fix'
+            : 'improvement';
       highlights.push({
         title: change.subject,
         description:
           change.description ||
           `${change.type} improvement in ${change.scope || 'core functionality'}`,
-        type: change.type as any,
+        type: releaseType as 'feature' | 'fix' | 'improvement' | 'breaking' | 'deprecated',
         impact: change.impact,
         author: change.author,
         references: change.references,
@@ -1132,8 +1158,19 @@ export class ChangelogGenerator {
 
   private async analyzeCommitImpact(
     commit: CommitMessage,
-    fileChanges: any,
-  ): Promise<any> {
+    fileChanges: {
+      files: string[];
+      additions: number;
+      deletions: number;
+    },
+  ): Promise<{
+    level: 'low' | 'medium' | 'high';
+    significance: string;
+    complexity: number;
+    riskLevel: string;
+    testCoverage: number;
+    affectedModules: string[];
+  }> {
     // Mock implementation for impact analysis
     return {
       level: fileChanges.files.length > 5 ? 'high' : 'low',
@@ -1149,7 +1186,10 @@ export class ChangelogGenerator {
     };
   }
 
-  private enhanceDescription(commit: CommitMessage, impact: any): string {
+  private enhanceDescription(
+    commit: CommitMessage,
+    impact: { level: string; [key: string]: unknown },
+  ): string {
     let description = commit.body || commit.subject;
 
     if (impact.level === 'high') {
@@ -1188,7 +1228,10 @@ export class ChangelogGenerator {
     return [];
   }
 
-  private generateCommitTags(commit: CommitMessage, impact: any): string[] {
+  private generateCommitTags(
+    commit: CommitMessage,
+    impact: { level: string; riskLevel: string; [key: string]: unknown },
+  ): string[] {
     const tags: string[] = [];
 
     if (commit.breakingChange) tags.push('breaking');
@@ -1319,11 +1362,16 @@ export class ChangelogGenerator {
   }
 
   // Mock implementations for advanced analytics
-  private analyzeCommitFrequency(_entries: ChangelogEntry[]): any {
+  private analyzeCommitFrequency(
+    _entries: ChangelogEntry[],
+  ): { trend: string; average: number } {
     return { trend: 'stable', average: 2.5 };
   }
 
-  private analyzeChangeTypes(entries: ChangelogEntry[]): any {
+  private analyzeChangeTypes(entries: ChangelogEntry[]): {
+    distribution: Record<string, number>;
+    trend: string;
+  } {
     const types = entries.reduce(
       (acc, e) => {
         acc[e.type] = (acc[e.type] || 0) + 1;
@@ -1335,7 +1383,11 @@ export class ChangelogGenerator {
     return { distribution: types, trend: 'more_features' };
   }
 
-  private analyzeContributorActivity(contributors: ContributorInfo[]): any {
+  private analyzeContributorActivity(contributors: ContributorInfo[]): {
+    newContributors: number;
+    activeContributors: number;
+    trend: string;
+  } {
     return {
       newContributors: contributors.filter((c) => c.role === 'new').length,
       activeContributors: contributors.length,
@@ -1343,14 +1395,20 @@ export class ChangelogGenerator {
     };
   }
 
-  private analyzeComplexityTrends(entries: ChangelogEntry[]): any {
+  private analyzeComplexityTrends(entries: ChangelogEntry[]): {
+    average: number;
+    trend: string;
+  } {
     const avgComplexity =
       entries.reduce((acc, e) => acc + (e.metadata.complexity || 1), 0) /
       entries.length;
     return { average: avgComplexity, trend: 'stable' };
   }
 
-  private analyzeQualityTrends(entries: ChangelogEntry[]): any {
+  private analyzeQualityTrends(entries: ChangelogEntry[]): {
+    average: number;
+    trend: string;
+  } {
     const avgQuality =
       entries.reduce((acc, e) => acc + (e.metadata.testCoverage || 80), 0) /
       entries.length;
@@ -1379,7 +1437,10 @@ export class ChangelogGenerator {
       .slice(0, 5);
   }
 
-  private analyzeTechnicalDebt(entries: ChangelogEntry[]): any {
+  private analyzeTechnicalDebt(entries: ChangelogEntry[]): {
+    reductionEfforts: number;
+    trend: string;
+  } {
     const debtReduction = entries.filter(
       (e) =>
         e.type === 'refactor' ||
@@ -1413,15 +1474,20 @@ export class ChangelogGenerator {
   // Additional mock methods for comprehensive analytics
   private async compareToPreviousRelease(
     _metrics: ReleaseMetrics,
-  ): Promise<any> {
+  ): Promise<{ changeInCommits: string; changeInContributors: string }> {
     return { changeInCommits: '+15%', changeInContributors: '+20%' };
   }
 
-  private compareToAverage(_metrics: ReleaseMetrics): any {
+  private compareToAverage(_metrics: ReleaseMetrics): {
+    commitsVsAverage: string;
+    qualityVsAverage: string;
+  } {
     return { commitsVsAverage: '+5%', qualityVsAverage: '+10%' };
   }
 
-  private compareToBenchmarks(_metrics: ReleaseMetrics): any {
+  private compareToBenchmarks(_metrics: ReleaseMetrics): {
+    industryRanking: string;
+  } {
     return { industryRanking: 'above_average' };
   }
 

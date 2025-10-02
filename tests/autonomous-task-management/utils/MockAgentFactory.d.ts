@@ -3,6 +3,7 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import { SubAgentScope, type PromptConfig, type ModelConfig, type RunConfig, type SubAgentOptions } from '../../../packages/core/src/core/subagent.js';
 import type { Config } from '../../../packages/core/src/config/config.js';
 /**

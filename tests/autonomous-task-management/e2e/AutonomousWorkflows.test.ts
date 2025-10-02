@@ -96,7 +96,7 @@ class AutonomousWorkflowOrchestra {
       };
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       execution.status = 'failed';
       execution.endTime = Date.now();
       execution.error = (error as Error).message;
@@ -145,7 +145,7 @@ class AutonomousWorkflowOrchestra {
           executionTime: 0,
         };
       }
-    } catch (error) {
+    } catch (_error) {
       return {
         stepName: step.name,
         success: false,

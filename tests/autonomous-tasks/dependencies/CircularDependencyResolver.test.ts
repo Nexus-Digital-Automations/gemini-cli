@@ -5,7 +5,10 @@
  */
 
 import { describe, test, expect, beforeEach } from 'vitest';
-import type { Task, TaskDependency } from '../../../packages/core/src/task-management/types.js';
+import type {
+  Task,
+  TaskDependency,
+} from '../../../packages/core/src/task-management/types.js';
 import { type TaskCycle, type DependencyChange } from '../../../test-types.js';
 
 // Create mock types for test purposes since CircularDependencyResolver doesn't exist yet
@@ -63,34 +66,38 @@ class CircularDependencyResolver {
 
   async resolveCircularDependencies(
     tasks: Task[],
-    dependencies: DetectedDependency[]
+    dependencies: DetectedDependency[],
   ): Promise<CircularResolutionResult> {
     // Mock implementation for testing
     return {
       originalCycles: dependencies.length > 0 ? [[tasks[0].id]] : [],
       resolved: true,
       remainingCycles: [],
-      resolutionAttempts: [{
-        strategy: 'remove_weakest_dependency',
-        success: true,
-        changes: [{
-          type: 'remove_dependency',
-          description: 'Removed weak dependency'
-        }],
-        metadata: {
-          impactScore: 0.5,
-          confidenceScore: 0.8
-        }
-      }],
+      resolutionAttempts: [
+        {
+          strategy: 'remove_weakest_dependency',
+          success: true,
+          changes: [
+            {
+              type: 'remove_dependency',
+              description: 'Removed weak dependency',
+            },
+          ],
+          metadata: {
+            impactScore: 0.5,
+            confidenceScore: 0.8,
+          },
+        },
+      ],
       resolvedTasks: tasks,
       resolvedDependencies: dependencies,
       resolutionSummary: {
         cyclesResolved: 1,
         resolutionConfidence: 0.8,
-        strategiesUsed: { 'remove_weakest_dependency': 1 },
+        strategiesUsed: { remove_weakest_dependency: 1 },
         risks: [],
-        recommendations: []
-      }
+        recommendations: [],
+      },
     };
   }
 }
@@ -286,7 +293,8 @@ describe('CircularDependencyResolver', () => {
 
       if (result.resolutionAttempts.length > 0) {
         const removalAttempt = result.resolutionAttempts.find(
-          (attempt: ResolutionAttempt) => attempt.strategy === 'remove_weakest_dependency',
+          (attempt: ResolutionAttempt) =>
+            attempt.strategy === 'remove_weakest_dependency',
         );
 
         if (removalAttempt && removalAttempt.success) {
@@ -311,7 +319,8 @@ describe('CircularDependencyResolver', () => {
 
       if (result.resolutionAttempts.length > 0) {
         const softAttempt = result.resolutionAttempts.find(
-          (attempt: ResolutionAttempt) => attempt.strategy === 'make_dependency_soft',
+          (attempt: ResolutionAttempt) =>
+            attempt.strategy === 'make_dependency_soft',
         );
 
         if (softAttempt && softAttempt.success) {
@@ -336,7 +345,8 @@ describe('CircularDependencyResolver', () => {
 
       if (result.resolutionAttempts.length > 0) {
         const intermediateAttempt = result.resolutionAttempts.find(
-          (attempt: ResolutionAttempt) => attempt.strategy === 'introduce_intermediate_task',
+          (attempt: ResolutionAttempt) =>
+            attempt.strategy === 'introduce_intermediate_task',
         );
 
         if (intermediateAttempt && intermediateAttempt.success) {
@@ -491,7 +501,8 @@ describe('CircularDependencyResolver', () => {
 
       // With high threshold, removal strategy should fail for most dependencies
       const removalAttempts = result.resolutionAttempts.filter(
-        (attempt: ResolutionAttempt) => attempt.strategy === 'remove_weakest_dependency',
+        (attempt: ResolutionAttempt) =>
+          attempt.strategy === 'remove_weakest_dependency',
       );
 
       if (removalAttempts.length > 0) {
@@ -516,7 +527,8 @@ describe('CircularDependencyResolver', () => {
 
       // Soft dependency strategy should fail when disabled
       const softAttempts = result.resolutionAttempts.filter(
-        (attempt: ResolutionAttempt) => attempt.strategy === 'make_dependency_soft',
+        (attempt: ResolutionAttempt) =>
+          attempt.strategy === 'make_dependency_soft',
       );
 
       if (softAttempts.length > 0) {

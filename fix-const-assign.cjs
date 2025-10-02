@@ -16,7 +16,11 @@ function findFilesWithSwitchIssues(dir) {
       const entries = fs.readdirSync(currentDir, { withFileTypes: true });
 
       for (const entry of entries) {
-        if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'dist') {
+        if (
+          entry.name === 'node_modules' ||
+          entry.name === '.git' ||
+          entry.name === 'dist'
+        ) {
           continue;
         }
 
@@ -24,11 +28,19 @@ function findFilesWithSwitchIssues(dir) {
 
         if (entry.isDirectory()) {
           scanDir(fullPath);
-        } else if (entry.isFile() && (entry.name.endsWith('.js') || entry.name.endsWith('.ts') || entry.name.endsWith('.tsx'))) {
+        } else if (
+          entry.isFile() &&
+          (entry.name.endsWith('.js') ||
+            entry.name.endsWith('.ts') ||
+            entry.name.endsWith('.tsx'))
+        ) {
           try {
             const content = fs.readFileSync(fullPath, 'utf8');
             // Look for malformed switch statements with default outside
-            if (content.includes('default:') && content.includes('// Handle unexpected values')) {
+            if (
+              content.includes('default:') &&
+              content.includes('// Handle unexpected values')
+            ) {
               files.push(fullPath);
             }
           } catch (_err) {
@@ -49,23 +61,37 @@ function fixSwitchStatements(content) {
   let fixed = content;
 
   // Pattern 1: Fix cases where default is right after a closing brace of a switch outside the function
-  const pattern1 = /(\s*)(}\s*(?:\/\/[^\n]*\n\s*)*)(default:\s*(?:\/\/[^\n]*\n\s*)*\/\/\s*Handle[^\n]*\n\s*break;\s*)(})/g;
-  fixed = fixed.replace(pattern1, (match, indent1, closingBrace1, defaultCase, closingBrace2) => {
-    // Move the default case inside the previous closing brace
-    return indent1 + defaultCase + '\n' + indent1 + closingBrace2;
-  });
+  const pattern1 =
+    /(\s*)(}\s*(?:\/\/[^\n]*\n\s*)*)(default:\s*(?:\/\/[^\n]*\n\s*)*\/\/\s*Handle[^\n]*\n\s*break;\s*)(})/g;
+  fixed = fixed.replace(
+    pattern1,
+    (match, indent1, closingBrace1, defaultCase, closingBrace2) => {
+      // Move the default case inside the previous closing brace
+      return indent1 + defaultCase + '\n' + indent1 + closingBrace2;
+    },
+  );
 
   // Pattern 2: Fix cases where default is after a switch's closing brace but before function closing
-  const pattern2 = /(switch\s*\([^)]+\)\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*)(}\s*)(default:\s*\/\/[^\n]*\n\s*break;\s*)/gs;
-  fixed = fixed.replace(pattern2, (match, switchContent, closingBrace, defaultCase) => {
-    return switchContent.replace(/}\s*$/, '        ' + defaultCase.trim() + '\n      }');
-  });
+  const pattern2 =
+    /(switch\s*\([^)]+\)\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*)(}\s*)(default:\s*\/\/[^\n]*\n\s*break;\s*)/gs;
+  fixed = fixed.replace(
+    pattern2,
+    (match, switchContent, closingBrace, defaultCase) => {
+      return switchContent.replace(
+        /}\s*$/,
+        '        ' + defaultCase.trim() + '\n      }',
+      );
+    },
+  );
 
   // Pattern 3: Handle more complex nested cases
   const pattern3 = /(}\s*)(}\s*)(default:\s*\/\/[^\n]*\n\s*break;\s*)(}\s*)/g;
-  fixed = fixed.replace(pattern3, (match, close1, close2, defaultCase, close3) => {
-    return close1 + defaultCase + '\n    ' + close2 + close3;
-  });
+  fixed = fixed.replace(
+    pattern3,
+    (match, close1, close2, defaultCase, close3) => {
+      return close1 + defaultCase + '\n    ' + close2 + close3;
+    },
+  );
 
   return fixed;
 }
@@ -105,7 +131,10 @@ console.log(`Fixed switch statements in ${fixedCount} files`);
 // Check remaining syntax errors
 try {
   console.log('Checking remaining syntax errors...');
-  const result = execSync('npm run lint 2>&1 | grep -i "unexpected token\\|declaration or statement expected" | wc -l', { encoding: 'utf8', timeout: 60000 });
+  const result = execSync(
+    'npm run lint 2>&1 | grep -i "unexpected token\\|declaration or statement expected" | wc -l',
+    { encoding: 'utf8', timeout: 60000 },
+  );
   const errorCount = parseInt(result.trim());
   console.log(`Remaining syntax errors: ${errorCount}`);
 } catch (_err) {

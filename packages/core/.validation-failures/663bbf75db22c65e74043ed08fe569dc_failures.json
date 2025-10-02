@@ -1,0 +1,13 @@
+{
+  "authKey": "663bbf75db22c65e74043ed08fe569dc",
+  "failedCriteria": [
+    {
+      "criterion": "linter-validation",
+      "error": "operation is not defined",
+      "timestamp": "2025-10-02T16:47:51.629Z",
+      "retryCount": 1
+    }
+  ],
+  "lastUpdate": "2025-10-02T16:47:51.630Z",
+  "totalFailures": 1
+}

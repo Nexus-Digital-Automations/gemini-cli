@@ -28,12 +28,12 @@ import type {
 export interface ApiRequest {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   endpoint: string;
-  params?: Record<string, any>;
-  body?: any;
+  params?: Record<string, unknown>;
+  body?: unknown;
   headers?: Record<string, string>;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -64,7 +64,7 @@ export interface AgentRegistrationRequest {
 export class AutonomousTaskApi extends EventEmitter {
   private bridge: IntegrationBridge;
   private requestCounter = 0;
-  private activeRequests = new Map<string, Promise<any>>();
+  private activeRequests = new Map<string, Promise<unknown>>();
 
   constructor(config: Config, integrationConfig?: Partial<IntegrationConfig>) {
     super();
@@ -140,7 +140,10 @@ export class AutonomousTaskApi extends EventEmitter {
     return await this.bridge.handleExternalApiRequest('getAllTasks', []);
   }
 
-  async updateTaskProgress(taskId: string, update: any): Promise<void> {
+  async updateTaskProgress(
+    taskId: string,
+    update: Record<string, unknown>,
+  ): Promise<void> {
     return await this.bridge.updateTaskProgress(taskId, update);
   }
 
@@ -162,11 +165,11 @@ export class AutonomousTaskApi extends EventEmitter {
   /**
    * System management endpoints
    */
-  async getSystemStatus(): Promise<any> {
+  async getSystemStatus(): Promise<Record<string, unknown>> {
     return await this.bridge.getSystemStatus();
   }
 
-  async healthCheck(): Promise<any> {
+  async healthCheck(): Promise<Record<string, unknown>> {
     return await this.bridge.handleExternalApiRequest('healthCheck', []);
   }
 
@@ -175,7 +178,7 @@ export class AutonomousTaskApi extends EventEmitter {
    */
   async createTaskFromFeature(
     featureId: string,
-    options: any = {},
+    options: Record<string, unknown> = {},
   ): Promise<AutonomousTask> {
     return await this.bridge.createTaskFromFeature(featureId, options);
   }
@@ -190,12 +193,12 @@ export class AutonomousTaskApi extends EventEmitter {
   async executeCliCommand(
     command: string,
     args: string[] = [],
-    taskContext?: any,
-  ): Promise<any> {
+    taskContext?: { taskId: string; agentId: string },
+  ): Promise<unknown> {
     return await this.bridge.executeCliCommand(command, args, taskContext);
   }
 
-  async getCliIntegrationStatus(): Promise<any> {
+  async getCliIntegrationStatus(): Promise<Record<string, unknown>> {
     return this.bridge.getCliIntegrationStatus();
   }
 
@@ -209,7 +212,7 @@ export class AutonomousTaskApi extends EventEmitter {
 
   // Private methods
 
-  private async routeRequest(request: ApiRequest): Promise<any> {
+  private async routeRequest(request: ApiRequest): Promise<unknown> {
     const { method, endpoint, params, body } = request;
 
     // Parse endpoint path
@@ -273,9 +276,9 @@ export class AutonomousTaskApi extends EventEmitter {
     method: string,
     resourceId?: string,
     action?: string,
-    params?: any,
-    body?: any,
-  ): Promise<any> {
+    params?: Record<string, unknown>,
+    body?: unknown,
+  ): Promise<unknown> {
     switch (method) {
       case 'GET':
         if (!resourceId) {
@@ -294,7 +297,10 @@ export class AutonomousTaskApi extends EventEmitter {
         if (!resourceId || !body) {
           throw new Error('Task ID and update data required');
         }
-        return await this.updateTaskProgress(resourceId, body);
+        return await this.updateTaskProgress(
+          resourceId,
+          body as Record<string, unknown>,
+        );
 
       default:
         throw new Error(`Unsupported method for tasks: ${method}`);
@@ -305,9 +311,9 @@ export class AutonomousTaskApi extends EventEmitter {
     method: string,
     resourceId?: string,
     action?: string,
-    params?: any,
-    body?: any,
-  ): Promise<any> {
+    params?: Record<string, unknown>,
+    body?: unknown,
+  ): Promise<unknown> {
     switch (method) {
       case 'GET':
         if (!resourceId) {
@@ -330,10 +336,10 @@ export class AutonomousTaskApi extends EventEmitter {
   private async routeSystemRequest(
     method: string,
     resourceId?: string,
-    action?: string,
-    params?: any,
-    body?: any,
-  ): Promise<any> {
+    _action?: string,
+    _params?: Record<string, unknown>,
+    _body?: unknown,
+  ): Promise<unknown> {
     switch (method) {
       case 'GET':
         if (resourceId === 'status') {
@@ -353,15 +359,18 @@ export class AutonomousTaskApi extends EventEmitter {
     method: string,
     resourceId?: string,
     action?: string,
-    params?: any,
-    body?: any,
-  ): Promise<any> {
+    params?: Record<string, unknown>,
+    body?: unknown,
+  ): Promise<unknown> {
     switch (method) {
       case 'POST':
         if (action === 'generate-tasks') {
           return await this.generateTasksFromApprovedFeatures();
         } else if (resourceId && action === 'create-task') {
-          return await this.createTaskFromFeature(resourceId, body || {});
+          return await this.createTaskFromFeature(
+            resourceId,
+            (body as Record<string, unknown>) || {},
+          );
         } else {
           throw new Error('Invalid feature request');
         }
@@ -375,9 +384,9 @@ export class AutonomousTaskApi extends EventEmitter {
     method: string,
     resourceId?: string,
     action?: string,
-    params?: any,
-    body?: any,
-  ): Promise<any> {
+    params?: Record<string, unknown>,
+    body?: unknown,
+  ): Promise<unknown> {
     switch (method) {
       case 'GET':
         if (resourceId === 'status') {
@@ -388,11 +397,16 @@ export class AutonomousTaskApi extends EventEmitter {
 
       case 'POST':
         if (resourceId === 'execute') {
-          const { command, args, taskContext } = body || {};
-          if (!command) {
+          const bodyObj = (body as Record<string, unknown>) || {};
+          const { command, args, taskContext } = bodyObj;
+          if (!command || typeof command !== 'string') {
             throw new Error('Command required for CLI execution');
           }
-          return await this.executeCliCommand(command, args || [], taskContext);
+          return await this.executeCliCommand(
+            command,
+            (args as string[]) || [],
+            taskContext as { taskId: string; agentId: string } | undefined,
+          );
         } else {
           throw new Error(`Unknown CLI action: ${resourceId}`);
         }

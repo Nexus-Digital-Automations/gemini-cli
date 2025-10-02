@@ -1,0 +1,11 @@
+{
+  "id": "3c244eb2-9c48-48e7-b322-02be2a552ef4",
+  "timestamp": "2025-10-02T23:25:39.875Z",
+  "sessionId": "61daf9a1-9c9a-4f58-b898-3678e885753b",
+  "taskSnapshot": {},
+  "queueSnapshot": {},
+  "activeTransactions": [],
+  "type": "manual",
+  "integrityHash": "3c294e81b5ae09e25eb6ada73eaebbd818dcecaf337814484224d7c2e4732e31",
+  "size": 24
+}

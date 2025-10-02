@@ -9,12 +9,8 @@ import {
   QualityAssessor,
   QualityAssessmentLevel,
 } from '../../../packages/core/src/validation/QualityAssessor.js';
-import type {
-  QualityAssessmentContext,
-} from '../../../packages/core/src/validation/QualityAssessor.js';
-import {
-  ValidationFramework,
-} from '../../../packages/core/src/validation/ValidationFramework.js';
+import type { QualityAssessmentContext } from '../../../packages/core/src/validation/QualityAssessor.js';
+import { ValidationFramework } from '../../../packages/core/src/validation/ValidationFramework.js';
 import type {
   Task,
   TaskResult,

@@ -81,7 +81,7 @@ class MockTaskManager {
 
       task.endTime = new Date();
       return task;
-    } catch (error) {
+    } catch (_error) {
       task.status = 'failed';
       task.error = (error as Error).message;
       task.endTime = new Date();
@@ -90,7 +90,10 @@ class MockTaskManager {
     }
   }
 
-  async executeBatch(taskIds: string[], maxConcurrency = 3): Promise<unknown[]> {
+  async executeBatch(
+    taskIds: string[],
+    maxConcurrency = 3,
+  ): Promise<unknown[]> {
     const results: unknown[] = [];
     const executing: Promise<unknown>[] = [];
 
@@ -575,7 +578,7 @@ describe('Agent-TaskManager Integration Tests', () => {
       let caughtError;
       try {
         await taskManager.executeTask(taskId);
-      } catch (error) {
+      } catch (_error) {
         caughtError = error;
       }
 

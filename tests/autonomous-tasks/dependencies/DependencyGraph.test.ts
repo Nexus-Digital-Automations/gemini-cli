@@ -6,9 +6,7 @@
 
 import { describe, test, expect, beforeEach } from 'vitest';
 import { Task } from '../../../packages/core/src/task/types.js';
-import {
-  DecisionDependencyGraph as DependencyGraph,
-} from '../../../packages/core/src/decision/DependencyGraph.js';
+import { DecisionDependencyGraph as DependencyGraph } from '../../../packages/core/src/decision/DependencyGraph.js';
 import { DetectedDependency } from '../../../packages/core/src/decision/DependencyAnalyzer.js';
 
 // Define proper interfaces for test types
@@ -444,7 +442,9 @@ describe('DependencyGraph', () => {
       const cycles = await graph.detectStronglyConnectedComponents();
 
       // Filter for actual cycles (components with more than 1 node)
-      const actualCycles = cycles.filter((cycle: TestCycleComponent) => cycle.nodes.length > 1);
+      const actualCycles = cycles.filter(
+        (cycle: TestCycleComponent) => cycle.nodes.length > 1,
+      );
       expect(actualCycles).toHaveLength(0);
     });
 
@@ -482,7 +482,9 @@ describe('DependencyGraph', () => {
       await graph.buildGraph(sampleTasks.slice(0, 3), cyclicDeps);
 
       const cycles = await graph.detectStronglyConnectedComponents();
-      const actualCycles = cycles.filter((cycle: TestCycleComponent) => cycle.nodes.length > 1);
+      const actualCycles = cycles.filter(
+        (cycle: TestCycleComponent) => cycle.nodes.length > 1,
+      );
 
       expect(actualCycles.length).toBeGreaterThan(0);
       expect(actualCycles[0].nodes).toContain('task-1');
@@ -515,7 +517,9 @@ describe('DependencyGraph', () => {
       await graph.buildGraph(sampleTasks.slice(0, 2), cyclicDeps);
 
       const cycles = await graph.detectStronglyConnectedComponents();
-      const actualCycles = cycles.filter((cycle: TestCycleComponent) => cycle.nodes.length > 1);
+      const actualCycles = cycles.filter(
+        (cycle: TestCycleComponent) => cycle.nodes.length > 1,
+      );
 
       expect(actualCycles.length).toBeGreaterThan(0);
       expect(actualCycles[0].breakingOptions.length).toBeGreaterThan(0);

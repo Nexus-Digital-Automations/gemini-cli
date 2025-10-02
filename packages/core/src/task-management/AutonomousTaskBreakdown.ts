@@ -95,6 +95,27 @@ export interface TaskBreakdownResult {
 }
 
 /**
+ * Component/Link/Group structure for breakdown
+ */
+interface BreakdownComponent {
+  id: string;
+  name: string;
+  description?: string;
+  complexityWeight?: number;
+  criticality?: string;
+  dependencies?: string[];
+  canRunInParallel?: boolean;
+  qualityGates?: string[];
+  riskLevel?: 'low' | 'medium' | 'high';
+  validationCriteria?: string[];
+  rollbackRequired?: boolean;
+  resources?: unknown[];
+  importance?: string;
+  estimatedDuration?: number;
+  prerequisites?: string[];
+}
+
+/**
  * Breakdown configuration
  */
 export interface BreakdownConfig {
@@ -508,7 +529,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
    */
   private async performFunctionalBreakdown(
     task: Task,
-    complexity: ComplexityMetrics,
+    _complexity: ComplexityMetrics,
   ): Promise<SubTask[]> {
     const subtasks: SubTask[] = [];
     const components = this.identifyFunctionalComponents(task);
@@ -570,7 +591,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
    */
   private async performDependencyBreakdown(
     task: Task,
-    complexity: ComplexityMetrics,
+    _complexity: ComplexityMetrics,
   ): Promise<SubTask[]> {
     const subtasks: SubTask[] = [];
     const dependencyChains = this.analyzeDependencyChains(task);
@@ -631,7 +652,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
    */
   private async performResourceBreakdown(
     task: Task,
-    complexity: ComplexityMetrics,
+    _complexity: ComplexityMetrics,
   ): Promise<SubTask[]> {
     const subtasks: SubTask[] = [];
     const resourceGroups = this.groupByResourceRequirements(task);
@@ -683,7 +704,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
    */
   private async performRiskBasedBreakdown(
     task: Task,
-    complexity: ComplexityMetrics,
+    _complexity: ComplexityMetrics,
   ): Promise<SubTask[]> {
     const subtasks: SubTask[] = [];
     const riskComponents = this.analyzeRiskComponents(task);
@@ -985,7 +1006,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createPhaseValidateFunction(
     originalTask: Task,
-    phaseName: string,
+    _phaseName: string,
   ): (task: Task, context: TaskContext) => Promise<boolean> {
     return async (task: Task, context: TaskContext) => {
       // Phase-specific validation logic
@@ -1014,7 +1035,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createComponentExecuteFunction(
     originalTask: Task,
-    component: any,
+    component: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<TaskExecutionResult> {
     return async (task: Task, context: TaskContext) => {
       logger.info(`Executing component: ${component.name}`, {
@@ -1043,7 +1064,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createComponentValidateFunction(
     originalTask: Task,
-    component: any,
+    _component: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<boolean> {
     return async (task: Task, context: TaskContext) => {
       if (originalTask.validateFunction) {
@@ -1055,7 +1076,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createComponentRollbackFunction(
     originalTask: Task,
-    component: any,
+    _component: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<void> {
     return async (task: Task, context: TaskContext) => {
       if (originalTask.rollbackFunction) {
@@ -1066,7 +1087,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createDependencyExecuteFunction(
     originalTask: Task,
-    link: any,
+    link: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<TaskExecutionResult> {
     return async (task: Task, context: TaskContext) => {
       const linkContext = {
@@ -1084,7 +1105,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createDependencyValidateFunction(
     originalTask: Task,
-    link: any,
+    _link: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<boolean> {
     return async (task: Task, context: TaskContext) => {
       if (originalTask.validateFunction) {
@@ -1096,7 +1117,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createDependencyRollbackFunction(
     originalTask: Task,
-    link: any,
+    _link: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<void> {
     return async (task: Task, context: TaskContext) => {
       if (originalTask.rollbackFunction) {
@@ -1107,7 +1128,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createResourceExecuteFunction(
     originalTask: Task,
-    group: any,
+    group: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<TaskExecutionResult> {
     return async (task: Task, context: TaskContext) => {
       const resourceContext = {
@@ -1126,7 +1147,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createResourceValidateFunction(
     originalTask: Task,
-    group: any,
+    _group: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<boolean> {
     return async (task: Task, context: TaskContext) => {
       if (originalTask.validateFunction) {
@@ -1138,7 +1159,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createResourceRollbackFunction(
     originalTask: Task,
-    group: any,
+    _group: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<void> {
     return async (task: Task, context: TaskContext) => {
       if (originalTask.rollbackFunction) {
@@ -1149,7 +1170,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createRiskExecuteFunction(
     originalTask: Task,
-    component: any,
+    component: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<TaskExecutionResult> {
     return async (task: Task, context: TaskContext) => {
       const riskContext = {
@@ -1168,7 +1189,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createRiskValidateFunction(
     originalTask: Task,
-    component: any,
+    _component: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<boolean> {
     return async (task: Task, context: TaskContext) => {
       if (originalTask.validateFunction) {
@@ -1180,7 +1201,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   private createRiskRollbackFunction(
     originalTask: Task,
-    component: any,
+    _component: BreakdownComponent,
   ): (task: Task, context: TaskContext) => Promise<void> {
     return async (task: Task, context: TaskContext) => {
       if (originalTask.rollbackFunction) {
@@ -1191,9 +1212,9 @@ export class AutonomousTaskBreakdown extends EventEmitter {
 
   // Analysis helper methods...
 
-  private identifyFunctionalComponents(task: Task): any[] {
+  private identifyFunctionalComponents(task: Task): BreakdownComponent[] {
     // Simplified component identification based on task category
-    const componentTemplates: Record<TaskCategory, any[]> = {
+    const componentTemplates: Record<TaskCategory, BreakdownComponent[]> = {
       [TaskCategory.FEATURE]: [
         {
           id: 'design',
@@ -1569,7 +1590,12 @@ export class AutonomousTaskBreakdown extends EventEmitter {
     );
   }
 
-  private analyzeDependencyChains(task: Task): any[] {
+  private analyzeDependencyChains(task: Task): Array<{
+    id: string;
+    name: string;
+    parallelizable: boolean;
+    links: BreakdownComponent[];
+  }> {
     // Simplified dependency chain analysis
     // In a real implementation, this would analyze the task's dependency graph
     return [
@@ -1622,7 +1648,7 @@ export class AutonomousTaskBreakdown extends EventEmitter {
     ];
   }
 
-  private groupByResourceRequirements(task: Task): any[] {
+  private groupByResourceRequirements(task: Task): BreakdownComponent[] {
     const resources = task.requiredResources || ['default'];
 
     return resources.map((resource, index) => ({
@@ -1640,9 +1666,9 @@ export class AutonomousTaskBreakdown extends EventEmitter {
     }));
   }
 
-  private analyzeRiskComponents(task: Task): any[] {
+  private analyzeRiskComponents(task: Task): BreakdownComponent[] {
     // Simplified risk component analysis
-    const baseComponents: any[] = [
+    const baseComponents: BreakdownComponent[] = [
       {
         id: 'low_risk',
         name: 'Low Risk Operations',

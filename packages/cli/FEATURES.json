@@ -96,18 +96,8 @@
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": [
-      "suggested",
-      "approved",
-      "rejected",
-      "implemented"
-    ],
-    "required_fields": [
-      "title",
-      "description",
-      "business_value",
-      "category"
-    ]
+    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
+    "required_fields": ["title", "description", "business_value", "category"]
   },
   "agents": {
     "AGENT_GEMINI_CLI_001": {
@@ -153,9 +143,7 @@
       "status": "active",
       "reinitialized": "2025-09-26T17:08:56.846Z",
       "sessionId": "2ab724735cfbb8bf",
-      "previousSessions": [
-        "74926804ad032868"
-      ]
+      "previousSessions": ["74926804ad032868"]
     },
     "CORE_API_FIXER": {
       "lastHeartbeat": "2025-09-26T16:44:37.750Z",

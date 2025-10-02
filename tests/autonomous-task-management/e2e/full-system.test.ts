@@ -52,7 +52,7 @@ describe('Autonomous Task Management System E2E', () => {
     try {
       process.chdir(process.cwd());
       await fs.rm(testWorkspace, { recursive: true, force: true });
-    } catch (error) {
+    } catch (_error) {
       console.warn('Failed to clean up test workspace:', error);
     }
   });
@@ -107,7 +107,7 @@ describe('Autonomous Task Management System E2E', () => {
     if (systemInitializer) {
       try {
         await systemInitializer.shutdown(5000);
-      } catch (error) {
+      } catch (_error) {
         console.warn('Error during system shutdown:', error);
       }
     }
@@ -123,7 +123,7 @@ describe('Autonomous Task Management System E2E', () => {
     for (const file of stateFiles) {
       try {
         await fs.unlink(path.join(testWorkspace, file));
-      } catch (error) {
+      } catch (_error) {
         // Ignore if file doesn't exist
       }
     }

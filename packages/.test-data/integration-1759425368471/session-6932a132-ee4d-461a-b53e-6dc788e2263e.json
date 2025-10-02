@@ -1,0 +1,18 @@
+{
+  "sessionId": "6932a132-ee4d-461a-b53e-6dc788e2263e",
+  "startTime": "2025-10-02T17:16:08.471Z",
+  "endTime": "2025-10-02T17:16:08.599Z",
+  "lastActivity": "2025-10-02T17:16:08.471Z",
+  "state": "crashed",
+  "processInfo": {
+    "pid": 73063,
+    "platform": "darwin",
+    "nodeVersion": "v22.20.0"
+  },
+  "statistics": {
+    "tasksProcessed": 0,
+    "transactionsCommitted": 0,
+    "errorsEncountered": 0,
+    "totalOperations": 0
+  }
+}

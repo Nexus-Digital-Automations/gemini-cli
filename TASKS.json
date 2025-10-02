@@ -4,7 +4,7 @@
   "metadata": {
     "version": "1.0.0",
     "created": "2025-09-27T04:12:07.921Z",
-    "updated": "2025-09-30T17:50:57.403Z",
+    "updated": "2025-10-02T23:37:45.871Z",
     "total_features": 0,
     "approval_history": [],
     "initialization_stats": {
@@ -69,8 +69,18 @@
   "workflow_config": {
     "require_approval": true,
     "auto_reject_timeout_hours": 168,
-    "allowed_statuses": ["suggested", "approved", "rejected", "implemented"],
-    "required_fields": ["title", "description", "business_value", "category"]
+    "allowed_statuses": [
+      "suggested",
+      "approved",
+      "rejected",
+      "implemented"
+    ],
+    "required_fields": [
+      "title",
+      "description",
+      "business_value",
+      "category"
+    ]
   },
   "agents": {},
   "tasks": [
@@ -84,7 +94,9 @@
       "status": "completed",
       "dependencies": [],
       "estimated_effort": 5,
-      "required_capabilities": ["general"],
+      "required_capabilities": [
+        "general"
+      ],
       "created_at": "2025-09-30T17:33:28.315Z",
       "updated_at": "2025-09-30T17:50:57.403Z",
       "created_by": "manual_creation",
@@ -100,6 +112,92 @@
       },
       "progress_percentage": 100,
       "completed_at": "2025-09-30T17:50:57.403Z"
+    },
+    {
+      "id": "task_1759422358593_23aaede464fe",
+      "feature_id": null,
+      "title": "Fix 14 failing tests in SystemIntegration.test.ts",
+      "description": "Fix SystemIntegration test failures:\n- System initialization failures (4 tests)\n- Task execution failures (3 tests)\n- Health monitoring failures (2 tests)\n- Error handling failures (2 tests)\n- Workflow scenario failures (2 tests)\n- Channel closed error in ProcessWorker\n\nRoot cause appears to be System not properly initialized.",
+      "type": "error",
+      "priority": "high",
+      "status": "in-progress",
+      "dependencies": [],
+      "estimated_effort": 5,
+      "required_capabilities": [
+        "general"
+      ],
+      "created_at": "2025-10-02T16:25:58.593Z",
+      "updated_at": "2025-10-02T22:54:54.847Z",
+      "created_by": "manual_creation",
+      "verificationGate": {
+        "status": "pending",
+        "requirements": [],
+        "evidence": null,
+        "verifiedAt": null,
+        "verifiedBy": null
+      },
+      "metadata": {
+        "auto_generated": false
+      },
+      "progress_percentage": 50,
+      "completed_at": "2025-10-02T17:11:23.843Z"
+    },
+    {
+      "id": "task_1759445211878_1a4df8d40acc",
+      "feature_id": null,
+      "title": "Systematically replace any types with proper TypeScript types in packages/",
+      "description": "Replace 1002 @typescript-eslint/no-explicit-any violations in packages/ with proper TypeScript type annotations.\n\nApproach:\n- Group files by module/feature\n- Replace any with unknown, specific types, or generics as appropriate\n- Run tests after each batch of changes\n- Focus on high-impact files first (core, frequently used modules)\n\nAcceptance Criteria:\n- All @typescript-eslint/no-explicit-any errors in packages/ resolved\n- All tests passing\n- Type safety improved across codebase",
+      "type": "error",
+      "priority": "normal",
+      "status": "in-progress",
+      "dependencies": [],
+      "estimated_effort": 5,
+      "required_capabilities": [
+        "general"
+      ],
+      "created_at": "2025-10-02T22:46:51.878Z",
+      "updated_at": "2025-10-02T23:37:45.871Z",
+      "created_by": "manual_creation",
+      "verificationGate": {
+        "status": "pending",
+        "requirements": [],
+        "evidence": null,
+        "verifiedAt": null,
+        "verifiedBy": null
+      },
+      "metadata": {
+        "auto_generated": false
+      },
+      "progress_percentage": 5
+    },
+    {
+      "id": "task_1759445213384_6fc43588e2fb",
+      "feature_id": null,
+      "title": "Fix 118 @typescript-eslint/no-unused-vars errors in scripts/src/root",
+      "description": "Fix 118 @typescript-eslint/no-unused-vars violations by:\n- Prefixing unused variables with underscore (_variableName)\n- Removing genuinely unused code\n- Adding eslint-disable comments for intentionally unused vars where appropriate\n\nLocations:\n- scripts/**/*.js\n- src/**/*.js\n- Root *.js files\n\nAcceptance Criteria:\n- All @typescript-eslint/no-unused-vars errors resolved\n- No functionality broken\n- Code is cleaner without dead code",
+      "type": "error",
+      "priority": "normal",
+      "status": "completed",
+      "dependencies": [],
+      "estimated_effort": 5,
+      "required_capabilities": [
+        "general"
+      ],
+      "created_at": "2025-10-02T22:46:53.384Z",
+      "updated_at": "2025-10-02T23:34:20.081Z",
+      "created_by": "manual_creation",
+      "verificationGate": {
+        "status": "pending",
+        "requirements": [],
+        "evidence": null,
+        "verifiedAt": null,
+        "verifiedBy": null
+      },
+      "metadata": {
+        "auto_generated": false
+      },
+      "progress_percentage": 100,
+      "completed_at": "2025-10-02T23:34:20.081Z"
     }
   ],
   "completed_tasks": []

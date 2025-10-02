@@ -12,18 +12,32 @@ function fixSwitchStatements(content) {
 
   // Pattern to find switch statements and misplaced default cases
   // Look for switch blocks followed by code and then a misplaced default
-  const switchPattern = /(switch\s*\([^)]+\)\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*?)(}\s*)([^{}]*?)(default:\s*\/\/[^\n]*\n\s*break;\s*)/gs;
+  const switchPattern =
+    /(switch\s*\([^)]+\)\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*?)(}\s*)([^{}]*?)(default:\s*\/\/[^\n]*\n\s*break;\s*)/gs;
 
-  fixed = fixed.replace(switchPattern, (match, switchContent, switchEnd, codeInBetween, defaultCase) => {
-    // Move the default case inside the switch before the closing brace
-    return switchContent.replace(/}\s*$/, '        ' + defaultCase.trim() + '\n      }') + '\n    ' + codeInBetween.trim();
-  });
+  fixed = fixed.replace(
+    switchPattern,
+    (match, switchContent, switchEnd, codeInBetween, defaultCase) => {
+      // Move the default case inside the switch before the closing brace
+      return (
+        switchContent.replace(
+          /}\s*$/,
+          '        ' + defaultCase.trim() + '\n      }',
+        ) +
+        '\n    ' +
+        codeInBetween.trim()
+      );
+    },
+  );
 
   // Handle cases where default is after a function's closing brace but should be inside a switch
   const functionPattern = /(}\s*)(default:\s*\/\/[^\n]*\n\s*break;\s*)(}\s*)/g;
-  fixed = fixed.replace(functionPattern, (match, firstClose, defaultCase, lastClose) => {
-    return defaultCase + '\n    ' + firstClose + lastClose;
-  });
+  fixed = fixed.replace(
+    functionPattern,
+    (match, firstClose, defaultCase, lastClose) => {
+      return defaultCase + '\n    ' + firstClose + lastClose;
+    },
+  );
 
   return fixed;
 }
@@ -33,7 +47,10 @@ function processFile(filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
 
     // Check if this file has syntax errors we need to fix
-    if (content.includes('default:') && content.includes('// Handle unexpected values')) {
+    if (
+      content.includes('default:') &&
+      content.includes('// Handle unexpected values')
+    ) {
       const fixed = fixSwitchStatements(content);
 
       if (fixed !== content) {
@@ -57,7 +74,11 @@ function processDirectory(dirPath) {
     const fullPath = path.join(dirPath, file);
     const stat = fs.statSync(fullPath);
 
-    if (stat.isDirectory() && !file.startsWith('.') && file !== 'node_modules') {
+    if (
+      stat.isDirectory() &&
+      !file.startsWith('.') &&
+      file !== 'node_modules'
+    ) {
       fixedCount += processDirectory(fullPath);
     } else if (file.match(/\.(js|ts|jsx|tsx)$/)) {
       if (processFile(fullPath)) {

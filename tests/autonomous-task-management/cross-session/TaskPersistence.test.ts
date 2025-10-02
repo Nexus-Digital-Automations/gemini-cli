@@ -5,13 +5,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import {
-  ContextState,
-} from '../../../packages/core/src/core/subagent.js';
-import {
-  MockAgentFactory,
-  MockAgentState,
-} from '../utils/MockAgentFactory.js';
+import { ContextState } from '../../../packages/core/src/core/subagent.js';
+import { MockAgentFactory, MockAgentState } from '../utils/MockAgentFactory.js';
 import {
   TaskBuilder,
   TaskComplexity,
@@ -996,7 +991,7 @@ describe('Cross-Session Task Persistence Tests', () => {
       let caughtError = null;
       try {
         await failingAgent.runNonInteractive(workflowContext);
-      } catch (error) {
+      } catch (_error) {
         caughtError = error;
       }
 
@@ -1136,7 +1131,9 @@ describe('Cross-Session Task Persistence Tests', () => {
       expect(restoredContext!.get('processing_history')).toHaveLength(500);
 
       const originalDataset = largeContext.get('large_dataset') as unknown[];
-      const restoredDataset = restoredContext!.get('large_dataset') as unknown[];
+      const restoredDataset = restoredContext!.get(
+        'large_dataset',
+      ) as unknown[];
 
       expect(restoredDataset[0]).toEqual(originalDataset[0]);
       expect(restoredDataset[999]).toEqual(originalDataset[999]);
