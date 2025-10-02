@@ -34,8 +34,8 @@
  * @since 2025-09-25
  */
 
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import { promises as _fs } from 'node:_fs';
+import _path from 'node:_path';
 import crypto from 'node:crypto';
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
@@ -221,7 +221,7 @@ class TaskRecoveryManager extends EventEmitter {
         if (task.updated_at) {
           new Date(task.updated_at).toISOString();
         }
-      } catch (error) {
+      } catch (_error) {
         issues.push('Invalid timestamp format');
       }
 
@@ -466,7 +466,7 @@ class TaskRecoveryManager extends EventEmitter {
   /**
    * Execute hot recovery strategy
    */
-  async executeHotRecovery(systemAnalysis) {
+  async executeHotRecovery(_systemAnalysis) {
     console.log('Executing hot recovery strategy...');
 
     const results = {
@@ -535,7 +535,7 @@ class TaskRecoveryManager extends EventEmitter {
   /**
    * Execute warm recovery strategy
    */
-  async executeWarmRecovery(systemAnalysis) {
+  async executeWarmRecovery(_systemAnalysis) {
     console.log('Executing warm recovery strategy...');
 
     const results = {
@@ -609,7 +609,7 @@ class TaskRecoveryManager extends EventEmitter {
   /**
    * Execute cold recovery strategy
    */
-  async executeColdRecovery(systemAnalysis) {
+  async executeColdRecovery(_systemAnalysis) {
     console.log('Executing cold recovery strategy...');
 
     const results = {
@@ -685,7 +685,7 @@ class TaskRecoveryManager extends EventEmitter {
   /**
    * Execute emergency recovery strategy
    */
-  async executeEmergencyRecovery(systemAnalysis) {
+  async executeEmergencyRecovery(_systemAnalysis) {
     console.log('Executing emergency recovery strategy...');
 
     const results = {
@@ -771,7 +771,7 @@ class TaskRecoveryManager extends EventEmitter {
   /**
    * Select optimal recovery strategy based on system state
    */
-  async selectRecoveryStrategy(systemAnalysis, options) {
+  async selectRecoveryStrategy(systemAnalysis, _options) {
     const strategies = Array.from(this.recoveryStrategies.values()).sort(
       (a, b) => a.priority - b.priority,
     );
@@ -850,7 +850,7 @@ class TaskRecoveryManager extends EventEmitter {
   /**
    * Repair corrupted task data
    */
-  async repairTask(taskData, options = {}) {
+  async repairTask(taskData, _options = {}) {
     const repairedTask = { ...taskData };
     const repairActions = [];
 
@@ -999,7 +999,7 @@ class TaskRecoveryManager extends EventEmitter {
     return systemAnalysis.transactionLogSize > 0;
   }
 
-  async validateEmergencyRecovery(systemAnalysis) {
+  async validateEmergencyRecovery(_systemAnalysis) {
     return true; // Emergency recovery is always available
   }
 
@@ -1008,7 +1008,7 @@ class TaskRecoveryManager extends EventEmitter {
     return null;
   }
 
-  async loadBackupData(backup) {
+  async loadBackupData(_backup) {
     // Implementation to load backup data
     return { tasks: [] };
   }
@@ -1023,7 +1023,7 @@ class TaskRecoveryManager extends EventEmitter {
     return [];
   }
 
-  async loadSessionTasks(sessionId) {
+  async loadSessionTasks(_sessionId) {
     // Implementation to load tasks for specific session
     return [];
   }
@@ -1035,7 +1035,7 @@ class TaskRecoveryManager extends EventEmitter {
     );
   }
 
-  async executeTaskResumption(tasks, options) {
+  async executeTaskResumption(tasks, _options) {
     // Implementation for task resumption
     return {
       resumedTasks: tasks.length,
@@ -1044,7 +1044,7 @@ class TaskRecoveryManager extends EventEmitter {
     };
   }
 
-  async loadTaskFromAllSources(taskId) {
+  async loadTaskFromAllSources(_taskId) {
     // Implementation to load task from all sources
     return [];
   }
@@ -1054,12 +1054,12 @@ class TaskRecoveryManager extends EventEmitter {
     return taskSources[0];
   }
 
-  groupTransactionsByTask(transactions) {
+  groupTransactionsByTask(_transactions) {
     // Implementation to group transactions by task
     return new Map();
   }
 
-  async rebuildTaskFromTransactions(taskId, transactions) {
+  async rebuildTaskFromTransactions(_taskId, _transactions) {
     // Implementation to rebuild task from transactions
     return null;
   }
@@ -1069,7 +1069,7 @@ class TaskRecoveryManager extends EventEmitter {
     return [];
   }
 
-  async validateRecoveryResult(result) {
+  async validateRecoveryResult(_result) {
     // Implementation for recovery result validation
     return { validationPassed: true };
   }

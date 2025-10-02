@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/* global jest */
+
 /**
  * Comprehensive test suite for TaskPersistenceEngine
  * Tests core persistence functionality, ACID guarantees, and file locking
@@ -161,7 +163,7 @@ describe('TaskPersistenceEngine', () => {
 
     test('should list tasks with filtering', async () => {
       // Create multiple tasks
-      const tasks = await Promise.all([
+      const _tasks = await Promise.all([
         engine.createTask({
           title: 'Task 1',
           type: 'feature',

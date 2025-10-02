@@ -111,7 +111,7 @@ class AdvancedFileLock {
               try {
                 await fs.unlink(lockPath);
                 continue; // Retry acquisition
-              } catch (unlinkError) {
+              } catch (_unlinkError) {
                 // Someone else removed it
               }
             }
@@ -120,21 +120,21 @@ class AdvancedFileLock {
             try {
               process.kill(lockData.pid, 0); // Signal 0 just checks if process exists
               // Process exists, wait and retry
-            } catch (processError) {
+            } catch (_processError) {
               // Process doesn't exist, remove stale lock
               try {
                 await fs.unlink(lockPath);
                 continue; // Retry acquisition
-              } catch (unlinkError) {
+              } catch (_unlinkError) {
                 // Someone else removed it
               }
             }
-          } catch (readError) {
+          } catch (_readError) {
             // Can't read lock file, it might be corrupted
             try {
               await fs.unlink(lockPath);
               continue; // Retry acquisition
-            } catch (unlinkError) {
+            } catch (_unlinkError) {
               // Someone else removed it
             }
           }
@@ -1004,7 +1004,7 @@ class TaskPersistenceEngine extends EventEmitter {
     return { valid: true, issues: [] };
   }
 
-  _validatePerformanceMetrics(metrics) {
+  _validatePerformanceMetrics(_metrics) {
     // Implementation for performance metrics validation
     return { valid: true, issues: [] };
   }
