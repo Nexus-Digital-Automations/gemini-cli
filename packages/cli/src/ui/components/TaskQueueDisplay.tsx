@@ -45,14 +45,24 @@ export const TaskQueueDisplay: React.FC<{ visible?: boolean }> = ({
 
     const fetchTaskData = async () => {
       try {
-        // Helper function to find valid JSON line (filters out dotenv logs)
+        // Helper function to find valid JSON line (filters out dotenv logs and ANSI colored logs)
         const findJsonLine = (output: string): string => {
           const lines = output.trim().split('\n');
-          // Find the last line that looks like JSON (starts with { or [)
+          // Try to parse each line as JSON, starting from the end
           for (let i = lines.length - 1; i >= 0; i--) {
             const trimmedLine = lines[i].trim();
-            if (trimmedLine.startsWith('{') || trimmedLine.startsWith('[')) {
+            // Skip empty lines
+            if (!trimmedLine) continue;
+            // Only try lines that look like JSON objects or arrays
+            if (!trimmedLine.startsWith('{') && !trimmedLine.startsWith('['))
+              continue;
+            try {
+              // Try to parse as JSON
+              JSON.parse(trimmedLine);
               return trimmedLine;
+            } catch {
+              // Not valid JSON, continue to next line
+              continue;
             }
           }
           throw new Error('No valid JSON found in output');
