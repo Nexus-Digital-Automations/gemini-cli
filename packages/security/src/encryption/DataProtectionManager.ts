@@ -173,13 +173,13 @@ export class DataProtectionManager extends EventEmitter {
       });
 
       return encrypted;
-    } catch (error) {
+    } catch (_error) {
       await this.auditLogger.logError(
         'encryption',
-        error instanceof Error ? error.message : String(error),
+        _error instanceof Error ? _error.message : String(_error),
       );
-      this.emit('encryption:error', { error, classification });
-      throw error;
+      this.emit('encryption:error', { error: _error, classification });
+      throw _error;
     }
   }
 
@@ -210,13 +210,13 @@ export class DataProtectionManager extends EventEmitter {
       });
 
       return decrypted;
-    } catch (error) {
+    } catch (_error) {
       await this.auditLogger.logError(
         'decryption',
-        error instanceof Error ? error.message : String(error),
+        _error instanceof Error ? _error.message : String(_error),
       );
-      this.emit('decryption:error', { error, encryptedData });
-      throw error;
+      this.emit('decryption:error', { error: _error, encryptedData });
+      throw _error;
     }
   }
 
@@ -408,10 +408,10 @@ export class DataProtectionManager extends EventEmitter {
       );
 
       return { data, classification: metadata.classification };
-    } catch (error) {
+    } catch (_error) {
       await this.auditLogger.logError(
         'retrieval',
-        error instanceof Error ? error.message : String(error),
+        _error instanceof Error ? _error.message : String(_error),
       );
       throw new Error(`Failed to retrieve secure data: ${identifier}`);
     }
@@ -446,12 +446,12 @@ export class DataProtectionManager extends EventEmitter {
         identifier,
         classification: metadata.classification,
       });
-    } catch (error) {
+    } catch (_error) {
       await this.auditLogger.logError(
         'secure_delete',
-        error instanceof Error ? error.message : String(error),
+        _error instanceof Error ? _error.message : String(_error),
       );
-      throw error;
+      throw _error;
     }
   }
 
@@ -661,8 +661,8 @@ export class DataProtectionManager extends EventEmitter {
         await fileHandle.sync();
         await fileHandle.close();
       }
-    } catch (error) {
-      console.warn('Cryptographic erasure failed:', error);
+    } catch (_error) {
+      console.warn('Cryptographic erasure failed:', _error);
     }
   }
 
@@ -675,8 +675,8 @@ export class DataProtectionManager extends EventEmitter {
       async () => {
         try {
           await this.secureDelete(identifier);
-        } catch (error) {
-          console.error(`Failed to auto-expire data ${identifier}:`, error);
+        } catch (_error) {
+          console.error(`Failed to auto-expire data ${identifier}:`, _error);
         }
       },
       retentionDays * 24 * 60 * 60 * 1000,
@@ -766,8 +766,8 @@ export class DataProtectionManager extends EventEmitter {
           if (shouldRotate) {
             try {
               await this.rotateKey(keyId);
-            } catch (error) {
-              console.error(`Failed to rotate key ${keyId}:`, error);
+            } catch (_error) {
+              console.error(`Failed to rotate key ${keyId}:`, _error);
             }
           }
         }
@@ -962,8 +962,8 @@ class DataProtectionAuditLogger {
       const logPath = path.join(this.storageDirectory, 'data-protection.log');
       const logLine = JSON.stringify(logEntry) + '\n';
       await fs.appendFile(logPath, logLine);
-    } catch (error) {
-      console.error('Failed to write data protection audit log:', error);
+    } catch (_error) {
+      console.error('Failed to write data protection audit log:', _error);
     }
 
     console.log(`[DATA-PROTECTION-${event}]`, data);

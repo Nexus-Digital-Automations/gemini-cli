@@ -221,16 +221,16 @@ export class SecurityAuditor extends EventEmitter {
 
       this.emit('audit:complete', result);
       return result;
-    } catch (error) {
+    } catch (_error) {
       this.auditLogger.error(`Security audit failed`, {
         auditId,
         target,
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
+        error: _error instanceof Error ? _error.message : String(_error),
+        stack: _error instanceof Error ? _error.stack : undefined,
       });
 
-      this.emit('audit:error', { auditId, target, error });
-      throw error;
+      this.emit('audit:error', { auditId, target, error: _error });
+      throw _error;
     }
   }
 
@@ -738,8 +738,8 @@ class AuditLogger {
       await fs.mkdir(this.outputDirectory, { recursive: true });
       const logFile = path.join(this.outputDirectory, 'security-audit.log');
       await fs.appendFile(logFile, logLine);
-    } catch (error) {
-      console.error('Failed to write audit log:', error);
+    } catch (_error) {
+      console.error('Failed to write audit log:', _error);
     }
 
     // Also output to console for immediate visibility

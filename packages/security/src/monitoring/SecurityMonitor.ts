@@ -857,8 +857,8 @@ export class SecurityMonitor extends EventEmitter {
           this.alertRules = config.alertRules;
         }
       }
-    } catch (error) {
-      console.warn('Failed to load security monitor configuration:', error);
+    } catch (_error) {
+      console.warn('Failed to load security monitor configuration:', _error);
     }
   }
 

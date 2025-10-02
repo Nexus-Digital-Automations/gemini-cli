@@ -257,10 +257,10 @@ export class AccessControlManager extends EventEmitter {
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       const errorResult = this.createAccessResult(
         false,
-        `Access check failed: ${error instanceof Error ? error.message : String(error)}`,
+        `Access check failed: ${_error instanceof Error ? _error.message : String(_error)}`,
         [],
         [],
         request,
@@ -268,7 +268,7 @@ export class AccessControlManager extends EventEmitter {
       );
 
       await this.auditLogger.logAccessAttempt(errorResult.auditLog);
-      this.emit('access:error', { request, error });
+      this.emit('access:error', { request, error: _error });
 
       return errorResult;
     }
@@ -487,8 +487,8 @@ export class AccessControlManager extends EventEmitter {
       if (config.policies) {
         this.policies = config.policies;
       }
-    } catch (error) {
-      console.warn('Failed to load access control configuration:', error);
+    } catch (_error) {
+      console.warn('Failed to load access control configuration:', _error);
     }
   }
 

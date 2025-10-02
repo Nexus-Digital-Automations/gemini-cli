@@ -349,9 +349,6 @@ export class TaskManagementSystemIntegrator {
     const enabledComponents = allComponents.filter(
       (status) => status !== 'disabled',
     );
-    const healthyComponents = enabledComponents.filter(
-      (status) => status === 'healthy',
-    ).length;
     const criticalComponents = enabledComponents.filter(
       (status) => status === 'critical',
     ).length;
@@ -362,10 +359,11 @@ export class TaskManagementSystemIntegrator {
     let overall: 'healthy' | 'warning' | 'critical';
 
     // Calculate overall health based on enabled components only
-    if (
-      healthyComponents === enabledComponents.length &&
-      healthyComponents > 0
-    ) {
+    const hasOnlyHealthyEnabled =
+      enabledComponents.length > 0 &&
+      enabledComponents.every((status) => status === 'healthy');
+
+    if (hasOnlyHealthyEnabled) {
       // All enabled components are healthy
       overall = 'healthy';
     } else if (criticalComponents > 0) {

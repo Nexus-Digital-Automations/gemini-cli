@@ -94,8 +94,8 @@ async function checkForUpdates(
         );
       }
     }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+  } catch (_error) {
+    const message = _error instanceof Error ? _error.message : String(_error);
     log(`Error checking for extension updates: ${message}`);
   }
 }
@@ -143,8 +143,8 @@ export async function activate(context: vscode.ExtensionContext) {
   ideServer = new IDEServer(log, diffManager);
   try {
     await ideServer.start(context);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+  } catch (_err) {
+    const message = _err instanceof Error ? _err.message : String(_err);
     log(`Failed to start IDE server: ${message}`);
   }
 
@@ -210,8 +210,8 @@ export async function deactivate(): Promise<void> {
     if (ideServer) {
       await ideServer.stop();
     }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+  } catch (_err) {
+    const message = _err instanceof Error ? _err.message : String(_err);
     log(`Failed to stop IDE server during deactivation: ${message}`);
   } finally {
     if (logger) {

@@ -158,13 +158,13 @@ export class SecurityValidator extends EventEmitter {
 
       this.emit('validation:complete', result);
       return result;
-    } catch (error) {
+    } catch (_error) {
       this.logger.error(`Security validation failed`, {
         path: targetPath,
-        error: error instanceof Error ? error.message : String(error),
+        error: _error instanceof Error ? _error.message : String(_error),
       });
-      this.emit('validation:error', { path: targetPath, error });
-      throw error;
+      this.emit('validation:error', { path: targetPath, error: _error });
+      throw _error;
     }
   }
 
@@ -216,10 +216,10 @@ export class SecurityValidator extends EventEmitter {
         const packageIssues = await this.validatePackageJson(filePath, content);
         issues.push(...packageIssues);
       }
-    } catch (error) {
+    } catch (_error) {
       this.logger.warn(`Failed to read file for security validation`, {
         file: filePath,
-        error: error instanceof Error ? error.message : String(error),
+        error: _error instanceof Error ? _error.message : String(_error),
       });
     }
 
@@ -304,12 +304,12 @@ export class SecurityValidator extends EventEmitter {
           }
         }
       }
-    } catch (error) {
+    } catch (_error) {
       issues.push({
         id: crypto.randomUUID(),
         severity: 'medium',
         category: 'configuration',
-        message: `Failed to parse package.json: ${error instanceof Error ? error.message : String(error)}`,
+        message: `Failed to parse package.json: ${_error instanceof Error ? _error.message : String(_error)}`,
         file: filePath,
         remediation: 'Fix JSON syntax errors in package.json',
       });
